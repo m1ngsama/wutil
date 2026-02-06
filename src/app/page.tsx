@@ -51,6 +51,13 @@ const tools: Tool[] = [
     icon: '📅',
     status: 'active',
   },
+  {
+    name: 'Image Converter',
+    description: 'Convert, resize, and compress images.',
+    href: '/tools/image-converter',
+    icon: '🖼️',
+    status: 'active',
+  },
 ];
 
 export default function Home() {
