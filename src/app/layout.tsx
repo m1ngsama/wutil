@@ -15,8 +15,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "wutil - Web Utilities",
-  description: "A collection of lightweight, client-side web tools.",
+  title: {
+    default: "wutil - Free Online Web Tools",
+    template: "%s | wutil",
+  },
+  description: "A collection of free, lightweight, privacy-focused client-side web tools. PDF Merger, Image Converter, Word Counter, JSON Formatter, and more.",
+  keywords: ["web tools", "online tools", "pdf merger", "image converter", "word counter", "json formatter", "client-side", "privacy"],
+  authors: [{ name: "wutil" }],
+  creator: "wutil",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://wutil.pages.dev",
+    siteName: "wutil",
+    title: "wutil - Free Online Web Tools",
+    description: "Fast, free, and private web tools running entirely in your browser.",
+    images: [
+      {
+        url: "/og-image.png", // We should create this later
+        width: 1200,
+        height: 630,
+        alt: "wutil - Web Utilities",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "wutil - Free Online Web Tools",
+    description: "Fast, free, and private web tools running entirely in your browser.",
+    creator: "@wutil",
+  },
+  metadataBase: new URL("https://wutil.pages.dev"),
 };
 
 export default function RootLayout({
