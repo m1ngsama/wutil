@@ -21,21 +21,21 @@ const tools: Tool[] = [
     description: 'Format, validate, and minify JSON data.',
     href: '/tools/json-formatter',
     icon: '{}",',
-    status: 'coming-soon',
+    status: 'active',
   },
   {
     name: 'Base64 Converter',
     description: 'Encode and decode Base64 strings instantly.',
     href: '/tools/base64-converter',
     icon: '🔤',
-    status: 'coming-soon',
+    status: 'active',
   },
   {
     name: 'Unit Converter',
     description: 'Convert between common units of measurement.',
     href: '/tools/unit-converter',
     icon: '⚖️',
-    status: 'coming-soon',
+    status: 'active',
   },
 ];
 
