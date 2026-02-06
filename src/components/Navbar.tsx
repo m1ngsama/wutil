@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ThemeToggle } from './ThemeToggle';
 
 export default function Navbar() {
   return (
@@ -10,7 +11,8 @@ export default function Navbar() {
               <span className="text-xl font-bold text-gray-800 dark:text-white">wutil</span>
             </Link>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
             <Link href="https://github.com/m1ngsama/wutil" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               GitHub
             </Link>

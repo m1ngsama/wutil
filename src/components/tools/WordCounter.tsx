@@ -78,6 +78,23 @@ export default function WordCounter() {
           </div>
         </div>
       </div>
+
+      <div className="mt-12 prose dark:prose-invert max-w-none">
+        <h3>How to use the Word Counter</h3>
+        <p>
+          This free online Word Counter tool is designed to provide real-time statistics for your text. 
+          Simply type or paste your content into the text area above, and the tool will instantly calculate:
+        </p>
+        <ul>
+          <li><strong>Word Count:</strong> The total number of words in your text.</li>
+          <li><strong>Character Count:</strong> The total number of characters, including spaces and punctuation.</li>
+          <li><strong>Sentences & Paragraphs:</strong> Useful for checking the structure and readability of your writing.</li>
+        </ul>
+        <p>
+          All processing happens directly in your browser using JavaScript. No text is sent to any server, 
+          ensuring 100% privacy and security for your documents.
+        </p>
+      </div>
     </div>
   );
 }
