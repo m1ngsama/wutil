@@ -46,6 +46,7 @@ export const metadata: Metadata = {
     creator: "@wutil",
   },
   metadataBase: new URL("https://wutil.pages.dev"),
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

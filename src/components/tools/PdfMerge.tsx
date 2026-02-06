@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
 
 export default function PdfMerge() {
   const [files, setFiles] = useState<File[]>([]);
@@ -20,6 +19,7 @@ export default function PdfMerge() {
     setProcessing(true);
 
     try {
+      const { PDFDocument } = await import('pdf-lib');
       const mergedPdf = await PDFDocument.create();
 
       for (const file of files) {
