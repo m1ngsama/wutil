@@ -37,6 +37,20 @@ const tools: Tool[] = [
     icon: '⚖️',
     status: 'active',
   },
+  {
+    name: 'Hash Generator',
+    description: 'Generate SHA-1, SHA-256, and other hashes securely.',
+    href: '/tools/hash-generator',
+    icon: '#️⃣',
+    status: 'active',
+  },
+  {
+    name: 'Date Calculator',
+    description: 'Calculate duration between two dates.',
+    href: '/tools/date-calculator',
+    icon: '📅',
+    status: 'active',
+  },
 ];
 
 export default function Home() {
