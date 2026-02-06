@@ -58,6 +58,13 @@ const tools: Tool[] = [
     icon: '🖼️',
     status: 'active',
   },
+  {
+    name: 'PDF Merger',
+    description: 'Combine multiple PDF files into one.',
+    href: '/tools/pdf-merge',
+    icon: '📄',
+    status: 'active',
+  },
 ];
 
 export default function Home() {
