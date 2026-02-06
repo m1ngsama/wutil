@@ -1,15 +1,41 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 
-export default function PdfMerge() {
+export default function PdfMergeComponent() {
   const [files, setFiles] = useState<File[]>([]);
   const [mergedPdfUrl, setMergedPdfUrl] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      // Append new files to existing ones
+      const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type === 'application/pdf');
+      if (newFiles.length === 0) {
+        toast.error('Please drop PDF files only.');
+        return;
+      }
+      setFiles(prev => [...prev, ...newFiles]);
+      setMergedPdfUrl(null);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+      setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
       setMergedPdfUrl(null);
     }
   };
@@ -33,9 +59,10 @@ export default function PdfMerge() {
       const blob = new Blob([mergedPdfBytes as BlobPart], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       setMergedPdfUrl(url);
+      toast.success('PDFs merged successfully!');
     } catch (error) {
       console.error('Error merging PDFs:', error);
-      alert('Failed to merge PDFs. Please ensure all files are valid PDFs.');
+      toast.error('Failed to merge PDFs. Please ensure all files are valid PDFs.');
     } finally {
       setProcessing(false);
     }
@@ -59,7 +86,16 @@ export default function PdfMerge() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Select PDF Files (Select multiple)
           </label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-700 border-dashed rounded-md hover:border-blue-500 transition-colors">
+          <div 
+            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors ${
+              isDragging 
+                ? 'border-blue-500 bg-blue-50 dark:bg-gray-700' 
+                : 'border-gray-300 dark:border-gray-700 hover:border-blue-500'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             <div className="space-y-1 text-center">
               <svg
                 className="mx-auto h-12 w-12 text-gray-400"

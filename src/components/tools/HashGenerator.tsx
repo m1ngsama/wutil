@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
-export default function HashGenerator() {
+export default function HashGeneratorComponent() {
   const [input, setInput] = useState('');
   const [hashes, setHashes] = useState<{ name: string; value: string }[]>([]);
 
@@ -36,6 +37,11 @@ export default function HashGenerator() {
 
     generateHashes();
   }, [input]);
+
+  const copyToClipboard = (text: string, name: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${name} hash copied!`);
+  };
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -74,7 +80,7 @@ export default function HashGenerator() {
                 />
                 <button
                   type="button"
-                  onClick={() => navigator.clipboard.writeText(hash.value)}
+                  onClick={() => copyToClipboard(hash.value, hash.name)}
                   className="-ml-px relative inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm font-medium rounded-r-md text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <span>Copy</span>

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useRef, ChangeEvent } from 'react';
+import { toast } from 'sonner';
 
-export default function ImageConverter() {
+export default function ImageConverterComponent() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [format, setFormat] = useState('image/jpeg');
@@ -11,12 +12,33 @@ export default function ImageConverter() {
   const [height, setHeight] = useState<number | ''>('');
   const [processing, setProcessing] = useState(false);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
-  
+  const [isDragging, setIsDragging] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processFile(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+      processFile(e.target.files[0]);
+    }
+  };
+
+  const processFile = (file: File) => {
       setImageFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setProcessedImage(null);
@@ -28,7 +50,6 @@ export default function ImageConverter() {
         setHeight(img.height);
       };
       img.src = URL.createObjectURL(file);
-    }
   };
 
   const processImage = () => {
@@ -65,6 +86,7 @@ export default function ImageConverter() {
       const dataUrl = canvas.toDataURL(format, quality);
       setProcessedImage(dataUrl);
       setProcessing(false);
+      toast.success('Image converted successfully!');
     };
     img.src = previewUrl!;
   };
@@ -93,7 +115,14 @@ export default function ImageConverter() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Controls */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+          <div 
+            className={`bg-white dark:bg-gray-800 shadow rounded-lg p-6 border-2 border-dashed transition-colors ${
+              isDragging ? 'border-blue-500 bg-blue-50 dark:bg-gray-700' : 'border-transparent'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Image</label>
              <input
                type="file"
@@ -106,6 +135,7 @@ export default function ImageConverter() {
                  file:bg-blue-50 file:text-blue-700
                  hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-200"
              />
+             <p className="mt-2 text-xs text-gray-400">or drag and drop here</p>
              {imageFile && (
                <p className="mt-2 text-sm text-gray-500">
                  Original: {formatSize(imageFile.size)} | {imageFile.type}

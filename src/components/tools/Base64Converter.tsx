@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
-export default function Base64Converter() {
+export default function Base64ConverterComponent() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
@@ -27,6 +28,12 @@ export default function Base64Converter() {
       setOutput('');
     }
   }, [input, mode]);
+
+  const handleCopy = () => {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    toast.success('Result copied to clipboard');
+  };
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -89,7 +96,7 @@ export default function Base64Converter() {
                {mode === 'encode' ? 'Base64 Output' : 'Text Output'}
             </label>
             <button
-               onClick={() => navigator.clipboard.writeText(output)}
+               onClick={handleCopy}
                disabled={!output}
                className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
              >

@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 
-export default function JsonFormatter() {
+export default function JsonFormatterComponent() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -13,9 +14,11 @@ export default function JsonFormatter() {
       const parsed = JSON.parse(input);
       setOutput(JSON.stringify(parsed, null, 2));
       setError(null);
+      toast.success('JSON formatted successfully');
     } catch (e) {
       setError((e as Error).message);
       setOutput('');
+      toast.error('Invalid JSON');
     }
   };
 
@@ -25,10 +28,18 @@ export default function JsonFormatter() {
       const parsed = JSON.parse(input);
       setOutput(JSON.stringify(parsed));
       setError(null);
+      toast.success('JSON minified successfully');
     } catch (e) {
       setError((e as Error).message);
       setOutput('');
+      toast.error('Invalid JSON');
     }
+  };
+
+  const handleCopy = () => {
+    if (!output) return;
+    navigator.clipboard.writeText(output);
+    toast.success('Copied to clipboard');
   };
 
   return (
@@ -75,7 +86,7 @@ export default function JsonFormatter() {
                  Minify
                </button>
                <button
-                 onClick={() => navigator.clipboard.writeText(output)}
+                 onClick={handleCopy}
                  disabled={!output}
                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
                >
