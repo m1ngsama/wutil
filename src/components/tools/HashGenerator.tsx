@@ -6,36 +6,52 @@ import { toast } from 'sonner';
 export default function HashGeneratorComponent() {
   const [input, setInput] = useState('');
   const [hashes, setHashes] = useState<{ name: string; value: string }[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    if (!input) {
-      setHashes([]);
-      return;
-    }
+    let active = true;
 
     const generateHashes = async () => {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(input);
+      if (!input) {
+        if (active) setHashes([]);
+        return;
+      }
 
-      const algos = [
-        { name: 'SHA-1', algo: 'SHA-1' },
-        { name: 'SHA-256', algo: 'SHA-256' },
-        { name: 'SHA-384', algo: 'SHA-384' },
-        { name: 'SHA-512', algo: 'SHA-512' },
-      ];
+      setIsGenerating(true);
+      
+      try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(input);
 
-      const results = await Promise.all(
-        algos.map(async ({ name, algo }) => {
-          const hashBuffer = await crypto.subtle.digest(algo, data);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-          return { name, value: hashHex };
-        })
-      );
-      setHashes(results);
+        const algos = [
+          { name: 'SHA-1', algo: 'SHA-1' },
+          { name: 'SHA-256', algo: 'SHA-256' },
+          { name: 'SHA-384', algo: 'SHA-384' },
+          { name: 'SHA-512', algo: 'SHA-512' },
+        ];
+
+        const results = await Promise.all(
+          algos.map(async ({ name, algo }) => {
+            const hashBuffer = await crypto.subtle.digest(algo, data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+            return { name, value: hashHex };
+          })
+        );
+        
+        if (active) setHashes(results);
+      } catch (error) {
+        console.error("Hashing failed", error);
+      } finally {
+        if (active) setIsGenerating(false);
+      }
     };
 
     generateHashes();
+
+    return () => {
+      active = false;
+    };
   }, [input]);
 
   const copyToClipboard = (text: string, name: string) => {
@@ -88,10 +104,10 @@ export default function HashGeneratorComponent() {
               </div>
             </div>
           ))}
-          {hashes.length === 0 && input && (
+          {isGenerating && input && (
              <p className="text-gray-500">Generating...</p>
           )}
-          {hashes.length === 0 && !input && (
+          {!input && (
             <p className="text-gray-500 italic">Enter text above to generate hashes.</p>
           )}
         </div>

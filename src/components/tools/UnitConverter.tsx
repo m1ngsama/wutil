@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 type UnitCategory = 'length' | 'weight' | 'temperature';
 
@@ -41,24 +41,11 @@ export default function UnitConverter() {
   const [fromUnit, setFromUnit] = useState<string>('m');
   const [toUnit, setToUnit] = useState<string>('ft');
   const [inputValue, setInputValue] = useState<string>('1');
-  const [outputValue, setOutputValue] = useState<string>('');
 
-  useEffect(() => {
-    // Reset units when category changes
-    const defaultFrom = units[category][0].id;
-    const defaultTo = units[category][1]?.id || units[category][0].id;
-    // Only reset if current units are not in the new category
-    const currentUnits = units[category].map(u => u.id);
-    if (!currentUnits.includes(fromUnit)) setFromUnit(defaultFrom);
-    if (!currentUnits.includes(toUnit)) setToUnit(defaultTo);
-  }, [category, fromUnit, toUnit]);
-
-  useEffect(() => {
+  // Derived state for output
+  const outputValue = (() => {
     const val = parseFloat(inputValue);
-    if (isNaN(val)) {
-      setOutputValue('');
-      return;
-    }
+    if (isNaN(val)) return '';
 
     let result = 0;
 
@@ -80,10 +67,16 @@ export default function UnitConverter() {
         result = baseValue / to.factor;
       }
     }
+    return parseFloat(result.toFixed(6)).toString();
+  })();
 
-    // Format output to avoid floating point errors
-    setOutputValue(parseFloat(result.toFixed(6)).toString());
-  }, [inputValue, fromUnit, toUnit, category]);
+  const handleCategoryChange = (newCategory: UnitCategory) => {
+    setCategory(newCategory);
+    const defaultFrom = units[newCategory][0].id;
+    const defaultTo = units[newCategory][1]?.id || units[newCategory][0].id;
+    setFromUnit(defaultFrom);
+    setToUnit(defaultTo);
+  };
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -105,7 +98,7 @@ export default function UnitConverter() {
              {(['length', 'weight', 'temperature'] as UnitCategory[]).map((cat) => (
                <button
                  key={cat}
-                 onClick={() => setCategory(cat)}
+                 onClick={() => handleCategoryChange(cat)}
                  className={`px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 capitalize ${
                    category === cat
                      ? 'bg-blue-600 text-white'
