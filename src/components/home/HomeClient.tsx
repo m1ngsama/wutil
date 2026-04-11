@@ -8,15 +8,22 @@ interface Tool {
   description: string;
   href: string;
   icon: string;
-  category: 'text' | 'data' | 'media' | 'calc';
+  category: 'text' | 'data' | 'media' | 'calc' | 'security';
+  badge?: string;
 }
 
 const tools: Tool[] = [
+  { name: 'Password Generator', description: 'Generate secure, cryptographically random passwords.', href: '/tools/password-generator', icon: '🔐', category: 'security', badge: 'Popular' },
+  { name: 'Color Converter', description: 'Convert between HEX, RGB, and HSL color formats.', href: '/tools/color-converter', icon: '🎨', category: 'data', badge: 'Popular' },
+  { name: 'URL Encoder / Decoder', description: 'Encode special characters for URLs or decode them.', href: '/tools/url-encoder', icon: '🔗', category: 'data' },
+  { name: 'Text Case Converter', description: 'Convert to camelCase, snake_case, UPPER, Title, and more.', href: '/tools/text-case', icon: 'Aa', category: 'text' },
+  { name: 'Regex Tester', description: 'Test regular expressions with real-time match highlighting.', href: '/tools/regex-tester', icon: '.*', category: 'data' },
+  { name: 'Timestamp Converter', description: 'Convert Unix timestamps to readable dates and back.', href: '/tools/timestamp', icon: '⏱️', category: 'calc' },
   { name: 'Word Counter', description: 'Count words, characters, and sentences.', href: '/tools/word-counter', icon: '📝', category: 'text' },
   { name: 'JSON Formatter', description: 'Format, validate, and minify JSON.', href: '/tools/json-formatter', icon: '{}', category: 'data' },
   { name: 'Base64 Converter', description: 'Encode and decode Base64 strings.', href: '/tools/base64-converter', icon: '🔤', category: 'text' },
   { name: 'Unit Converter', description: 'Convert common units of measurement.', href: '/tools/unit-converter', icon: '⚖️', category: 'calc' },
-  { name: 'Hash Generator', description: 'Generate SHA-1, SHA-256 hashes.', href: '/tools/hash-generator', icon: '#️⃣', category: 'text' },
+  { name: 'Hash Generator', description: 'Generate SHA-1, SHA-256 hashes.', href: '/tools/hash-generator', icon: '#️⃣', category: 'security' },
   { name: 'Date Calculator', description: 'Calculate duration between dates.', href: '/tools/date-calculator', icon: '📅', category: 'calc' },
   { name: 'Image Converter', description: 'Convert, resize, and compress images.', href: '/tools/image-converter', icon: '🖼️', category: 'media' },
   { name: 'PDF Merger', description: 'Combine multiple PDF files into one.', href: '/tools/pdf-merge', icon: '📄', category: 'media' },
@@ -24,10 +31,11 @@ const tools: Tool[] = [
 
 const categories = [
   { id: 'all', name: 'All Tools' },
-  { id: 'text', name: 'Text & Strings' },
-  { id: 'media', name: 'Images & PDF' },
+  { id: 'text', name: 'Text' },
   { id: 'data', name: 'Data & Dev' },
+  { id: 'media', name: 'Images & PDF' },
   { id: 'calc', name: 'Calculators' },
+  { id: 'security', name: 'Security' },
 ];
 
 export default function HomeClient() {
@@ -98,6 +106,11 @@ export default function HomeClient() {
             >
               <div className="flex items-start justify-between mb-4">
                 <span className="text-4xl group-hover:scale-110 transition-transform duration-200">{tool.icon}</span>
+                {tool.badge && (
+                  <span className="text-xs font-medium px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 rounded-full">
+                    {tool.badge}
+                  </span>
+                )}
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                 {tool.name}
