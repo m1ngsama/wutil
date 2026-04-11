@@ -30,9 +30,11 @@ export default function RegexTester() {
     if (!pattern || !testString) return null;
     try {
       new RegExp(pattern, flags); // validate
-      const allMatches = [...testString.matchAll(new RegExp(pattern, flags.includes('g') ? flags : flags + 'g'))];
+      // Use the same effective flags for both count and highlighting so they stay in sync
+      const effectiveFlags = flags.includes('g') ? flags : flags + 'g';
+      const allMatches = [...testString.matchAll(new RegExp(pattern, effectiveFlags))];
 
-      const globalRegex = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
+      const globalRegex = new RegExp(pattern, effectiveFlags);
       let match;
       const parts: { text: string; isMatch: boolean }[] = [];
       let lastIndex = 0;
@@ -44,7 +46,10 @@ export default function RegexTester() {
         }
         parts.push({ text: match[0], isMatch: true });
         lastIndex = match.index + match[0].length;
-        if (!flags.includes('g')) break;
+        // Advance past zero-length matches to prevent infinite loop (e.g. .* a* ^)
+        if (match[0].length === 0) {
+          globalRegex.lastIndex++;
+        }
       }
       if (lastIndex < testString.length) {
         parts.push({ text: testString.slice(lastIndex), isMatch: false });
