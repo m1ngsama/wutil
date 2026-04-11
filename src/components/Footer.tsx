@@ -7,7 +7,7 @@ export default function Footer() {
             <a href="https://github.com/m1ngsama/wutil" target="_blank" rel="noreferrer" className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
               GitHub
             </a>
-            <a href="#" className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            <a href="https://github.com/m1ngsama/wutil#privacy" target="_blank" rel="noreferrer" className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
               Privacy
             </a>
           </div>
