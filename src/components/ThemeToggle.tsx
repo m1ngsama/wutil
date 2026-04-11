@@ -13,9 +13,9 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="p-2 text-gray-500 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none">
+      <button className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:bg-muted focus:outline-none">
         <span className="sr-only">Toggle theme</span>
-        <div className="w-5 h-5" />
+        <div className="w-4 h-4" />
       </button>
     );
   }
@@ -23,7 +23,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 text-gray-500 rounded-md hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:text-ink hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
       aria-label="Toggle Dark Mode"
     >
       {theme === "dark" ? (
@@ -33,7 +33,7 @@ export function ThemeToggle() {
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-5 h-5"
+          className="w-4 h-4"
         >
           <path
             strokeLinecap="round"
@@ -48,7 +48,7 @@ export function ThemeToggle() {
           viewBox="0 0 24 24"
           strokeWidth={1.5}
           stroke="currentColor"
-          className="w-5 h-5"
+          className="w-4 h-4"
         >
           <path
             strokeLinecap="round"

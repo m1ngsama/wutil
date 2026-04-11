@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
+const EXAMPLES = [
+  'https://example.com/search?q=hello world&lang=en',
+  'user@example.com',
+  'price: $50 & discount 20%',
+];
+
 export default function UrlEncoderDecoder() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -10,17 +16,9 @@ export default function UrlEncoderDecoder() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!input.trim()) {
-      setOutput('');
-      setError(null);
-      return;
-    }
+    if (!input.trim()) { setOutput(''); setError(null); return; }
     try {
-      if (mode === 'encode') {
-        setOutput(encodeURIComponent(input));
-      } else {
-        setOutput(decodeURIComponent(input));
-      }
+      setOutput(mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input));
       setError(null);
     } catch {
       setError('Invalid encoded string');
@@ -34,37 +32,30 @@ export default function UrlEncoderDecoder() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">URL Encoder / Decoder</h2>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          Encode special characters for safe URLs, or decode encoded URLs back to readable text.
-        </p>
-      </div>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Data & Dev</p>
+        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">URL Encoder / Decoder</h1>
+        <p className="text-base text-ink-2 max-w-[52ch]">Encode special characters for safe URLs, or decode them back to readable text.</p>
+      </header>
 
-      <div className="flex items-center gap-3 mb-6">
-        <span className="relative z-0 inline-flex shadow-sm rounded-md">
-          {(['encode', 'decode'] as const).map((m, i) => (
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="flex rounded-md border border-edge overflow-hidden">
+          {(['encode', 'decode'] as const).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 ${
-                i === 0 ? 'rounded-l-md' : '-ml-px rounded-r-md'
-              } ${
-                mode === m
-                  ? 'bg-blue-600 border-blue-600 text-white'
-                  : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+              className={`px-4 py-2 text-sm font-medium transition-colors capitalize ${
+                mode === m ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
               }`}
             >
-              {m.charAt(0).toUpperCase() + m.slice(1)}
+              {m}
             </button>
           ))}
-        </span>
-
+        </div>
         <button
-          onClick={swap}
-          disabled={!output}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-40"
+          onClick={swap} disabled={!output}
+          className="h-9 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
@@ -73,59 +64,62 @@ export default function UrlEncoderDecoder() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="flex flex-col">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            {mode === 'encode' ? 'Plain Text / URL' : 'Encoded URL'}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            {mode === 'encode' ? 'Plain text / URL' : 'Encoded URL'}
           </label>
           <textarea
-            className={`flex-1 min-h-[200px] w-full p-4 border rounded-xl font-mono text-sm resize-y focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
-              error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-            }`}
-            placeholder={mode === 'encode' ? 'https://example.com/path?name=hello world&tag=foo&bar' : 'https%3A%2F%2Fexample.com%2Fpath%3Fname%3Dhello%20world'}
+            className={[
+              'h-48 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
+              'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
+              error ? 'border-red-500/70' : 'border-edge',
+            ].join(' ')}
+            placeholder={mode === 'encode' ? 'https://example.com/path?q=hello world' : 'https%3A%2F%2Fexample.com%2F…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            spellCheck={false}
           />
-          {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {error && (
+            <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+              {error}
+            </p>
+          )}
         </div>
 
-        <div className="flex flex-col">
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {mode === 'encode' ? 'Encoded URL' : 'Decoded Text'}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+              {mode === 'encode' ? 'Encoded URL' : 'Decoded text'}
             </label>
             <button
-              onClick={() => { navigator.clipboard.writeText(output); toast.success('Copied!'); }}
+              onClick={() => { navigator.clipboard.writeText(output); toast.success('Copied'); }}
               disabled={!output}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-40"
+              className="text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none"
             >
               Copy
             </button>
           </div>
           <textarea
             readOnly
-            className="flex-1 min-h-[200px] w-full p-4 border border-gray-300 dark:border-gray-700 rounded-xl font-mono text-sm resize-y bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-            placeholder="Result appears here..."
+            className="h-48 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none"
+            placeholder="Result appears here…"
             value={output}
+            spellCheck={false}
           />
         </div>
       </div>
 
-      {/* Common examples */}
-      <div className="mt-8">
-        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Try these examples</p>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Try an example</p>
         <div className="flex flex-wrap gap-2">
-          {[
-            'https://example.com/search?q=hello world&lang=en',
-            'user@example.com',
-            'price: $50 & discount 20%',
-          ].map((example) => (
+          {EXAMPLES.map((ex) => (
             <button
-              key={example}
-              onClick={() => { setInput(example); setMode('encode'); }}
-              className="px-3 py-1.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 font-mono truncate max-w-[200px]"
+              key={ex}
+              onClick={() => { setInput(ex); setMode('encode'); }}
+              className="px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted truncate max-w-xs transition-colors"
             >
-              {example}
+              {ex}
             </button>
           ))}
         </div>

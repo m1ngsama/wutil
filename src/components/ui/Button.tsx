@@ -12,17 +12,25 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          variant === "default" && "bg-blue-600 text-white hover:bg-blue-700",
-          variant === "destructive" && "bg-red-500 text-white hover:bg-red-600",
-          variant === "outline" && "border border-gray-200 bg-white hover:bg-gray-100 hover:text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200",
-          variant === "secondary" && "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600",
-          variant === "ghost" && "hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50",
-          variant === "link" && "text-blue-600 underline-offset-4 hover:underline dark:text-blue-400",
-          size === "default" && "h-10 px-4 py-2",
-          size === "sm" && "h-9 rounded-md px-3",
-          size === "lg" && "h-11 rounded-md px-8",
-          size === "icon" && "h-10 w-10",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-1",
+          "disabled:pointer-events-none disabled:opacity-40",
+          variant === "default" &&
+            "bg-accent text-accent-fg hover:bg-accent-hover",
+          variant === "destructive" &&
+            "bg-red-600 text-white hover:bg-red-700",
+          variant === "outline" &&
+            "border border-edge bg-surface text-ink hover:bg-muted",
+          variant === "secondary" &&
+            "bg-muted text-ink hover:bg-[var(--w-edge)]",
+          variant === "ghost" &&
+            "text-ink hover:bg-muted",
+          variant === "link" &&
+            "text-accent underline-offset-4 hover:underline",
+          size === "default" && "h-10 px-4 py-2 text-sm",
+          size === "sm" && "h-8 px-3 text-xs rounded",
+          size === "lg" && "h-11 px-8 text-base rounded-lg",
+          size === "icon" && "h-9 w-9",
           className
         )}
         {...props}

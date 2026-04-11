@@ -1,93 +1,227 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
+
+function toInputValue(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+// DST-safe: use UTC midnight for day arithmetic
+function daysBetween(a: Date, b: Date): number {
+  const utcA = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+  const utcB = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+  return Math.round((utcB - utcA) / 86_400_000);
+}
+
+function addDays(date: Date, n: number): Date {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + n);
+  return d;
+}
+
+const todayStr = () => toInputValue(new Date());
 
 export default function DateCalculator() {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [diffResult, setDiffResult] = useState<{ days: number; weeks: string; months: string; years: string } | null>(null);
+  const [tab, setTab] = useState<'diff' | 'add'>('diff');
 
-  const calculateDiff = () => {
-    if (!startDate || !endDate) return;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    setDiffResult({
-      days: diffDays,
-      weeks: (diffDays / 7).toFixed(1),
-      months: (diffDays / 30.44).toFixed(1),
-      years: (diffDays / 365.25).toFixed(2)
-    });
-  };
+  // Diff tab
+  const [start, setStart] = useState(todayStr);
+  const [end, setEnd]     = useState(todayStr);
+
+  // Add tab
+  const [base, setBase]     = useState(todayStr);
+  const [delta, setDelta]   = useState<string>('7');
+  const [direction, setDir] = useState<'+' | '-'>('+');
+
+  // --- Diff result ---
+  const diff = useMemo(() => {
+    if (!start || !end) return null;
+    const s = new Date(start + 'T00:00:00');
+    const e = new Date(end   + 'T00:00:00');
+    const days = daysBetween(s, e);
+    return {
+      days,
+      absDays: Math.abs(days),
+      weeks:   (Math.abs(days) / 7).toFixed(1),
+      months:  (Math.abs(days) / 30.4375).toFixed(1),
+      years:   (Math.abs(days) / 365.25).toFixed(2),
+      label:   days < 0 ? 'before' : days > 0 ? 'after' : 'same day',
+    };
+  }, [start, end]);
+
+  // --- Add result ---
+  const addResult = useMemo(() => {
+    if (!base || !delta || isNaN(Number(delta))) return null;
+    const d = new Date(base + 'T00:00:00');
+    const n = direction === '+' ? Number(delta) : -Number(delta);
+    return toInputValue(addDays(d, n));
+  }, [base, delta, direction]);
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Date Calculator
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Calculate the duration between two dates.
-          </p>
-        </div>
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Calculators</p>
+        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Date Calculator</h1>
+        <p className="text-base text-ink-2 max-w-[48ch]">Find the difference between two dates, or add and subtract days.</p>
+      </header>
+
+      {/* Tab switcher */}
+      <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit">
+        {([['diff', 'Date difference'], ['add', 'Add / subtract days']] as const).map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${
+              tab === id ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 max-w-3xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
-            <input
-              type="date"
-              className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+      {/* ── Diff tab ── */}
+      {tab === 'diff' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { label: 'Start date', value: start, set: setStart },
+              { label: 'End date',   value: end,   set: setEnd   },
+            ].map(({ label, value, set }) => (
+              <div key={label} className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">{label}</label>
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={value}
+                    onChange={(e) => set(e.target.value)}
+                    className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+                  />
+                  <button
+                    onClick={() => set(todayStr())}
+                    className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
+                  >
+                    Today
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
+
+          {diff && (
+            <div className="rounded-xl border border-edge bg-surface p-5">
+              {diff.absDays === 0 ? (
+                <p className="text-ink-2 text-sm">Same day.</p>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-4">
+                    End is {diff.label} start
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: 'Days',   value: diff.absDays.toString() },
+                      { label: 'Weeks',  value: diff.weeks  },
+                      { label: 'Months', value: `~${diff.months}` },
+                      { label: 'Years',  value: `~${diff.years}` },
+                    ].map(({ label, value }) => (
+                      <div
+                        key={label}
+                        className="flex flex-col items-center justify-center rounded-lg bg-muted border border-edge p-4 cursor-pointer hover:border-edge-strong transition-colors"
+                        onClick={() => { navigator.clipboard.writeText(value.replace('~', '')); toast.success(`${label} copied`); }}
+                        title="Click to copy"
+                      >
+                        <span className="font-display text-2xl text-ink leading-none mb-1">{value}</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-3">{label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Add tab ── */}
+      {tab === 'add' && (
+        <div className="space-y-6">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Starting date</label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={base}
+                onChange={(e) => setBase(e.target.value)}
+                className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+              />
+              <button
+                onClick={() => setBase(todayStr())}
+                className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
+              >
+                Today
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Days to add / subtract</label>
+            <div className="flex gap-2">
+              <div className="flex rounded-md border border-edge overflow-hidden">
+                {(['+', '-'] as const).map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDir(d)}
+                    className={`w-10 font-mono text-base font-bold transition-colors ${
+                      direction === d ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="number"
+                min={0}
+                value={delta}
+                onChange={(e) => setDelta(e.target.value)}
+                className="w-28 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+              />
+              <span className="flex items-center text-sm text-ink-3">days</span>
+            </div>
+          </div>
+
+          {addResult && (
+            <div
+              className="rounded-xl border border-edge bg-surface p-5 cursor-pointer hover:border-edge-strong transition-colors"
+              onClick={() => { navigator.clipboard.writeText(addResult); toast.success('Date copied'); }}
+              title="Click to copy"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</p>
+              <p className="font-display text-3xl text-ink">{addResult}</p>
+              <p className="text-xs text-ink-3 mt-1">
+                {new Date(addResult + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </p>
+            </div>
+          )}
+
+          {/* Quick presets */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Date</label>
-             <input
-              type="date"
-              className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Quick presets</p>
+            <div className="flex flex-wrap gap-2">
+              {[7, 14, 30, 90, 180, 365].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => { setDelta(String(n)); setDir('+'); }}
+                  className="px-3 py-1.5 text-xs font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted transition-colors"
+                >
+                  +{n}d
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-
-        <button
-          onClick={calculateDiff}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mb-6"
-        >
-          Calculate Difference
-        </button>
-
-        {diffResult && (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Result</h3>
-             <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-               <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-sm text-center">
-                 <dt className="text-xs text-gray-500 uppercase">Days</dt>
-                 <dd className="text-2xl font-bold text-gray-900 dark:text-white">{diffResult.days}</dd>
-               </div>
-               <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-sm text-center">
-                 <dt className="text-xs text-gray-500 uppercase">Weeks</dt>
-                 <dd className="text-2xl font-bold text-gray-900 dark:text-white">{diffResult.weeks}</dd>
-               </div>
-               <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-sm text-center">
-                 <dt className="text-xs text-gray-500 uppercase">Months</dt>
-                 <dd className="text-2xl font-bold text-gray-900 dark:text-white">~{diffResult.months}</dd>
-               </div>
-                <div className="bg-white dark:bg-gray-800 p-4 rounded shadow-sm text-center">
-                 <dt className="text-xs text-gray-500 uppercase">Years</dt>
-                 <dd className="text-2xl font-bold text-gray-900 dark:text-white">~{diffResult.years}</dd>
-               </div>
-             </dl>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

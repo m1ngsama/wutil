@@ -1,238 +1,261 @@
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, useCallback, ChangeEvent } from 'react';
 import { toast } from 'sonner';
+import { ImageIcon, Lock, Unlock } from 'lucide-react';
+
+const FORMATS = [
+  { value: 'image/jpeg', label: 'JPEG', ext: 'jpg' },
+  { value: 'image/png',  label: 'PNG',  ext: 'png' },
+  { value: 'image/webp', label: 'WebP', ext: 'webp' },
+];
+
+function fmtBytes(n: number) {
+  if (n < 1024)       return n + ' B';
+  if (n < 1048576)    return (n / 1024).toFixed(1) + ' KB';
+  return (n / 1048576).toFixed(2) + ' MB';
+}
 
 export default function ImageConverterComponent() {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [format, setFormat] = useState('image/jpeg');
-  const [quality, setQuality] = useState(0.8);
-  const [width, setWidth] = useState<number | ''>('');
-  const [height, setHeight] = useState<number | ''>('');
-  const [processing, setProcessing] = useState(false);
-  const [processedImage, setProcessedImage] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [imageFile, setImageFile]       = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
+  const [origW, setOrigW]               = useState(0);
+  const [origH, setOrigH]               = useState(0);
+  const [width, setWidth]               = useState<number | ''>('');
+  const [height, setHeight]             = useState<number | ''>('');
+  const [lockAspect, setLockAspect]     = useState(true);
+  const [format, setFormat]             = useState('image/jpeg');
+  const [quality, setQuality]           = useState(0.85);
+  const [processing, setProcessing]     = useState(false);
+  const [resultUrl, setResultUrl]       = useState<string | null>(null);
+  const [resultSize, setResultSize]     = useState(0);
+  const [isDragging, setIsDragging]     = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewRef = useRef<string | null>(null);
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      processFile(e.dataTransfer.files[0]);
-    }
-  };
+  const loadFile = useCallback((file: File) => {
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    // Revoke previous object URL
+    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
+    const url = URL.createObjectURL(file);
+    previewRef.current = url;
+    setImageFile(file);
+    setPreviewUrl(url);
+    setResultUrl(null);
+    const img = new Image();
+    img.onload = () => {
+      setOrigW(img.naturalWidth);
+      setOrigH(img.naturalHeight);
+      setWidth(img.naturalWidth);
+      setHeight(img.naturalHeight);
+    };
+    img.src = url;
+  }, []);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      processFile(e.target.files[0]);
+    if (e.target.files?.[0]) loadFile(e.target.files[0]);
+  };
+
+  const onWidthChange = (v: number | '') => {
+    setWidth(v);
+    if (lockAspect && origW && origH && v !== '') {
+      setHeight(Math.round((Number(v) / origW) * origH));
+    }
+  };
+  const onHeightChange = (v: number | '') => {
+    setHeight(v);
+    if (lockAspect && origW && origH && v !== '') {
+      setWidth(Math.round((Number(v) / origH) * origW));
     }
   };
 
-  const processFile = (file: File) => {
-      setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setProcessedImage(null);
-      
-      // Reset dimensions to original
-      const img = new Image();
-      img.onload = () => {
-        setWidth(img.width);
-        setHeight(img.height);
-      };
-      img.src = URL.createObjectURL(file);
-  };
-
-  const processImage = () => {
+  const convert = () => {
     if (!imageFile || !canvasRef.current) return;
     setProcessing(true);
-
     const img = new Image();
     img.onload = () => {
       const canvas = canvasRef.current!;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      // Calculate dimensions
-      let targetWidth = width || img.width;
-      let targetHeight = height || img.height;
-
-      // Maintain aspect ratio if one is missing (though simpler logic for now)
-      if (width && !height) {
-        const ratio = img.height / img.width;
-        targetHeight = Math.round(Number(width) * ratio);
-        setHeight(targetHeight);
-      } else if (!width && height) {
-        const ratio = img.width / img.height;
-        targetWidth = Math.round(Number(height) * ratio);
-        setWidth(targetWidth);
-      }
-
-      canvas.width = Number(targetWidth);
-      canvas.height = Number(targetHeight);
-
-      // Draw and convert
-      ctx.drawImage(img, 0, 0, Number(targetWidth), Number(targetHeight));
-      
-      const dataUrl = canvas.toDataURL(format, quality);
-      setProcessedImage(dataUrl);
-      setProcessing(false);
-      toast.success('Image converted successfully!');
+      const ctx    = canvas.getContext('2d')!;
+      const w = Number(width)  || img.naturalWidth;
+      const h = Number(height) || img.naturalHeight;
+      canvas.width  = w;
+      canvas.height = h;
+      // White background for JPEG (transparent → white)
+      if (format === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { toast.error('Conversion failed'); setProcessing(false); return; }
+          if (resultUrl) URL.revokeObjectURL(resultUrl);
+          setResultUrl(URL.createObjectURL(blob));
+          setResultSize(blob.size);
+          setProcessing(false);
+          toast.success('Converted');
+        },
+        format,
+        format === 'image/png' ? undefined : quality,
+      );
     };
     img.src = previewUrl!;
   };
 
-  const formatSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+  const ext = FORMATS.find((f) => f.value === format)?.ext ?? 'jpg';
+  const ratio = origW && origH ? `${origW} × ${origH}` : '';
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-       <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Image Converter & Compressor
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Convert, resize, and compress images entirely in your browser.
-          </p>
-        </div>
-      </div>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Images</p>
+        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Image Converter</h1>
+        <p className="text-base text-ink-2 max-w-[50ch]">Convert, resize, and compress images to JPEG, PNG, or WebP — all in your browser.</p>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
         {/* Controls */}
-        <div className="space-y-6">
-          <div 
-            className={`bg-white dark:bg-gray-800 shadow rounded-lg p-6 border-2 border-dashed transition-colors ${
-              isDragging ? 'border-blue-500 bg-blue-50 dark:bg-gray-700' : 'border-transparent'
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
+        <div className="space-y-4">
+          {/* Upload */}
+          <div
+            className={[
+              'rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors cursor-pointer',
+              isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
+            ].join(' ')}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => { e.preventDefault(); setIsDragging(false); e.dataTransfer.files?.[0] && loadFile(e.dataTransfer.files[0]); }}
+            onClick={() => document.getElementById('img-upload')?.click()}
           >
-             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Image</label>
-             <input
-               type="file"
-               accept="image/*"
-               onChange={handleFileChange}
-               className="block w-full text-sm text-gray-500
-                 file:mr-4 file:py-2 file:px-4
-                 file:rounded-full file:border-0
-                 file:text-sm file:font-semibold
-                 file:bg-blue-50 file:text-blue-700
-                 hover:file:bg-blue-100 dark:file:bg-gray-700 dark:file:text-gray-200"
-             />
-             <p className="mt-2 text-xs text-gray-400">or drag and drop here</p>
-             {imageFile && (
-               <p className="mt-2 text-sm text-gray-500">
-                 Original: {formatSize(imageFile.size)} | {imageFile.type}
-               </p>
-             )}
+            <ImageIcon className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
+            <div>
+              <p className="text-sm font-semibold text-ink">Drop an image here</p>
+              <p className="text-xs text-ink-3 mt-0.5">or click to browse</p>
+            </div>
+            {imageFile && (
+              <p className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
+                {imageFile.name} · {fmtBytes(imageFile.size)} · {ratio}
+              </p>
+            )}
+            <input id="img-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} />
           </div>
 
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-4">
-             <h3 className="text-lg font-medium text-gray-900 dark:text-white">Settings</h3>
-             
-             <div>
-               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Format</label>
-               <select
-                 value={format}
-                 onChange={(e) => setFormat(e.target.value)}
-                 className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-               >
-                 <option value="image/jpeg">JPEG</option>
-                 <option value="image/png">PNG</option>
-                 <option value="image/webp">WebP</option>
-               </select>
-             </div>
+          {/* Format */}
+          <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Output format</p>
+              <div className="flex rounded-md border border-edge overflow-hidden">
+                {FORMATS.map((f) => (
+                  <button
+                    key={f.value}
+                    onClick={() => setFormat(f.value)}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      format === f.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-             {format !== 'image/png' && (
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                   Quality ({Math.round(quality * 100)}%)
-                 </label>
-                 <input
-                   type="range"
-                   min="0.1"
-                   max="1"
-                   step="0.1"
-                   value={quality}
-                   onChange={(e) => setQuality(parseFloat(e.target.value))}
-                   className="w-full"
-                 />
-               </div>
-             )}
+            {format !== 'image/png' && (
+              <div>
+                <div className="flex justify-between mb-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Quality</p>
+                  <span className="text-sm font-bold text-accent">{Math.round(quality * 100)}%</span>
+                </div>
+                <input
+                  type="range" min={0.1} max={1} step={0.05} value={quality}
+                  onChange={(e) => setQuality(parseFloat(e.target.value))}
+                  className="w-full accent-[var(--w-accent)]"
+                />
+                <div className="flex justify-between text-xs text-ink-3 mt-0.5"><span>Low</span><span>Max</span></div>
+              </div>
+            )}
 
-             <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Width (px)</label>
-                 <input
-                   type="number"
-                   value={width}
-                   onChange={(e) => setWidth(e.target.value ? Number(e.target.value) : '')}
-                   className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                 />
-               </div>
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Height (px)</label>
-                 <input
-                   type="number"
-                   value={height}
-                   onChange={(e) => setHeight(e.target.value ? Number(e.target.value) : '')}
-                   className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                 />
-               </div>
-             </div>
-
-             <button
-               onClick={processImage}
-               disabled={!imageFile || processing}
-               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-             >
-               {processing ? 'Processing...' : 'Convert Image'}
-             </button>
+            {/* Dimensions */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Dimensions (px)</p>
+                <button
+                  onClick={() => setLockAspect((l) => !l)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+                  title={lockAspect ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}
+                >
+                  {lockAspect
+                    ? <Lock className="w-3.5 h-3.5" />
+                    : <Unlock className="w-3.5 h-3.5" />}
+                  {lockAspect ? 'Locked' : 'Free'}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { label: 'W', value: width,  onChange: onWidthChange  },
+                  { label: 'H', value: height, onChange: onHeightChange },
+                ].map(({ label, value, onChange }) => (
+                  <div key={label}>
+                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">{label}</label>
+                    <input
+                      type="number" min={1} value={value}
+                      onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
+                      className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+                    />
+                  </div>
+                ))}
+              </div>
+              {origW > 0 && (
+                <button
+                  onClick={() => { setWidth(origW); setHeight(origH); }}
+                  className="mt-2 text-xs font-semibold text-accent hover:underline underline-offset-4"
+                >
+                  Reset to original ({origW} × {origH})
+                </button>
+              )}
+            </div>
           </div>
+
+          <button
+            onClick={convert}
+            disabled={!imageFile || processing}
+            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          >
+            {processing ? 'Converting…' : 'Convert Image'}
+          </button>
         </div>
 
         {/* Preview */}
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-gray-300 dark:border-gray-700">
-           {processedImage ? (
-             <div className="text-center w-full">
-               <img src={processedImage} alt="Processed" className="max-h-[500px] mx-auto mb-4 shadow-lg rounded" />
-               <a
-                 href={processedImage}
-                 download={`converted.${format.split('/')[1]}`}
-                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none"
-               >
-                 Download Image
-               </a>
-             </div>
-           ) : previewUrl ? (
-             <img src={previewUrl} alt="Preview" className="max-h-[500px] opacity-70" />
-           ) : (
-             <div className="text-center text-gray-500">
-               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-               </svg>
-               <p className="mt-1">No image uploaded</p>
-             </div>
-           )}
-           <canvas ref={canvasRef} className="hidden" />
+        <div className="rounded-xl border border-edge bg-surface overflow-hidden flex flex-col">
+          <div className="border-b border-edge px-4 py-2.5 flex items-center justify-between bg-muted">
+            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+              {resultUrl ? 'Result' : 'Preview'}
+            </span>
+            {resultUrl && (
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-ink-3">{fmtBytes(resultSize)}</span>
+                <a
+                  href={resultUrl}
+                  download={`converted.${ext}`}
+                  className="h-7 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors"
+                >
+                  Download
+                </a>
+              </div>
+            )}
+          </div>
+          <div className="flex-1 flex items-center justify-center p-4 min-h-[360px]">
+            {resultUrl ? (
+              <img src={resultUrl} alt="Converted" className="max-w-full max-h-[500px] rounded object-contain" />
+            ) : previewUrl ? (
+              <img src={previewUrl} alt="Original" className="max-w-full max-h-[500px] rounded object-contain opacity-70" />
+            ) : (
+              <div className="text-center text-ink-3">
+                <ImageIcon className="mx-auto w-10 h-10 mb-2" strokeWidth={1} />
+                <p className="text-sm">No image loaded</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }

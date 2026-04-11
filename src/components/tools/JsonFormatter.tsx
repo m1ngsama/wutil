@@ -14,7 +14,7 @@ export default function JsonFormatterComponent() {
       const parsed = JSON.parse(input);
       setOutput(JSON.stringify(parsed, null, 2));
       setError(null);
-      toast.success('JSON formatted successfully');
+      toast.success('Formatted');
     } catch (e) {
       setError((e as Error).message);
       setOutput('');
@@ -28,7 +28,7 @@ export default function JsonFormatterComponent() {
       const parsed = JSON.parse(input);
       setOutput(JSON.stringify(parsed));
       setError(null);
-      toast.success('JSON minified successfully');
+      toast.success('Minified');
     } catch (e) {
       setError((e as Error).message);
       setOutput('');
@@ -39,69 +39,103 @@ export default function JsonFormatterComponent() {
   const handleCopy = () => {
     if (!output) return;
     navigator.clipboard.writeText(output);
-    toast.success('Copied to clipboard');
+    toast.success('Copied');
+  };
+
+  const handleClear = () => {
+    setInput('');
+    setOutput('');
+    setError(null);
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            JSON Formatter & Validator
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Beautify, minify, and validate your JSON data.
-          </p>
-        </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+      {/* Masthead */}
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">
+          Data &amp; Dev
+        </p>
+        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">
+          JSON Formatter
+        </h1>
+        <p className="text-base text-ink-2 max-w-[52ch]">
+          Beautify, minify, and validate your JSON. Paste it in — errors are caught instantly.
+        </p>
+      </header>
+
+      {/* Action bar */}
+      <div className="flex items-center gap-2 mb-5 flex-wrap">
+        <button
+          onClick={formatJson}
+          className="h-9 px-4 text-sm font-semibold rounded-md bg-accent text-accent-fg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+        >
+          Format
+        </button>
+        <button
+          onClick={minifyJson}
+          className="h-9 px-4 text-sm font-medium rounded-md border border-edge bg-surface text-ink hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+        >
+          Minify
+        </button>
+        <button
+          onClick={handleCopy}
+          disabled={!output}
+          className="h-9 px-4 text-sm font-medium rounded-md border border-edge bg-surface text-ink hover:bg-muted transition-colors disabled:opacity-35 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+        >
+          Copy output
+        </button>
+        <button
+          onClick={handleClear}
+          className="h-9 px-4 text-sm font-medium rounded-md text-ink-3 hover:text-ink hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] ml-auto"
+        >
+          Clear
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-16rem)]">
-        <div className="flex flex-col">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Input</label>
+      {/* Editor panes */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ height: 'calc(100vh - 22rem)', minHeight: '380px' }}>
+
+        {/* Input */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            Input
+          </label>
           <textarea
-            className={`flex-1 w-full p-4 border rounded-md font-mono text-sm resize-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 ${
-              error ? 'border-red-500' : 'border-gray-300 dark:border-gray-700'
-            }`}
-            placeholder="Paste your JSON here..."
+            className={[
+              'flex-1 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink',
+              'placeholder:text-ink-3 transition-colors',
+              'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1',
+              error ? 'border-red-500/70 dark:border-red-500/50' : 'border-edge',
+            ].join(' ')}
+            placeholder={'{\n  "paste": "your JSON here"\n}'}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => { setInput(e.target.value); setError(null); }}
+            spellCheck={false}
           />
-          {error && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {error && (
+            <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+              {error}
+            </p>
+          )}
         </div>
 
-        <div className="flex flex-col">
-           <div className="flex justify-between items-center mb-2">
-             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Output</label>
-             <div className="space-x-2">
-               <button
-                 onClick={formatJson}
-                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-               >
-                 Format
-               </button>
-               <button
-                 onClick={minifyJson}
-                 className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-               >
-                 Minify
-               </button>
-               <button
-                 onClick={handleCopy}
-                 disabled={!output}
-                 className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
-               >
-                 Copy
-               </button>
-             </div>
-           </div>
+        {/* Output */}
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            Output
+          </label>
           <textarea
             readOnly
-            className="flex-1 w-full p-4 border border-gray-300 dark:border-gray-700 rounded-md font-mono text-sm resize-none bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-            placeholder="Result will appear here..."
+            className="flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none"
+            placeholder="Result will appear here…"
             value={output}
+            spellCheck={false}
           />
         </div>
+
       </div>
+
     </div>
   );
 }

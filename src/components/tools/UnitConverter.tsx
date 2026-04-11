@@ -1,169 +1,220 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { toast } from 'sonner';
 
-type UnitCategory = 'length' | 'weight' | 'temperature';
+type Category = 'length' | 'weight' | 'temperature' | 'volume' | 'area' | 'speed' | 'data';
 
-interface Unit {
-  id: string;
-  name: string;
-  factor: number; // Factor relative to base unit
-  offset?: number; // For temperature
-}
+interface Unit { id: string; label: string; factor: number }
 
-const units: Record<UnitCategory, Unit[]> = {
+const UNITS: Record<Category, Unit[]> = {
   length: [
-    { id: 'm', name: 'Meters', factor: 1 },
-    { id: 'km', name: 'Kilometers', factor: 1000 },
-    { id: 'cm', name: 'Centimeters', factor: 0.01 },
-    { id: 'mm', name: 'Millimeters', factor: 0.001 },
-    { id: 'in', name: 'Inches', factor: 0.0254 },
-    { id: 'ft', name: 'Feet', factor: 0.3048 },
-    { id: 'yd', name: 'Yards', factor: 0.9144 },
-    { id: 'mi', name: 'Miles', factor: 1609.34 },
+    { id: 'km',  label: 'Kilometers',    factor: 1000      },
+    { id: 'm',   label: 'Meters',         factor: 1         },
+    { id: 'cm',  label: 'Centimeters',    factor: 0.01      },
+    { id: 'mm',  label: 'Millimeters',    factor: 0.001     },
+    { id: 'mi',  label: 'Miles',          factor: 1609.344  },
+    { id: 'yd',  label: 'Yards',          factor: 0.9144    },
+    { id: 'ft',  label: 'Feet',           factor: 0.3048    },
+    { id: 'in',  label: 'Inches',         factor: 0.0254    },
+    { id: 'nmi', label: 'Nautical miles', factor: 1852      },
   ],
   weight: [
-    { id: 'kg', name: 'Kilograms', factor: 1 },
-    { id: 'g', name: 'Grams', factor: 0.001 },
-    { id: 'mg', name: 'Milligrams', factor: 0.000001 },
-    { id: 'lb', name: 'Pounds', factor: 0.453592 },
-    { id: 'oz', name: 'Ounces', factor: 0.0283495 },
+    { id: 't',   label: 'Tonnes',      factor: 1000       },
+    { id: 'kg',  label: 'Kilograms',   factor: 1          },
+    { id: 'g',   label: 'Grams',       factor: 0.001      },
+    { id: 'mg',  label: 'Milligrams',  factor: 0.000001   },
+    { id: 'lb',  label: 'Pounds',      factor: 0.453592   },
+    { id: 'oz',  label: 'Ounces',      factor: 0.0283495  },
+    { id: 'st',  label: 'Stone',       factor: 6.35029    },
   ],
   temperature: [
-    { id: 'c', name: 'Celsius', factor: 1 },
-    { id: 'f', name: 'Fahrenheit', factor: 1 }, // Handled specially
-    { id: 'k', name: 'Kelvin', factor: 1 }, // Handled specially
+    { id: 'c', label: 'Celsius',    factor: 1 },
+    { id: 'f', label: 'Fahrenheit', factor: 1 },
+    { id: 'k', label: 'Kelvin',     factor: 1 },
+  ],
+  volume: [
+    { id: 'l',    label: 'Liters',         factor: 1           },
+    { id: 'ml',   label: 'Milliliters',    factor: 0.001       },
+    { id: 'm3',   label: 'Cubic meters',   factor: 1000        },
+    { id: 'gal',  label: 'Gallons (US)',   factor: 3.78541     },
+    { id: 'qt',   label: 'Quarts (US)',    factor: 0.946353    },
+    { id: 'pt',   label: 'Pints (US)',     factor: 0.473176    },
+    { id: 'cup',  label: 'Cups (US)',      factor: 0.236588    },
+    { id: 'floz', label: 'Fl oz (US)',     factor: 0.0295735   },
+    { id: 'tbsp', label: 'Tablespoons',    factor: 0.0147868   },
+    { id: 'tsp',  label: 'Teaspoons',      factor: 0.00492892  },
+  ],
+  area: [
+    { id: 'km2', label: 'Sq kilometers',  factor: 1_000_000  },
+    { id: 'm2',  label: 'Sq meters',      factor: 1          },
+    { id: 'cm2', label: 'Sq centimeters', factor: 0.0001     },
+    { id: 'ha',  label: 'Hectares',       factor: 10_000     },
+    { id: 'ac',  label: 'Acres',          factor: 4046.856   },
+    { id: 'mi2', label: 'Sq miles',       factor: 2_589_988  },
+    { id: 'ft2', label: 'Sq feet',        factor: 0.092903   },
+    { id: 'in2', label: 'Sq inches',      factor: 0.00064516 },
+  ],
+  speed: [
+    { id: 'kph',  label: 'km/h',   factor: 1         },
+    { id: 'mph',  label: 'mph',    factor: 1.60934   },
+    { id: 'mps',  label: 'm/s',    factor: 3.6       },
+    { id: 'fps',  label: 'ft/s',   factor: 1.09728   },
+    { id: 'kn',   label: 'Knots',  factor: 1.852     },
+  ],
+  data: [
+    { id: 'tb',  label: 'Terabytes',  factor: 1_099_511_627_776 },
+    { id: 'gb',  label: 'Gigabytes',  factor: 1_073_741_824     },
+    { id: 'mb',  label: 'Megabytes',  factor: 1_048_576         },
+    { id: 'kb',  label: 'Kilobytes',  factor: 1024              },
+    { id: 'b',   label: 'Bytes',      factor: 1                 },
+    { id: 'bit', label: 'Bits',       factor: 0.125             },
   ],
 };
 
+const CATEGORIES: { id: Category; label: string }[] = [
+  { id: 'length',      label: 'Length'      },
+  { id: 'weight',      label: 'Weight'      },
+  { id: 'temperature', label: 'Temperature' },
+  { id: 'volume',      label: 'Volume'      },
+  { id: 'area',        label: 'Area'        },
+  { id: 'speed',       label: 'Speed'       },
+  { id: 'data',        label: 'Data'        },
+];
+
+function convertTemp(val: number, from: string, to: string): number {
+  let c = val;
+  if (from === 'f') c = (val - 32) * 5 / 9;
+  if (from === 'k') c = val - 273.15;
+  if (to   === 'c') return c;
+  if (to   === 'f') return c * 9 / 5 + 32;
+  return c + 273.15; // kelvin
+}
+
+function formatNum(n: number): string {
+  if (!isFinite(n)) return '—';
+  if (Math.abs(n) >= 1e9 || (Math.abs(n) < 0.0001 && n !== 0)) return n.toExponential(4);
+  const s = parseFloat(n.toPrecision(7)).toString();
+  return s;
+}
+
 export default function UnitConverter() {
-  const [category, setCategory] = useState<UnitCategory>('length');
-  const [fromUnit, setFromUnit] = useState<string>('m');
-  const [toUnit, setToUnit] = useState<string>('ft');
-  const [inputValue, setInputValue] = useState<string>('1');
-  const [outputValue, setOutputValue] = useState<string>('');
+  const [category, setCategory] = useState<Category>('length');
+  const [fromId,   setFromId]   = useState('m');
+  const [toId,     setToId]     = useState('ft');
+  const [input,    setInput]    = useState('1');
 
+  // Reset unit selectors when category changes
   useEffect(() => {
-    // Reset units when category changes
-    const defaultFrom = units[category][0].id;
-    const defaultTo = units[category][1]?.id || units[category][0].id;
-    // Only reset if current units are not in the new category
-    const currentUnits = units[category].map(u => u.id);
-    if (!currentUnits.includes(fromUnit)) setFromUnit(defaultFrom);
-    if (!currentUnits.includes(toUnit)) setToUnit(defaultTo);
-  }, [category, fromUnit, toUnit]);
+    const units = UNITS[category];
+    setFromId(units[0].id);
+    setToId(units[1]?.id ?? units[0].id);
+  }, [category]);
 
-  useEffect(() => {
-    const val = parseFloat(inputValue);
-    if (isNaN(val)) {
-      setOutputValue('');
-      return;
-    }
+  const output = useMemo(() => {
+    const val = parseFloat(input);
+    if (isNaN(val) || !input.trim()) return '';
+    const units = UNITS[category];
+    const from  = units.find((u) => u.id === fromId);
+    const to    = units.find((u) => u.id === toId);
+    if (!from || !to) return '';
+    if (category === 'temperature') return formatNum(convertTemp(val, fromId, toId));
+    return formatNum((val * from.factor) / to.factor);
+  }, [input, fromId, toId, category]);
 
-    let result = 0;
+  const swap = () => {
+    setFromId(toId);
+    setToId(fromId);
+    setInput(output || input);
+  };
 
-    if (category === 'temperature') {
-      // Special handling for temperature
-      let celsius = val;
-      if (fromUnit === 'f') celsius = (val - 32) * (5 / 9);
-      if (fromUnit === 'k') celsius = val - 273.15;
-
-      if (toUnit === 'c') result = celsius;
-      if (toUnit === 'f') result = (celsius * 9 / 5) + 32;
-      if (toUnit === 'k') result = celsius + 273.15;
-    } else {
-      // Linear conversion
-      const from = units[category].find(u => u.id === fromUnit);
-      const to = units[category].find(u => u.id === toUnit);
-      if (from && to) {
-        const baseValue = val * from.factor;
-        result = baseValue / to.factor;
-      }
-    }
-
-    // Format output to avoid floating point errors
-    setOutputValue(parseFloat(result.toFixed(6)).toString());
-  }, [inputValue, fromUnit, toUnit, category]);
+  const units = UNITS[category];
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div className="md:flex md:items-center md:justify-between mb-6">
-        <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:text-3xl sm:truncate">
-            Unit Converter
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Convert between common units of measurement.
-          </p>
-        </div>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <header className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Calculators</p>
+        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Unit Converter</h1>
+        <p className="text-base text-ink-2 max-w-[48ch]">Convert between units instantly across 7 categories.</p>
+      </header>
+
+      {/* Category tabs */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {CATEGORIES.map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setCategory(id)}
+            className={[
+              'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
+              category === id
+                ? 'bg-accent text-accent-fg border-accent'
+                : 'bg-surface text-ink border-edge hover:bg-muted',
+            ].join(' ')}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 max-w-3xl mx-auto">
-        <div className="mb-6">
-           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-           <div className="flex space-x-2">
-             {(['length', 'weight', 'temperature'] as UnitCategory[]).map((cat) => (
-               <button
-                 key={cat}
-                 onClick={() => setCategory(cat)}
-                 className={`px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 capitalize ${
-                   category === cat
-                     ? 'bg-blue-600 text-white'
-                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600'
-                 }`}
-               >
-                 {cat}
-               </button>
-             ))}
-           </div>
+      {/* Converter */}
+      <div className="rounded-xl border border-edge bg-surface p-6 space-y-5">
+        {/* From row */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">From</label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="flex-1 h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+            />
+            <select
+              value={fromId}
+              onChange={(e) => setFromId(e.target.value)}
+              className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+            >
+              {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
+            </select>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From</label>
-            <div className="flex space-x-2">
-               <input
-                type="number"
-                className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-              />
-              <select
-                className="block w-32 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                value={fromUnit}
-                onChange={(e) => setFromUnit(e.target.value)}
-              >
-                {units[category].map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+        {/* Swap */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-edge" />
+          <button
+            onClick={swap}
+            className="h-8 w-8 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors"
+            title="Swap units"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </button>
+          <div className="flex-1 h-px bg-edge" />
+        </div>
 
-          <div className="text-center md:pt-6">
-            <span className="text-2xl text-gray-400">→</span>
-          </div>
-
-          <div>
-             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To</label>
-             <div className="flex space-x-2">
-               <input
-                type="text"
-                readOnly
-                className="block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 sm:text-sm focus:outline-none"
-                value={outputValue}
-              />
-              <select
-                className="block w-32 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
-                value={toUnit}
-                onChange={(e) => setToUnit(e.target.value)}
-              >
-                {units[category].map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
+        {/* To row */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">To</label>
+          <div className="flex gap-2">
+            <div
+              className="flex-1 h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base cursor-pointer hover:border-edge-strong transition-colors"
+              onClick={() => { if (output) { navigator.clipboard.writeText(output); toast.success('Copied'); } }}
+              title="Click to copy"
+            >
+              <span className={output ? 'text-ink' : 'text-ink-3'}>
+                {output || '—'}
+              </span>
             </div>
+            <select
+              value={toId}
+              onChange={(e) => setToId(e.target.value)}
+              className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+            >
+              {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
+            </select>
           </div>
+          {output && <p className="text-xs text-ink-3">Click result to copy</p>}
         </div>
       </div>
     </div>
