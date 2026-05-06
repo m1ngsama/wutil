@@ -65,3 +65,5 @@ Required GitHub Actions secrets:
 - `CLOUDFLARE_ACCOUNT_ID`
 
 Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes and immutable browser caching for fingerprinted `/_next/static/*` assets.
+
+See [docs/project-review.md](docs/project-review.md) for the current production review, remaining risks, and roadmap.
