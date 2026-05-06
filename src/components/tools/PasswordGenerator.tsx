@@ -61,7 +61,12 @@ export default function PasswordGenerator() {
       {/* Output */}
       <div className="rounded-xl border border-edge bg-surface p-5 mb-5">
         <div className="flex items-center gap-3 mb-3">
-          <span className="flex-1 font-mono text-lg tracking-widest text-ink break-all min-h-[1.75rem]">
+          <span
+            aria-label="Generated password"
+            aria-live="polite"
+            data-testid="generated-password"
+            className="flex-1 font-mono text-lg tracking-widest text-ink break-all min-h-[1.75rem]"
+          >
             {password || <span className="text-ink-3 font-sans text-sm tracking-normal">Click Generate…</span>}
           </span>
           <button

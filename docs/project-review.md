@@ -10,7 +10,7 @@ The project is in a production-usable state:
 
 - The app has a registry-backed tool catalog, sitemap, robots route, privacy page, Open Graph image, PWA manifest, and Cloudflare Pages security headers.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
-- Browser smoke coverage exercises homepage search/navigation, Base64 Unicode conversion, Regex copy flow, Image conversion, and actual PDF merge output.
+- Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output.
 - Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification after deployment.
 
 ## Production Pipeline
@@ -26,12 +26,12 @@ The current CI/CD flow for `main` is:
 7. Deploy `out` to Cloudflare Pages.
 8. Verify `https://wutil.m1ng.space` plus `robots.txt`, `sitemap.xml`, `/privacy`, and `/og-image.svg`.
 
-This is a solid baseline for a static, client-side app. The highest-value next step is to keep broadening browser coverage until every public tool has at least one realistic happy-path test and one validation/error-path test.
+This is a solid baseline for a static, client-side app. The highest-value next step is to deepen browser coverage with validation/error paths and accessibility checks for the most failure-prone tools.
 
 ## Remaining Risks
 
 - The app processes user files in-browser. Large images and PDFs can still create memory pressure even with file size validation.
-- E2E coverage is intentionally smoke-level. Several tools still rely mostly on unit tests or manual confidence.
+- E2E coverage now spans every public tool, but remains smoke-level for several tools. Validation and error-path coverage should continue expanding.
 - Production has response checks, but no real user monitoring, uptime alerting, or Core Web Vitals budget yet.
 - `npm audit --omit=dev --audit-level=high` passes, but Next currently carries a moderate PostCSS advisory upstream. Do not use `npm audit fix --force` because it proposes a breaking downgrade.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.
@@ -41,7 +41,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 
 ### Phase 1: Production Hardening
 
-- Expand Playwright tests to cover every public tool.
+- Expand Playwright tests from happy-path smoke coverage into validation, error-path, and keyboard-flow coverage.
 - Add accessibility checks for keyboard-only flows and screen-reader names on interactive controls.
 - Add performance checks for homepage and the heavier file tools.
 - Replace or upgrade the Wrangler action once Cloudflare publishes an action that targets Node 24 natively.
