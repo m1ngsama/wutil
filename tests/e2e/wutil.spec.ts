@@ -3,6 +3,24 @@ import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import path from 'node:path';
 
+const ACCESSIBILITY_ROUTES = [
+  '/',
+  '/tools/password-generator',
+  '/tools/color-converter',
+  '/tools/url-encoder',
+  '/tools/text-case',
+  '/tools/regex-tester',
+  '/tools/timestamp',
+  '/tools/word-counter',
+  '/tools/json-formatter',
+  '/tools/base64-converter',
+  '/tools/unit-converter',
+  '/tools/hash-generator',
+  '/tools/date-calculator',
+  '/tools/image-converter',
+  '/tools/pdf-merge',
+];
+
 async function expectNoAccessibilityViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   const violations = results.violations.map(({ id, impact, description, nodes }) => ({
@@ -173,25 +191,18 @@ test('Image converter uploads and converts an image', async ({ page }) => {
 });
 
 test.describe('accessibility smoke scans', () => {
-  for (const route of [
-    '/',
-    '/tools/password-generator',
-    '/tools/color-converter',
-    '/tools/url-encoder',
-    '/tools/text-case',
-    '/tools/regex-tester',
-    '/tools/timestamp',
-    '/tools/word-counter',
-    '/tools/json-formatter',
-    '/tools/base64-converter',
-    '/tools/unit-converter',
-    '/tools/hash-generator',
-    '/tools/date-calculator',
-    '/tools/image-converter',
-    '/tools/pdf-merge',
-  ]) {
-    test(`${route} has no basic WCAG A/AA violations`, async ({ page }) => {
+  for (const route of ACCESSIBILITY_ROUTES) {
+    test(`${route} has no basic WCAG A/AA violations in light mode`, async ({ page }) => {
       await page.goto(route);
+      await expectNoAccessibilityViolations(page);
+    });
+
+    test(`${route} has no basic WCAG A/AA violations in dark mode`, async ({ page }) => {
+      await page.addInitScript(() => {
+        localStorage.setItem('theme', 'dark');
+      });
+      await page.goto(route);
+      await expect(page.locator('html')).toHaveClass(/dark/);
       await expectNoAccessibilityViolations(page);
     });
   }

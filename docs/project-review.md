@@ -10,7 +10,7 @@ The project is in a production-usable state:
 
 - The app has a registry-backed tool catalog, sitemap, robots route, privacy page, Open Graph image, PWA manifest, and Cloudflare Pages security headers.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
-- Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page.
+- Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes.
 - Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification after deployment.
 
 ## Production Pipeline
@@ -31,7 +31,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 ## Remaining Risks
 
 - The app processes user files in-browser. Large images and PDFs can still create memory pressure even with file size validation.
-- E2E coverage now spans every public tool and includes full-catalog basic axe scans, but remains smoke-level for several tools. Validation, error-path, and keyboard-flow coverage should continue expanding.
+- E2E coverage now spans every public tool and includes full-catalog light/dark axe scans, but remains smoke-level for several tools. Validation, error-path, and keyboard-flow coverage should continue expanding.
 - Production has response checks, but no real user monitoring, uptime alerting, or Core Web Vitals budget yet.
 - `npm audit --omit=dev --audit-level=high` passes, but Next currently carries a moderate PostCSS advisory upstream. Do not use `npm audit fix --force` because it proposes a breaking downgrade.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.
