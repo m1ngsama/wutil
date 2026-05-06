@@ -1,5 +1,18 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import path from 'node:path';
+
+async function expectNoAccessibilityViolations(page: Page) {
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  const violations = results.violations.map(({ id, impact, description, nodes }) => ({
+    id,
+    impact,
+    description,
+    targets: nodes.map((node) => node.target),
+  }));
+  expect(violations).toEqual([]);
+}
 
 test('home search filters tools and opens a tool', async ({ page }) => {
   await page.goto('/');
@@ -157,6 +170,31 @@ test('Image converter uploads and converts an image', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Convert Image' }).click();
   await expect(page.getByRole('link', { name: 'Download' })).toBeVisible();
+});
+
+test.describe('accessibility smoke scans', () => {
+  for (const route of [
+    '/',
+    '/tools/password-generator',
+    '/tools/color-converter',
+    '/tools/url-encoder',
+    '/tools/text-case',
+    '/tools/regex-tester',
+    '/tools/timestamp',
+    '/tools/word-counter',
+    '/tools/json-formatter',
+    '/tools/base64-converter',
+    '/tools/unit-converter',
+    '/tools/hash-generator',
+    '/tools/date-calculator',
+    '/tools/image-converter',
+    '/tools/pdf-merge',
+  ]) {
+    test(`${route} has no basic WCAG A/AA violations`, async ({ page }) => {
+      await page.goto(route);
+      await expectNoAccessibilityViolations(page);
+    });
+  }
 });
 
 test('PDF merger uploads PDFs and exposes accessible removal controls', async ({ page }) => {

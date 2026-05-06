@@ -102,6 +102,7 @@ export default function PasswordGenerator() {
           </div>
           <input
             type="range" min={4} max={64} value={length}
+            aria-label="Password length"
             onChange={(e) => setLength(Number(e.target.value))}
             className="w-full accent-[var(--w-accent)]"
           />

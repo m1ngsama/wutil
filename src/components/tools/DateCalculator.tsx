@@ -80,6 +80,7 @@ export default function DateCalculator() {
                   <input
                     type="date"
                     value={value}
+                    aria-label={label}
                     onChange={(e) => set(e.target.value)}
                     className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
                   />
@@ -140,6 +141,7 @@ export default function DateCalculator() {
               <input
                 type="date"
                 value={base}
+                aria-label="Starting date"
                 onChange={(e) => setBase(e.target.value)}
                 className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
               />
@@ -174,6 +176,7 @@ export default function DateCalculator() {
                 type="number"
                 min={0}
                 value={delta}
+                aria-label="Days to add or subtract"
                 onChange={(e) => setDelta(e.target.value)}
                 className="w-28 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
               />

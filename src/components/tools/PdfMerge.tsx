@@ -88,7 +88,7 @@ export default function PdfMergeComponent() {
           <span className="block text-xs text-ink-3 mt-0.5">or click to browse — up to 10 MB each</span>
         </span>
       </button>
-      <input ref={fileInputRef} id="pdf-upload" type="file" multiple accept=".pdf" className="sr-only"
+      <input ref={fileInputRef} id="pdf-upload" type="file" multiple accept=".pdf" aria-label="Choose PDF files" className="sr-only"
         onChange={(e) => e.target.files && addFiles(e.target.files)} />
 
       {/* File list */}

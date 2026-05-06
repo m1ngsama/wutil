@@ -7,20 +7,20 @@
 
 :root {
   /* Accent — warm terracotta */
-  --w-accent:        oklch(60% 0.175 44);
-  --w-accent-hover:  oklch(54% 0.175 44);
-  --w-accent-subtle: oklch(93% 0.04  60);
-  --w-accent-fg:     oklch(99% 0.004 70);
+  --w-accent:        #9a3412;
+  --w-accent-hover:  #7c2d12;
+  --w-accent-subtle: #ffedd5;
+  --w-accent-fg:     #ffffff;
 
   /* Canvas & surfaces — warm off-white */
-  --w-canvas:  oklch(98.5% 0.006 70);
-  --w-surface: oklch(100%  0     0);
-  --w-muted:   oklch(96%   0.010 70);
+  --w-canvas:  #fafaf9;
+  --w-surface: #ffffff;
+  --w-muted:   #f5f5f4;
 
   /* Text — warm near-blacks */
-  --w-ink:   oklch(18%  0.015 50);
-  --w-ink-2: oklch(46%  0.018 50);
-  --w-ink-3: oklch(64%  0.012 50);
+  --w-ink:   #1c1917;
+  --w-ink-2: #374151;
+  --w-ink-3: #4b5563;
 
   /* Borders */
   --w-edge:       oklch(88% 0.014 70);
@@ -31,18 +31,18 @@
 }
 
 .dark {
-  --w-accent:        oklch(70% 0.160 48);
-  --w-accent-hover:  oklch(64% 0.160 48);
-  --w-accent-subtle: oklch(22% 0.04  48);
-  --w-accent-fg:     oklch(14% 0.012 50);
+  --w-accent:        #fdba74;
+  --w-accent-hover:  #fb923c;
+  --w-accent-subtle: #431407;
+  --w-accent-fg:     #1c1917;
 
-  --w-canvas:  oklch(13%  0.012 50);
-  --w-surface: oklch(17%  0.014 50);
-  --w-muted:   oklch(21%  0.016 50);
+  --w-canvas:  #11100f;
+  --w-surface: #1c1917;
+  --w-muted:   #292524;
 
-  --w-ink:   oklch(93%  0.007 70);
-  --w-ink-2: oklch(67%  0.012 50);
-  --w-ink-3: oklch(50%  0.015 50);
+  --w-ink:   #f5f5f4;
+  --w-ink-2: #e7e5e4;
+  --w-ink-3: #d6d3d1;
 
   --w-edge:        oklch(27% 0.018 50);
   --w-edge-strong: oklch(35% 0.022 50);

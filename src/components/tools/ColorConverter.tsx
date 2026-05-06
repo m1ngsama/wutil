@@ -84,6 +84,7 @@ export default function ColorConverter() {
         <div className="bg-surface p-4 flex items-center gap-3">
           <input
             type="color" value={safe}
+            aria-label="Choose color"
             onChange={(e) => fromHex(e.target.value)}
             className="w-9 h-9 rounded-md cursor-pointer border-0 bg-transparent p-0"
           />
@@ -120,6 +121,7 @@ export default function ColorConverter() {
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">{ch}</label>
                 <input
                   type="number" min={0} max={255} value={rgb[ch]}
+                  aria-label={`RGB ${ch.toUpperCase()}`}
                   onChange={(e) => {
                     const v = Math.max(0, Math.min(255, Number(e.target.value)));
                     fromRgb(ch==='r'?v:rgb.r, ch==='g'?v:rgb.g, ch==='b'?v:rgb.b);
@@ -148,6 +150,7 @@ export default function ColorConverter() {
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">{label}</label>
                 <input
                   type="number" min={0} max={max} value={hsl[k]}
+                  aria-label={`HSL ${label}`}
                   onChange={(e) => {
                     const v = Math.max(0, Math.min(max, Number(e.target.value)));
                     fromHsl(k==='h'?v:hsl.h, k==='s'?v:hsl.s, k==='l'?v:hsl.l);

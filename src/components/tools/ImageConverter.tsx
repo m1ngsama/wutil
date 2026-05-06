@@ -152,7 +152,7 @@ export default function ImageConverterComponent() {
               </span>
             )}
           </button>
-          <input ref={fileInputRef} id="img-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} />
+          <input ref={fileInputRef} id="img-upload" type="file" accept="image/*" aria-label="Choose image file" className="sr-only" onChange={handleFileChange} />
 
           {/* Format */}
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
@@ -182,6 +182,7 @@ export default function ImageConverterComponent() {
                 </div>
                 <input
                   type="range" min={0.1} max={1} step={0.05} value={quality}
+                  aria-label="Image quality"
                   onChange={(e) => setQuality(parseFloat(e.target.value))}
                   className="w-full accent-[var(--w-accent)]"
                 />
@@ -214,6 +215,7 @@ export default function ImageConverterComponent() {
                     <label className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">{label}</label>
                     <input
                       type="number" min={1} value={value}
+                      aria-label={label === 'W' ? 'Output width' : 'Output height'}
                       onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
                       className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
                     />

@@ -167,11 +167,13 @@ export default function UnitConverter() {
             <input
               type="number"
               value={input}
+              aria-label="Input value"
               onChange={(e) => setInput(e.target.value)}
               className="flex-1 h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
             />
             <select
               value={fromId}
+              aria-label="From unit"
               onChange={(e) => setFromId(e.target.value)}
               className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
             >
@@ -214,6 +216,7 @@ export default function UnitConverter() {
             </button>
             <select
               value={toId}
+              aria-label="To unit"
               onChange={(e) => setToId(e.target.value)}
               className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
             >
