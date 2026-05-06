@@ -38,6 +38,7 @@ Useful checks:
 
 ```bash
 npm run check
+npm run test:e2e
 npm run build
 npm run audit:prod
 ```
@@ -53,9 +54,10 @@ Production deploys run through GitHub Actions on pushes to `main`:
 3. `npm run lint`
 4. `npm run typecheck`
 5. `npm run test`
-6. `npm run build`
-7. `wrangler pages deploy out --project-name=wutil --branch=main`
-8. Verify `https://wutil.m1ng.space`, `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/og-image.svg`
+6. `npm run test:e2e`
+7. `npm run build`
+8. `wrangler pages deploy out --project-name=wutil --branch=main`
+9. Verify `https://wutil.m1ng.space`, `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/og-image.svg`
 
 Required GitHub Actions secrets:
 

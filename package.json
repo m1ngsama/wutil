@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test .tmp/test-dist/tests/*.test.js",
+    "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run test",
     "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
@@ -22,6 +23,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
