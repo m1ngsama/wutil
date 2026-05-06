@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 function toTitleCase(str: string): string {
   return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
@@ -53,8 +53,7 @@ export default function TextCaseConverter() {
 
   const handleCopy = () => {
     if (!outputText) return;
-    navigator.clipboard.writeText(outputText);
-    toast.success('Copied');
+    void copyText(outputText);
   };
 
   return (

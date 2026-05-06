@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">wutil - Web Utilities</title>
+  <desc id="desc">Fast, private browser-only web tools.</desc>
+  <rect width="1200" height="630" fill="#fbf7f0"/>
+  <rect x="72" y="72" width="1056" height="486" rx="28" fill="#ffffff" stroke="#ded4c8" stroke-width="3"/>
+  <text x="120" y="225" fill="#31251e" font-family="Georgia, serif" font-size="112" font-weight="700">wutil</text>
+  <text x="124" y="302" fill="#8b7868" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="7">WEB UTILITIES</text>
+  <text x="124" y="382" fill="#55463b" font-family="Arial, sans-serif" font-size="42">Fast, private tools that run in your browser.</text>
+  <g transform="translate(124 448)">
+    <rect width="194" height="56" rx="12" fill="#d45d32"/>
+    <text x="28" y="37" fill="#fffaf5" font-family="Arial, sans-serif" font-size="22" font-weight="700">JSON</text>
+    <text x="96" y="37" fill="#fffaf5" font-family="Arial, sans-serif" font-size="22" font-weight="700">PDF</text>
+  </g>
+  <g transform="translate(340 448)">
+    <rect width="260" height="56" rx="12" fill="#f3e2d1" stroke="#d45d32" stroke-width="2"/>
+    <text x="28" y="37" fill="#9b4428" font-family="Arial, sans-serif" font-size="22" font-weight="700">IMAGE</text>
+    <text x="126" y="37" fill="#9b4428" font-family="Arial, sans-serif" font-size="22" font-weight="700">TEXT</text>
+  </g>
+  <circle cx="986" cy="206" r="68" fill="#f3e2d1"/>
+  <circle cx="1026" cy="286" r="112" fill="none" stroke="#d45d32" stroke-width="16"/>
+  <path d="M954 330h144M1026 258v144" stroke="#d45d32" stroke-width="16" stroke-linecap="round"/>
+</svg>

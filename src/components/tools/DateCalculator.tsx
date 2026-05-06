@@ -1,26 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
+import { addCalendarDays, daysBetween, toDateInputValue } from '@/lib/date-utils';
 
-function toInputValue(d: Date): string {
-  return d.toISOString().split('T')[0];
-}
-
-// DST-safe: use UTC midnight for day arithmetic
-function daysBetween(a: Date, b: Date): number {
-  const utcA = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-  const utcB = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-  return Math.round((utcB - utcA) / 86_400_000);
-}
-
-function addDays(date: Date, n: number): Date {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  d.setUTCDate(d.getUTCDate() + n);
-  return d;
-}
-
-const todayStr = () => toInputValue(new Date());
+const todayStr = () => toDateInputValue(new Date());
 
 export default function DateCalculator() {
   const [tab, setTab] = useState<'diff' | 'add'>('diff');
@@ -55,7 +39,7 @@ export default function DateCalculator() {
     if (!base || !delta || isNaN(Number(delta))) return null;
     const d = new Date(base + 'T00:00:00');
     const n = direction === '+' ? Number(delta) : -Number(delta);
-    return toInputValue(addDays(d, n));
+    return toDateInputValue(addCalendarDays(d, n));
   }, [base, delta, direction]);
 
   return (
@@ -70,6 +54,7 @@ export default function DateCalculator() {
       <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit">
         {([['diff', 'Date difference'], ['add', 'Add / subtract days']] as const).map(([id, label]) => (
           <button
+            type="button"
             key={id}
             onClick={() => setTab(id)}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -99,6 +84,7 @@ export default function DateCalculator() {
                     className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
                   />
                   <button
+                    type="button"
                     onClick={() => set(todayStr())}
                     className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
                   >
@@ -125,15 +111,17 @@ export default function DateCalculator() {
                       { label: 'Months', value: `~${diff.months}` },
                       { label: 'Years',  value: `~${diff.years}` },
                     ].map(({ label, value }) => (
-                      <div
+                      <button
+                        type="button"
                         key={label}
-                        className="flex flex-col items-center justify-center rounded-lg bg-muted border border-edge p-4 cursor-pointer hover:border-edge-strong transition-colors"
-                        onClick={() => { navigator.clipboard.writeText(value.replace('~', '')); toast.success(`${label} copied`); }}
+                        className="flex flex-col items-center justify-center rounded-lg bg-muted border border-edge p-4 hover:border-edge-strong transition-colors"
+                        onClick={() => { void copyText(value.replace('~', ''), `${label} copied`); }}
                         title="Click to copy"
+                        aria-label={`Copy ${label.toLowerCase()} value ${value.replace('~', '')}`}
                       >
                         <span className="font-display text-2xl text-ink leading-none mb-1">{value}</span>
                         <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-3">{label}</span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </>
@@ -156,6 +144,7 @@ export default function DateCalculator() {
                 className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
               />
               <button
+                type="button"
                 onClick={() => setBase(todayStr())}
                 className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
               >
@@ -170,6 +159,7 @@ export default function DateCalculator() {
               <div className="flex rounded-md border border-edge overflow-hidden">
                 {(['+', '-'] as const).map((d) => (
                   <button
+                    type="button"
                     key={d}
                     onClick={() => setDir(d)}
                     className={`w-10 font-mono text-base font-bold transition-colors ${
@@ -192,17 +182,19 @@ export default function DateCalculator() {
           </div>
 
           {addResult && (
-            <div
-              className="rounded-xl border border-edge bg-surface p-5 cursor-pointer hover:border-edge-strong transition-colors"
-              onClick={() => { navigator.clipboard.writeText(addResult); toast.success('Date copied'); }}
+            <button
+              type="button"
+              className="w-full rounded-xl border border-edge bg-surface p-5 text-left hover:border-edge-strong transition-colors"
+              onClick={() => { void copyText(addResult, 'Date copied'); }}
               title="Click to copy"
+              aria-label={`Copy result date ${addResult}`}
             >
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</p>
-              <p className="font-display text-3xl text-ink">{addResult}</p>
-              <p className="text-xs text-ink-3 mt-1">
+              <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</span>
+              <span className="block font-display text-3xl text-ink">{addResult}</span>
+              <span className="block text-xs text-ink-3 mt-1">
                 {new Date(addResult + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </p>
-            </div>
+              </span>
+            </button>
           )}
 
           {/* Quick presets */}
@@ -211,6 +203,7 @@ export default function DateCalculator() {
             <div className="flex flex-wrap gap-2">
               {[7, 14, 30, 90, 180, 365].map((n) => (
                 <button
+                  type="button"
                   key={n}
                   onClick={() => { setDelta(String(n)); setDir('+'); }}
                   className="px-3 py-1.5 text-xs font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted transition-colors"

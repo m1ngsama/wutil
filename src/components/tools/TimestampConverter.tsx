@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 const FORMATS = [
   { label: 'Unix (s)',     fn: (d: Date) => String(Math.floor(d.getTime() / 1000))   },
@@ -59,8 +59,7 @@ export default function TimestampConverter() {
   };
 
   const copy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success(`${label} copied`);
+    void copyText(text, `${label} copied`);
   };
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -82,6 +81,7 @@ export default function TimestampConverter() {
             <p className="text-xs text-ink-3 mt-0.5">{new Date(now * 1000).toUTCString()}</p>
           </div>
           <button
+            type="button"
             onClick={() => handleInput(String(now))}
             className="h-9 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors"
           >
@@ -118,16 +118,18 @@ export default function TimestampConverter() {
             {FORMATS.map(({ label, fn }, i) => {
               const value = fn(date);
               return (
-                <div
+                <button
+                  type="button"
                   key={label}
-                  className={`flex items-center gap-4 px-5 py-3.5 hover:bg-muted transition-colors cursor-pointer ${i < FORMATS.length - 1 ? 'border-b border-edge' : ''}`}
+                  className={`w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted transition-colors ${i < FORMATS.length - 1 ? 'border-b border-edge' : ''}`}
                   onClick={() => copy(value, label)}
                   title="Click to copy"
+                  aria-label={`Copy ${label} value`}
                 >
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3 w-24">{label}</span>
                   <code className="flex-1 font-mono text-sm text-ink truncate">{value}</code>
                   <span className="shrink-0 text-xs font-semibold text-accent">Copy</span>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -152,7 +154,7 @@ export default function TimestampConverter() {
             { label: '1700000000',      value: '1700000000' },
             { label: 'Unix epoch',      value: '0' },
           ].map(({ label, value }) => (
-            <button key={label} onClick={() => handleInput(value)}
+            <button key={label} type="button" onClick={() => handleInput(value)}
               className="px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted transition-colors"
             >
               {label}

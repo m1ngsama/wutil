@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
+import { generatePassword } from '@/lib/password-utils';
 
 const CHARS = {
   uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -32,14 +34,11 @@ export default function PasswordGenerator() {
   const [password, setPassword] = useState('');
 
   const generate = useCallback(() => {
-    const charset = Object.entries(options)
+    const selectedCharsets = Object.entries(options)
       .filter(([, on]) => on)
-      .map(([k]) => CHARS[k as keyof typeof CHARS])
-      .join('');
-    if (!charset) { toast.error('Select at least one character type'); return; }
-    const arr = new Uint32Array(length);
-    crypto.getRandomValues(arr);
-    setPassword(Array.from(arr, (n) => charset[n % charset.length]).join(''));
+      .map(([k]) => CHARS[k as keyof typeof CHARS]);
+    if (selectedCharsets.length === 0) { toast.error('Select at least one character type'); return; }
+    setPassword(generatePassword(length, selectedCharsets));
   }, [length, options]);
 
   const strength = getStrength(password);
@@ -66,7 +65,7 @@ export default function PasswordGenerator() {
             {password || <span className="text-ink-3 font-sans text-sm tracking-normal">Click Generate…</span>}
           </span>
           <button
-            onClick={() => { if (!password) return; navigator.clipboard.writeText(password); toast.success('Copied'); }}
+            onClick={() => { if (!password) return; void copyText(password); }}
             disabled={!password}
             className="shrink-0 h-9 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:opacity-35 disabled:pointer-events-none transition-colors"
           >
@@ -106,15 +105,19 @@ export default function PasswordGenerator() {
 
         <div className="grid grid-cols-2 gap-3">
           {(Object.keys(options) as (keyof typeof options)[]).map((key) => (
-            <label key={key} className="flex items-center gap-3 cursor-pointer">
-              <div
-                className={`relative shrink-0 w-9 h-5 rounded-full transition-colors ${options[key] ? 'bg-accent' : 'bg-edge-strong'}`}
+            <div key={key} className="flex items-center gap-3">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={options[key]}
+                aria-label={OPTION_LABELS[key]}
+                className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 ${options[key] ? 'bg-accent' : 'bg-edge-strong'}`}
                 onClick={() => setOptions((prev) => ({ ...prev, [key]: !prev[key] }))}
               >
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${options[key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
-              </div>
+              </button>
               <span className="text-sm text-ink-2">{OPTION_LABELS[key]}</span>
-            </label>
+            </div>
           ))}
         </div>
       </div>

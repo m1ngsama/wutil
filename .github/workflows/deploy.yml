@@ -9,6 +9,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
+    environment:
+      name: production
+      url: https://wutil.m1ng.space
+    concurrency:
+      group: cloudflare-pages-production
+      cancel-in-progress: true
     permissions:
       contents: read
       deployments: write
@@ -25,6 +31,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit production dependencies
+        run: npm run audit:prod
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
       - name: Build
         run: npm run build
 
@@ -33,4 +51,13 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy out --project-name=wutil
+          command: pages deploy out --project-name=wutil --branch=main
+
+      - name: Verify production
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --head https://wutil.m1ng.space
+          curl --fail --silent --show-error https://wutil.m1ng.space/robots.txt | grep -F "Sitemap: https://wutil.m1ng.space/sitemap.xml"
+          curl --fail --silent --show-error https://wutil.m1ng.space/sitemap.xml | grep -F "<loc>https://wutil.m1ng.space/privacy</loc>"
+          curl --fail --silent --show-error --head https://wutil.m1ng.space/privacy
+          curl --fail --silent --show-error --head https://wutil.m1ng.space/og-image.svg

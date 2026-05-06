@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "sonner";
+import { SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 const abrilFatface = Abril_Fatface({
   weight: "400",
@@ -38,13 +39,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://wutil.pages.dev",
-    siteName: "wutil",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: "wutil - Free Online Web Tools",
     description: "Fast, free, and private web tools running entirely in your browser.",
     images: [
       {
-        url: "/og-image.png", // We should create this later
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "wutil - Web Utilities",
@@ -57,7 +58,7 @@ export const metadata: Metadata = {
     description: "Fast, free, and private web tools running entirely in your browser.",
     creator: "@wutil",
   },
-  metadataBase: new URL("https://wutil.pages.dev"),
+  metadataBase: new URL(SITE_URL),
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",
@@ -71,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${abrilFatface.variable} ${mulish.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >

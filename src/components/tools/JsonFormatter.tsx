@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 export default function JsonFormatterComponent() {
   const [input, setInput] = useState('');
@@ -38,8 +39,7 @@ export default function JsonFormatterComponent() {
 
   const handleCopy = () => {
     if (!output) return;
-    navigator.clipboard.writeText(output);
-    toast.success('Copied');
+    void copyText(output);
   };
 
   const handleClear = () => {

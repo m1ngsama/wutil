@@ -1,19 +1,20 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+const subscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
+  const isDark = resolvedTheme === "dark";
 
   if (!mounted) {
     return (
-      <button className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:bg-muted focus:outline-none">
+      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:bg-muted focus:outline-none">
         <span className="sr-only">Toggle theme</span>
         <div className="w-4 h-4" />
       </button>
@@ -22,11 +23,12 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:text-ink hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
       aria-label="Toggle Dark Mode"
     >
-      {theme === "dark" ? (
+      {isDark ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

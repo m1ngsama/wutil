@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 function hexToRgb(hex: string) {
   const r = /^#?([a-f\d]{1,2})([a-f\d]{1,2})([a-f\d]{1,2})$/i.exec(hex.trim());
@@ -66,7 +66,7 @@ export default function ColorConverter() {
     setHsl({ h, s, l }); const r = hslToRgb(h, s, l); setRgb(r); setHex(rgbToHex(r.r, r.g, r.b));
   }, []);
 
-  const copy = (text: string) => { navigator.clipboard.writeText(text); toast.success('Copied'); };
+  const copy = (text: string) => { void copyText(text); };
   const full  = hex.startsWith('#') ? hex : '#' + hex;
   const safe  = full.length === 7 ? full : '#3b82f6';
 
@@ -88,7 +88,7 @@ export default function ColorConverter() {
             className="w-9 h-9 rounded-md cursor-pointer border-0 bg-transparent p-0"
           />
           <span className="font-mono font-semibold text-ink">{full.toUpperCase()}</span>
-          <button onClick={() => copy(full.toUpperCase())} className="ml-auto text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+          <button type="button" onClick={() => copy(full.toUpperCase())} className="ml-auto text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HEX</span>
-            <button onClick={() => copy(full.toUpperCase())} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(full.toUpperCase())} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
           </div>
           <input
             type="text" value={hex}
@@ -112,7 +112,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">RGB</span>
-            <button onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {(['r','g','b'] as const).map((ch) => (
@@ -136,7 +136,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HSL</span>
-            <button onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {[
@@ -167,8 +167,10 @@ export default function ColorConverter() {
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((color) => (
             <button
+              type="button"
               key={color}
               onClick={() => fromHex(color)}
+              aria-label={`Use color ${color}`}
               className="w-8 h-8 rounded-md transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
               style={{ backgroundColor: color, outline: color === full ? '2px solid var(--w-accent)' : undefined, outlineOffset: '2px' }}
               title={color}

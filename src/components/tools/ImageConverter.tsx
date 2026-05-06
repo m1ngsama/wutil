@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useRef, useCallback, ChangeEvent } from 'react';
+/* eslint-disable @next/next/no-img-element */
+
+import { useEffect, useState, useRef, useCallback, ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import { ImageIcon, Lock, Unlock } from 'lucide-react';
 
@@ -31,14 +33,23 @@ export default function ImageConverterComponent() {
   const [resultSize, setResultSize]     = useState(0);
   const [isDragging, setIsDragging]     = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const previewRef = useRef<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (resultUrl) URL.revokeObjectURL(resultUrl);
+    };
+  }, [resultUrl]);
 
   const loadFile = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
-    // Revoke previous object URL
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
     const url = URL.createObjectURL(file);
-    previewRef.current = url;
     setImageFile(file);
     setPreviewUrl(url);
     setResultUrl(null);
@@ -49,6 +60,7 @@ export default function ImageConverterComponent() {
       setWidth(img.naturalWidth);
       setHeight(img.naturalHeight);
     };
+    img.onerror = () => toast.error('Could not load that image');
     img.src = url;
   }, []);
 
@@ -86,7 +98,6 @@ export default function ImageConverterComponent() {
       canvas.toBlob(
         (blob) => {
           if (!blob) { toast.error('Conversion failed'); setProcessing(false); return; }
-          if (resultUrl) URL.revokeObjectURL(resultUrl);
           setResultUrl(URL.createObjectURL(blob));
           setResultSize(blob.size);
           setProcessing(false);
@@ -114,28 +125,34 @@ export default function ImageConverterComponent() {
         {/* Controls */}
         <div className="space-y-4">
           {/* Upload */}
-          <div
+          <button
+            type="button"
             className={[
-              'rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors cursor-pointer',
+              'w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors',
               isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
             ].join(' ')}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => { e.preventDefault(); setIsDragging(false); e.dataTransfer.files?.[0] && loadFile(e.dataTransfer.files[0]); }}
-            onClick={() => document.getElementById('img-upload')?.click()}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              if (e.dataTransfer.files?.[0]) loadFile(e.dataTransfer.files[0]);
+            }}
+            onClick={() => fileInputRef.current?.click()}
+            aria-label="Choose an image file"
           >
             <ImageIcon className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
-            <div>
-              <p className="text-sm font-semibold text-ink">Drop an image here</p>
-              <p className="text-xs text-ink-3 mt-0.5">or click to browse</p>
-            </div>
+            <span className="block">
+              <span className="block text-sm font-semibold text-ink">Drop an image here</span>
+              <span className="block text-xs text-ink-3 mt-0.5">or click to browse</span>
+            </span>
             {imageFile && (
-              <p className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
+              <span className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
                 {imageFile.name} · {fmtBytes(imageFile.size)} · {ratio}
-              </p>
+              </span>
             )}
-            <input id="img-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} />
-          </div>
+          </button>
+          <input ref={fileInputRef} id="img-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} />
 
           {/* Format */}
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
@@ -144,6 +161,7 @@ export default function ImageConverterComponent() {
               <div className="flex rounded-md border border-edge overflow-hidden">
                 {FORMATS.map((f) => (
                   <button
+                    type="button"
                     key={f.value}
                     onClick={() => setFormat(f.value)}
                     className={`flex-1 py-2 text-sm font-medium transition-colors ${
@@ -176,6 +194,7 @@ export default function ImageConverterComponent() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Dimensions (px)</p>
                 <button
+                  type="button"
                   onClick={() => setLockAspect((l) => !l)}
                   className="flex items-center gap-1.5 text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
                   title={lockAspect ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}
@@ -203,6 +222,7 @@ export default function ImageConverterComponent() {
               </div>
               {origW > 0 && (
                 <button
+                  type="button"
                   onClick={() => { setWidth(origW); setHeight(origH); }}
                   className="mt-2 text-xs font-semibold text-accent hover:underline underline-offset-4"
                 >
@@ -213,6 +233,7 @@ export default function ImageConverterComponent() {
           </div>
 
           <button
+            type="button"
             onClick={convert}
             disabled={!imageFile || processing}
             className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors"

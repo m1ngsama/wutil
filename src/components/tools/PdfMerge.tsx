@@ -1,18 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { FilePlus2, X, FileText } from 'lucide-react';
+import { validatePdfFile } from '@/lib/pdf-utils';
 
 export default function PdfMergeComponent() {
   const [files, setFiles]             = useState<File[]>([]);
   const [mergedUrl, setMergedUrl]     = useState<string | null>(null);
   const [processing, setProcessing]   = useState(false);
   const [isDragging, setIsDragging]   = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (mergedUrl) URL.revokeObjectURL(mergedUrl);
+    };
+  }, [mergedUrl]);
 
   const addFiles = (incoming: FileList | File[]) => {
-    const pdfs = Array.from(incoming).filter((f) => f.type === 'application/pdf');
-    if (pdfs.length === 0) { toast.error('PDF files only'); return; }
+    const incomingFiles = Array.from(incoming);
+    const nonPdfs = incomingFiles.filter((file) => validatePdfFile(file) === 'not-pdf');
+    const oversized = incomingFiles.filter((file) => validatePdfFile(file) === 'too-large');
+    const pdfs = incomingFiles.filter((file) => validatePdfFile(file) === 'ok');
+    if (nonPdfs.length > 0) toast.error('PDF files only');
+    if (oversized.length > 0) toast.error('Each PDF must be 10 MB or smaller');
+    if (pdfs.length === 0) return;
     setFiles((prev) => [...prev, ...pdfs]);
     setMergedUrl(null);
   };
@@ -36,7 +49,6 @@ export default function PdfMergeComponent() {
       }
       const bytes = await merged.save();
       const blob  = new Blob([bytes as BlobPart], { type: 'application/pdf' });
-      if (mergedUrl) URL.revokeObjectURL(mergedUrl);
       setMergedUrl(URL.createObjectURL(blob));
       toast.success('Merged successfully');
     } catch {
@@ -46,7 +58,7 @@ export default function PdfMergeComponent() {
     }
   };
 
-  const totalPages = files.length;
+  const totalSources = files.length;
   const totalSize  = (files.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(2);
 
   return (
@@ -58,24 +70,26 @@ export default function PdfMergeComponent() {
       </header>
 
       {/* Drop zone */}
-      <div
+      <button
+        type="button"
         className={[
-          'rounded-xl border-2 border-dashed p-10 flex flex-col items-center gap-3 text-center transition-colors cursor-pointer mb-4',
+          'w-full rounded-xl border-2 border-dashed p-10 flex flex-col items-center gap-3 text-center transition-colors mb-4',
           isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
         ].join(' ')}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={(e) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files); }}
-        onClick={() => document.getElementById('pdf-upload')?.click()}
+        onClick={() => fileInputRef.current?.click()}
+        aria-label="Choose PDF files"
       >
         <FilePlus2 className="w-8 h-8 text-ink-3" strokeWidth={1.5} />
-        <div>
-          <p className="text-sm font-semibold text-ink">Drop PDF files here</p>
-          <p className="text-xs text-ink-3 mt-0.5">or click to browse — up to 10 MB each</p>
-        </div>
-        <input id="pdf-upload" type="file" multiple accept=".pdf" className="sr-only"
-          onChange={(e) => e.target.files && addFiles(e.target.files)} />
-      </div>
+        <span className="block">
+          <span className="block text-sm font-semibold text-ink">Drop PDF files here</span>
+          <span className="block text-xs text-ink-3 mt-0.5">or click to browse — up to 10 MB each</span>
+        </span>
+      </button>
+      <input ref={fileInputRef} id="pdf-upload" type="file" multiple accept=".pdf" className="sr-only"
+        onChange={(e) => e.target.files && addFiles(e.target.files)} />
 
       {/* File list */}
       {files.length > 0 && (
@@ -85,6 +99,7 @@ export default function PdfMergeComponent() {
               {files.length} file{files.length !== 1 ? 's' : ''} · {totalSize} MB total
             </span>
             <button
+              type="button"
               onClick={() => { setFiles([]); setMergedUrl(null); }}
               className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
             >
@@ -101,7 +116,9 @@ export default function PdfMergeComponent() {
                 <span className="flex-1 text-sm text-ink truncate">{file.name}</span>
                 <span className="shrink-0 text-xs text-ink-3">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                 <button
+                  type="button"
                   onClick={() => removeFile(i)}
+                  aria-label={`Remove ${file.name}`}
                   className="shrink-0 w-5 h-5 flex items-center justify-center text-ink-3 hover:text-ink transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -115,6 +132,7 @@ export default function PdfMergeComponent() {
       {/* Actions */}
       <div className="flex gap-3">
         <button
+          type="button"
           onClick={mergePdfs}
           disabled={processing || files.length < 2}
           className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors"
@@ -128,7 +146,7 @@ export default function PdfMergeComponent() {
         <div className="mt-6 rounded-xl border border-edge bg-surface p-5 flex items-center gap-4">
           <div className="flex-1">
             <p className="text-sm font-semibold text-ink">Merged PDF ready</p>
-            <p className="text-xs text-ink-3 mt-0.5">{totalPages} source files combined</p>
+            <p className="text-xs text-ink-3 mt-0.5">{totalSources} source files combined</p>
           </div>
           <a
             href={mergedUrl}

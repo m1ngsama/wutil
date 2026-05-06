@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { TOOL_REGISTRY, type ToolCategory } from '@/lib/tool-registry';
 import {
   KeyRound,
   Palette,
@@ -22,32 +23,22 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  href: string;
-  icon: LucideIcon;
-  category: 'text' | 'data' | 'media' | 'calc' | 'security';
-  badge?: string;
-}
-
-const tools: Tool[] = [
-  { id: 'password-generator', name: 'Password Generator',    description: 'Generate secure, cryptographically random passwords.',      href: '/tools/password-generator', icon: KeyRound,     category: 'security', badge: 'Popular' },
-  { id: 'color-converter',    name: 'Color Converter',       description: 'Convert between HEX, RGB, and HSL color formats.',           href: '/tools/color-converter',    icon: Palette,      category: 'data',     badge: 'Popular' },
-  { id: 'url-encoder',        name: 'URL Encoder / Decoder', description: 'Encode special characters for URLs or decode them.',          href: '/tools/url-encoder',        icon: Link2,        category: 'data'    },
-  { id: 'text-case',          name: 'Text Case Converter',   description: 'Convert to camelCase, snake_case, UPPER, Title, and more.',   href: '/tools/text-case',          icon: CaseSensitive,category: 'text'    },
-  { id: 'regex-tester',       name: 'Regex Tester',          description: 'Test regular expressions with real-time match highlighting.',  href: '/tools/regex-tester',       icon: Regex,        category: 'data'    },
-  { id: 'timestamp',          name: 'Timestamp Converter',   description: 'Convert Unix timestamps to readable dates and back.',          href: '/tools/timestamp',          icon: Clock,        category: 'calc'    },
-  { id: 'word-counter',       name: 'Word Counter',          description: 'Count words, characters, and sentences.',                     href: '/tools/word-counter',       icon: AlignLeft,    category: 'text'    },
-  { id: 'json-formatter',     name: 'JSON Formatter',        description: 'Format, validate, and minify JSON.',                          href: '/tools/json-formatter',     icon: Braces,       category: 'data'    },
-  { id: 'base64-converter',   name: 'Base64 Converter',      description: 'Encode and decode Base64 strings.',                           href: '/tools/base64-converter',   icon: Binary,       category: 'text'    },
-  { id: 'unit-converter',     name: 'Unit Converter',        description: 'Convert common units of measurement.',                        href: '/tools/unit-converter',     icon: Ruler,        category: 'calc'    },
-  { id: 'hash-generator',     name: 'Hash Generator',        description: 'Generate SHA-1, SHA-256 hashes.',                            href: '/tools/hash-generator',     icon: Hash,         category: 'security'},
-  { id: 'date-calculator',    name: 'Date Calculator',       description: 'Calculate duration between dates.',                           href: '/tools/date-calculator',    icon: CalendarDays, category: 'calc'    },
-  { id: 'image-converter',    name: 'Image Converter',       description: 'Convert, resize, and compress images.',                       href: '/tools/image-converter',    icon: ImageIcon,    category: 'media'   },
-  { id: 'pdf-merge',          name: 'PDF Merger',            description: 'Combine multiple PDF files into one.',                        href: '/tools/pdf-merge',          icon: FilePlus2,    category: 'media'   },
-];
+const toolIcons: Record<string, LucideIcon> = {
+  'password-generator': KeyRound,
+  'color-converter': Palette,
+  'url-encoder': Link2,
+  'text-case': CaseSensitive,
+  'regex-tester': Regex,
+  timestamp: Clock,
+  'word-counter': AlignLeft,
+  'json-formatter': Braces,
+  'base64-converter': Binary,
+  'unit-converter': Ruler,
+  'hash-generator': Hash,
+  'date-calculator': CalendarDays,
+  'image-converter': ImageIcon,
+  'pdf-merge': FilePlus2,
+};
 
 const categories = [
   { id: 'all',      name: 'All Tools'    },
@@ -62,11 +53,11 @@ export default function HomeClient() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const filteredTools = tools.filter((tool) => {
+  const filteredTools = TOOL_REGISTRY.filter((tool) => {
     const matchesSearch =
       tool.name.toLowerCase().includes(search.toLowerCase()) ||
       tool.description.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = activeCategory === 'all' || tool.category === activeCategory;
+    const matchesCategory = activeCategory === 'all' || tool.category === activeCategory as ToolCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -76,7 +67,7 @@ export default function HomeClient() {
       {/* Hero */}
       <header className="mb-12">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-3">
-          {tools.length} tools — all free, all private
+          {TOOL_REGISTRY.length} tools — all free, all private
         </p>
         <h1 className="font-display text-5xl sm:text-6xl md:text-7xl text-ink leading-none mb-4">
           Web Utilities
@@ -120,7 +111,7 @@ export default function HomeClient() {
       {filteredTools.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredTools.map((tool) => {
-            const Icon = tool.icon;
+            const Icon = toolIcons[tool.id];
             return (
               <Link
                 key={tool.id}
@@ -153,6 +144,7 @@ export default function HomeClient() {
             No tools found for &ldquo;{search}&rdquo;
           </p>
           <button
+            type="button"
             onClick={() => { setSearch(''); setActiveCategory('all'); }}
             className="text-xs font-semibold uppercase tracking-wider text-accent hover:underline underline-offset-4"
           >

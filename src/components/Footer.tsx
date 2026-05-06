@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="border-t border-edge bg-canvas mt-auto">
@@ -20,14 +22,12 @@ export default function Footer() {
             >
               GitHub
             </a>
-            <a
-              href="https://github.com/m1ngsama/wutil#privacy"
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href="/privacy"
               className="text-xs font-semibold uppercase tracking-wider text-ink-3 hover:text-ink transition-colors"
             >
               Privacy
-            </a>
+            </Link>
             <span className="text-xs text-ink-3">
               &copy; {new Date().getFullYear()}
             </span>

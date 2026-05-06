@@ -1,32 +1,12 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site-config';
+import { SITEMAP_ROUTES } from '@/lib/tool-registry';
 
 export const dynamic = 'force-static';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://wutil.pages.dev';
-  
-  // Base routes
-  const routes = [
-    '',
-    '/tools/password-generator',
-    '/tools/color-converter',
-    '/tools/url-encoder',
-    '/tools/text-case',
-    '/tools/regex-tester',
-    '/tools/timestamp',
-    '/tools/word-counter',
-    '/tools/json-formatter',
-    '/tools/base64-converter',
-    '/tools/unit-converter',
-    '/tools/hash-generator',
-    '/tools/date-calculator',
-    '/tools/image-converter',
-    '/tools/pdf-merge',
-  ];
-
-  return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
+  return SITEMAP_ROUTES.map((route) => ({
+    url: `${SITE_URL}${route}`,
     changeFrequency: 'weekly',
     priority: route === '' ? 1 : 0.8,
   }));

@@ -1,50 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-
-// Unicode-safe encode: UTF-8 bytes → base64
-function encodeBase64(str: string, urlSafe: boolean): string {
-  const bytes = new TextEncoder().encode(str);
-  const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
-  let b64 = btoa(binary);
-  if (urlSafe) b64 = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return b64;
-}
-
-// Unicode-safe decode
-function decodeBase64(str: string): string {
-  // Normalize URL-safe chars back to standard base64
-  const normalized = str.replace(/-/g, '+').replace(/_/g, '/');
-  const binary = atob(normalized);
-  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
+import { useMemo, useState } from 'react';
+import { decodeBase64, encodeBase64 } from '@/lib/base64-utils';
+import { copyText } from '@/lib/clipboard';
 
 export default function Base64ConverterComponent() {
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [urlSafe, setUrlSafe] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!input) { setOutput(''); setError(null); return; }
+  const result = useMemo(() => {
+    if (!input) return { output: '', error: null as string | null };
     try {
-      if (mode === 'encode') {
-        setOutput(encodeBase64(input, urlSafe));
-      } else {
-        setOutput(decodeBase64(input));
-      }
-      setError(null);
+      return {
+        output: mode === 'encode' ? encodeBase64(input, urlSafe) : decodeBase64(input),
+        error: null,
+      };
     } catch {
-      setError(mode === 'decode' ? 'Invalid Base64 — check your input.' : 'Encoding failed.');
-      setOutput('');
+      return {
+        output: '',
+        error: mode === 'decode' ? 'Invalid Base64 — check your input.' : 'Encoding failed.',
+      };
     }
   }, [input, mode, urlSafe]);
 
   const swap = () => {
-    setInput(output);
+    setInput(result.output);
     setMode((m) => (m === 'encode' ? 'decode' : 'encode'));
   };
 
@@ -76,7 +57,7 @@ export default function Base64ConverterComponent() {
 
         <button
           onClick={swap}
-          disabled={!output}
+          disabled={!result.output}
           className="h-9 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,15 +67,19 @@ export default function Base64ConverterComponent() {
         </button>
 
         {mode === 'encode' && (
-          <label className="flex items-center gap-2 cursor-pointer ml-auto">
-            <div
-              className={`relative w-9 h-5 rounded-full transition-colors ${urlSafe ? 'bg-accent' : 'bg-edge-strong'}`}
+          <div className="flex items-center gap-2 ml-auto">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={urlSafe}
+              aria-label="URL-safe Base64"
+              className={`relative w-9 h-5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 ${urlSafe ? 'bg-accent' : 'bg-edge-strong'}`}
               onClick={() => setUrlSafe((v) => !v)}
             >
               <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${urlSafe ? 'translate-x-4' : 'translate-x-0.5'}`} />
-            </div>
+            </button>
             <span className="text-sm text-ink-2">URL-safe</span>
-          </label>
+          </div>
         )}
       </div>
 
@@ -108,16 +93,16 @@ export default function Base64ConverterComponent() {
             className={[
               'h-52 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
-              error ? 'border-red-500/70' : 'border-edge',
+              result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
             placeholder={mode === 'encode' ? 'Type anything — including Unicode, emoji…' : 'Paste Base64 here…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             spellCheck={false}
           />
-          {error && (
+          {result.error && (
             <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
-              {error}
+              {result.error}
             </p>
           )}
         </div>
@@ -128,8 +113,8 @@ export default function Base64ConverterComponent() {
               {mode === 'encode' ? 'Base64 output' : 'Decoded text'}
             </label>
             <button
-              onClick={() => { navigator.clipboard.writeText(output); toast.success('Copied'); }}
-              disabled={!output}
+              onClick={() => { void copyText(result.output); }}
+              disabled={!result.output}
               className="text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none"
             >
               Copy
@@ -139,7 +124,7 @@ export default function Base64ConverterComponent() {
             readOnly
             className="h-52 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none"
             placeholder="Result appears here…"
-            value={output}
+            value={result.output}
             spellCheck={false}
           />
         </div>

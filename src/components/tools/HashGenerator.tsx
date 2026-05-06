@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 const ALGOS = [
   { name: 'SHA-1',   algo: 'SHA-1'   },
@@ -10,25 +11,38 @@ const ALGOS = [
   { name: 'SHA-512', algo: 'SHA-512' },
 ];
 
+async function generateHashes(input: string) {
+  const data = new TextEncoder().encode(input);
+  return Promise.all(
+    ALGOS.map(async ({ name, algo }) => {
+      const buf = await crypto.subtle.digest(algo, data);
+      const hex = Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+      return { name, value: hex };
+    })
+  );
+}
+
 export default function HashGeneratorComponent() {
   const [input,  setInput]  = useState('');
   const [hashes, setHashes] = useState<{ name: string; value: string }[]>([]);
+  const requestId = useRef(0);
 
-  useEffect(() => {
-    if (!input) { setHashes([]); return; }
-    const generate = async () => {
-      const data = new TextEncoder().encode(input);
-      const results = await Promise.all(
-        ALGOS.map(async ({ name, algo }) => {
-          const buf = await crypto.subtle.digest(algo, data);
-          const hex = Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
-          return { name, value: hex };
-        })
-      );
-      setHashes(results);
-    };
-    generate();
-  }, [input]);
+  const handleInput = (value: string) => {
+    setInput(value);
+    const currentRequest = ++requestId.current;
+    if (!value) {
+      setHashes([]);
+      return;
+    }
+    generateHashes(value)
+      .then((results) => {
+        if (requestId.current === currentRequest) setHashes(results);
+      })
+      .catch(() => {
+        if (requestId.current === currentRequest) setHashes([]);
+        toast.error('Hashing failed');
+      });
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -45,7 +59,7 @@ export default function HashGeneratorComponent() {
             className="h-32 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
             placeholder="Type or paste text to hash…"
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => handleInput(e.target.value)}
             spellCheck={false}
           />
         </div>
@@ -53,16 +67,18 @@ export default function HashGeneratorComponent() {
         {hashes.length > 0 && (
           <div className="rounded-xl border border-edge bg-surface overflow-hidden">
             {hashes.map(({ name, value }, i) => (
-              <div
+              <button
+                type="button"
                 key={name}
-                className={`flex items-center gap-4 px-5 py-4 hover:bg-muted transition-colors cursor-pointer ${i < hashes.length - 1 ? 'border-b border-edge' : ''}`}
-                onClick={() => { navigator.clipboard.writeText(value); toast.success(`${name} copied`); }}
+                className={`w-full flex items-center gap-4 px-5 py-4 text-left hover:bg-muted transition-colors ${i < hashes.length - 1 ? 'border-b border-edge' : ''}`}
+                onClick={() => { void copyText(value, `${name} copied`); }}
                 title="Click to copy"
+                aria-label={`Copy ${name} hash`}
               >
                 <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3 w-16">{name}</span>
                 <code className="flex-1 font-mono text-xs text-ink-2 truncate">{value}</code>
                 <span className="shrink-0 text-xs font-semibold text-accent">Copy</span>
-              </div>
+              </button>
             ))}
           </div>
         )}

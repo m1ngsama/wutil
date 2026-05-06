@@ -1,18 +1,65 @@
 # wutil
 
-A collection of lightweight, client-side web tools.
+A collection of lightweight, privacy-focused web tools that run in the browser.
 
-## Philosophy
-- **Zero Dependencies**: Pure HTML/CSS/JS where possible.
-- **Client-Side Only**: Privacy-first, no server processing.
-- **Low Overhead**: Minimal resource usage, instant load times.
+Production: <https://wutil.m1ng.space>
 
-## Planned Tools
-1. PDF Utilities (Merge, Split, Compress)
-2. Image Processing (Convert, Resize, Compress)
-3. Data Converters (JSON <-> XML, Base64, Hex)
-4. Calculators (Unit, Date, Hash)
+## Tools
 
-## Revenue Model
-- High-volume search traffic (SEO).
-- Non-intrusive advertising (Google Ads).
+- Password Generator
+- Color Converter
+- URL Encoder / Decoder
+- Text Case Converter
+- Regex Tester
+- Timestamp Converter
+- Word Counter
+- JSON Formatter
+- Base64 Converter
+- Unit Converter
+- Hash Generator
+- Date Calculator
+- Image Converter
+- PDF Merger
+
+## Privacy
+
+wutil is designed for client-side processing. Tool inputs are processed in the browser and are not uploaded to a wutil server. The app does not require accounts, and tool content is not intentionally stored by wutil.
+
+The deployed site may be served by Cloudflare Pages, so standard hosting logs may exist at the platform level.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Useful checks:
+
+```bash
+npm run check
+npm run build
+npm run audit:prod
+```
+
+## Deployment
+
+The app uses Next.js static export and deploys the generated `out` directory to Cloudflare Pages.
+
+Production deploys run through GitHub Actions on pushes to `main`:
+
+1. `npm ci`
+2. `npm run audit:prod`
+3. `npm run lint`
+4. `npm run typecheck`
+5. `npm run test`
+6. `npm run build`
+7. `wrangler pages deploy out --project-name=wutil --branch=main`
+8. Verify `https://wutil.m1ng.space`, `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/og-image.svg`
+
+Required GitHub Actions secrets:
+
+- `CLOUDFLARE_API_TOKEN`
+- `CLOUDFLARE_ACCOUNT_ID`
+
+Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes and immutable browser caching for fingerprinted `/_next/static/*` assets.

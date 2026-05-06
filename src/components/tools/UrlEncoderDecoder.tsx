@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useMemo, useState } from 'react';
+import { copyText } from '@/lib/clipboard';
 
 const EXAMPLES = [
   'https://example.com/search?q=hello world&lang=en',
@@ -11,23 +11,22 @@ const EXAMPLES = [
 
 export default function UrlEncoderDecoder() {
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!input.trim()) { setOutput(''); setError(null); return; }
+  const result = useMemo(() => {
+    if (!input.trim()) return { output: '', error: null as string | null };
     try {
-      setOutput(mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input));
-      setError(null);
+      return {
+        output: mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input),
+        error: null,
+      };
     } catch {
-      setError('Invalid encoded string');
-      setOutput('');
+      return { output: '', error: 'Invalid encoded string' };
     }
   }, [input, mode]);
 
   const swap = () => {
-    setInput(output);
+    setInput(result.output);
     setMode((m) => (m === 'encode' ? 'decode' : 'encode'));
   };
 
@@ -54,7 +53,7 @@ export default function UrlEncoderDecoder() {
           ))}
         </div>
         <button
-          onClick={swap} disabled={!output}
+          onClick={swap} disabled={!result.output}
           className="h-9 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,16 +72,16 @@ export default function UrlEncoderDecoder() {
             className={[
               'h-48 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
-              error ? 'border-red-500/70' : 'border-edge',
+              result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
             placeholder={mode === 'encode' ? 'https://example.com/path?q=hello world' : 'https%3A%2F%2Fexample.com%2F…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             spellCheck={false}
           />
-          {error && (
+          {result.error && (
             <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
-              {error}
+              {result.error}
             </p>
           )}
         </div>
@@ -93,8 +92,8 @@ export default function UrlEncoderDecoder() {
               {mode === 'encode' ? 'Encoded URL' : 'Decoded text'}
             </label>
             <button
-              onClick={() => { navigator.clipboard.writeText(output); toast.success('Copied'); }}
-              disabled={!output}
+              onClick={() => { void copyText(result.output); }}
+              disabled={!result.output}
               className="text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none"
             >
               Copy
@@ -104,7 +103,7 @@ export default function UrlEncoderDecoder() {
             readOnly
             className="h-48 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none"
             placeholder="Result appears here…"
-            value={output}
+            value={result.output}
             spellCheck={false}
           />
         </div>

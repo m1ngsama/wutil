@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { copyText } from '@/lib/clipboard';
 
 // Sentence splitting that handles common abbreviations and decimals
 function countSentences(text: string): number {
@@ -61,7 +61,7 @@ export default function WordCounterComponent() {
               Clear
             </button>
             <button
-              onClick={() => { navigator.clipboard.writeText(text); toast.success('Copied'); }}
+              onClick={() => { void copyText(text); }}
               disabled={!text}
               className="h-9 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:opacity-35 disabled:pointer-events-none transition-colors"
             >

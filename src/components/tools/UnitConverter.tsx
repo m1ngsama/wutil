@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { toast } from 'sonner';
+import { useState, useMemo } from 'react';
+import { copyText } from '@/lib/clipboard';
+import { parseUnitInput } from '@/lib/unit-utils';
 
 type Category = 'length' | 'weight' | 'temperature' | 'volume' | 'area' | 'speed' | 'data';
 
@@ -104,16 +105,16 @@ export default function UnitConverter() {
   const [toId,     setToId]     = useState('ft');
   const [input,    setInput]    = useState('1');
 
-  // Reset unit selectors when category changes
-  useEffect(() => {
-    const units = UNITS[category];
+  const selectCategory = (nextCategory: Category) => {
+    const units = UNITS[nextCategory];
+    setCategory(nextCategory);
     setFromId(units[0].id);
     setToId(units[1]?.id ?? units[0].id);
-  }, [category]);
+  };
 
   const output = useMemo(() => {
-    const val = parseFloat(input);
-    if (isNaN(val) || !input.trim()) return '';
+    const val = parseUnitInput(input);
+    if (val === null) return '';
     const units = UNITS[category];
     const from  = units.find((u) => u.id === fromId);
     const to    = units.find((u) => u.id === toId);
@@ -142,8 +143,9 @@ export default function UnitConverter() {
       <div className="flex flex-wrap gap-2 mb-8">
         {CATEGORIES.map(({ id, label }) => (
           <button
+            type="button"
             key={id}
-            onClick={() => setCategory(id)}
+            onClick={() => selectCategory(id)}
             className={[
               'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
               category === id
@@ -182,6 +184,7 @@ export default function UnitConverter() {
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-edge" />
           <button
+            type="button"
             onClick={swap}
             className="h-8 w-8 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors"
             title="Swap units"
@@ -197,15 +200,18 @@ export default function UnitConverter() {
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">To</label>
           <div className="flex gap-2">
-            <div
-              className="flex-1 h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base cursor-pointer hover:border-edge-strong transition-colors"
-              onClick={() => { if (output) { navigator.clipboard.writeText(output); toast.success('Copied'); } }}
-              title="Click to copy"
+            <button
+              type="button"
+              disabled={!output}
+              className="flex-1 h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base text-left hover:border-edge-strong disabled:cursor-default disabled:hover:border-edge transition-colors"
+              onClick={() => { if (output) void copyText(output); }}
+              title={output ? 'Click to copy' : undefined}
+              aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
             >
               <span className={output ? 'text-ink' : 'text-ink-3'}>
                 {output || '—'}
               </span>
-            </div>
+            </button>
             <select
               value={toId}
               onChange={(e) => setToId(e.target.value)}
