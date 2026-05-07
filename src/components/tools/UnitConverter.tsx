@@ -163,19 +163,19 @@ export default function UnitConverter() {
         {/* From row */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">From</label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2">
             <input
               type="number"
               value={input}
               aria-label="Input value"
               onChange={(e) => setInput(e.target.value)}
-              className="flex-1 h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+              className="min-w-0 w-full h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
             />
             <select
               value={fromId}
               aria-label="From unit"
               onChange={(e) => setFromId(e.target.value)}
-              className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>
@@ -201,11 +201,11 @@ export default function UnitConverter() {
         {/* To row */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">To</label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2">
             <button
               type="button"
               disabled={!output}
-              className="flex-1 h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base text-left hover:border-edge-strong disabled:cursor-default disabled:hover:border-edge transition-colors"
+              className="min-w-0 w-full h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base text-left hover:border-edge-strong disabled:cursor-default disabled:hover:border-edge transition-colors"
               onClick={() => { if (output) void copyText(output); }}
               title={output ? 'Click to copy' : undefined}
               aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
@@ -218,7 +218,7 @@ export default function UnitConverter() {
               value={toId}
               aria-label="To unit"
               onChange={(e) => setToId(e.target.value)}
-              className="h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>

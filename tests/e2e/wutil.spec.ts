@@ -128,6 +128,10 @@ test('Color converter keeps HEX, RGB, and HSL values in sync', async ({ page }) 
   await expect(page.locator('input[type="number"]').nth(1)).toHaveValue('0');
   await expect(page.locator('input[type="number"]').nth(2)).toHaveValue('170');
   await expect(page.getByText('hsl(320, 100%, 50%)')).toBeVisible();
+
+  await page.getByRole('spinbutton', { name: 'RGB R' }).fill('12.5');
+  await expect(page.getByRole('spinbutton', { name: 'RGB R' })).toHaveValue('13');
+  await expect(page.getByText('#0D00AA')).toBeVisible();
 });
 
 test('URL encoder decodes invalid input errors and successful round trips', async ({ page }) => {
@@ -207,6 +211,17 @@ test('Unit converter handles length and temperature conversions', async ({ page 
   await page.getByRole('button', { name: 'Temperature' }).click();
   await page.locator('input[type="number"]').fill('100');
   await expect(page.getByRole('button', { name: /Copy converted value 212/ })).toBeVisible();
+});
+
+test('Unit converter does not overflow horizontally on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/tools/unit-converter');
+
+  const dimensions = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.viewport + 1);
 });
 
 test('Hash generator computes SHA hashes in the browser', async ({ page }) => {

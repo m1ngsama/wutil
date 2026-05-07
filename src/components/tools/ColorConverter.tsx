@@ -9,8 +9,12 @@ function hexToRgb(hex: string) {
   const expand = (s: string) => parseInt(s.length === 1 ? s + s : s, 16);
   return { r: expand(r[1]), g: expand(r[2]), b: expand(r[3]) };
 }
+function clampRgbChannel(value: number) {
+  const channel = Number.isFinite(value) ? value : 0;
+  return Math.max(0, Math.min(255, Math.round(channel)));
+}
 function rgbToHex(r: number, g: number, b: number) {
-  return '#' + [r, g, b].map((v) => Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0')).join('');
+  return '#' + [r, g, b].map((v) => clampRgbChannel(v).toString(16).padStart(2, '0')).join('');
 }
 function rgbToHsl(r: number, g: number, b: number) {
   r /= 255; g /= 255; b /= 255;
@@ -60,7 +64,8 @@ export default function ColorConverter() {
     if (r) { setRgb(r); setHsl(rgbToHsl(r.r, r.g, r.b)); }
   }, []);
   const fromRgb = useCallback((r: number, g: number, b: number) => {
-    setRgb({ r, g, b }); setHex(rgbToHex(r, g, b)); setHsl(rgbToHsl(r, g, b));
+    const nextRgb = { r: clampRgbChannel(r), g: clampRgbChannel(g), b: clampRgbChannel(b) };
+    setRgb(nextRgb); setHex(rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b)); setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
   }, []);
   const fromHsl = useCallback((h: number, s: number, l: number) => {
     setHsl({ h, s, l }); const r = hslToRgb(h, s, l); setRgb(r); setHex(rgbToHex(r.r, r.g, r.b));

@@ -41,7 +41,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-base font-semibold text-ink mb-2">External services</h2>
           <p>
-            The deployed site may be served by Cloudflare Pages. Standard hosting logs may be produced by the hosting platform. The application code does not send your tool content to analytics or backend processing endpoints.
+            The deployed site may be served by Cloudflare Pages. Standard hosting logs and Cloudflare Web Analytics performance metrics may be produced by the hosting platform. The application code does not send your tool content to analytics or backend processing endpoints.
           </p>
         </section>
       </div>
