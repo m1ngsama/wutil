@@ -24,6 +24,7 @@ const routes = [
   '/tools/image-converter',
   '/tools/pdf-merge',
   '/privacy',
+  '/changelog',
 ];
 
 function fixturePath(...parts) {

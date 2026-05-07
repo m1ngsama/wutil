@@ -9,7 +9,7 @@ import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
 import { SITE_URL } from '../src/lib/site-config';
 import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
-import { SITEMAP_ROUTES, TOOL_REGISTRY, TOOL_ROUTES } from '../src/lib/tool-registry';
+import { SITEMAP_ROUTES, STATIC_ROUTES, TOOL_REGISTRY, TOOL_ROUTES } from '../src/lib/tool-registry';
 import { parseUnitInput } from '../src/lib/unit-utils';
 
 test('Base64 round-trips Unicode and URL-safe values', () => {
@@ -48,6 +48,12 @@ test('tool registry routes are unique and backed by pages', () => {
   assert.equal(new Set(TOOL_ROUTES).size, TOOL_ROUTES.length);
   assert.equal(TOOL_REGISTRY.length, TOOL_ROUTES.length);
   assert.ok(SITEMAP_ROUTES.includes('/privacy'));
+  assert.ok(SITEMAP_ROUTES.includes('/changelog'));
+
+  for (const route of STATIC_ROUTES) {
+    const pagePath = route === '' ? 'src/app/page.tsx' : join('src/app', route.slice(1), 'page.tsx');
+    assert.ok(existsSync(join(process.cwd(), pagePath)), `${route || '/'} is missing a page`);
+  }
 
   for (const tool of TOOL_REGISTRY) {
     const route = tool.href.replace('/tools/', '');

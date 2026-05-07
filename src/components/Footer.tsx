@@ -28,6 +28,12 @@ export default function Footer() {
             >
               Privacy
             </Link>
+            <Link
+              href="/changelog"
+              className="text-xs font-semibold uppercase tracking-wider text-ink-3 hover:text-ink transition-colors"
+            >
+              Changelog
+            </Link>
             <span className="text-xs text-ink-3">
               &copy; {new Date().getFullYear()}
             </span>

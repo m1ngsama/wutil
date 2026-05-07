@@ -5,6 +5,8 @@ import path from 'node:path';
 
 const ACCESSIBILITY_ROUTES = [
   '/',
+  '/changelog',
+  '/privacy',
   '/tools/password-generator',
   '/tools/color-converter',
   '/tools/url-encoder',

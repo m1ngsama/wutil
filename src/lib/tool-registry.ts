@@ -26,6 +26,6 @@ export const TOOL_REGISTRY: ToolRegistryItem[] = [
   { id: 'pdf-merge', name: 'PDF Merger', description: 'Combine multiple PDF files into one.', href: '/tools/pdf-merge', category: 'media' },
 ];
 
-export const STATIC_ROUTES = ['', '/privacy'] as const;
+export const STATIC_ROUTES = ['', '/privacy', '/changelog'] as const;
 export const TOOL_ROUTES = TOOL_REGISTRY.map((tool) => tool.href);
 export const SITEMAP_ROUTES = [...STATIC_ROUTES, ...TOOL_ROUTES];

@@ -27,6 +27,10 @@ wutil is designed for client-side processing. Tool inputs are processed in the b
 
 The deployed site may be served by Cloudflare Pages, so standard hosting logs may exist at the platform level.
 
+## Changelog
+
+Recent production updates are tracked at <https://wutil.m1ng.space/changelog>.
+
 ## Development
 
 ```bash

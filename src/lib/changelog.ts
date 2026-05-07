@@ -1,0 +1,33 @@
+export interface ChangelogEntry {
+  date: string;
+  title: string;
+  summary: string;
+  changes: string[];
+}
+
+export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
+  {
+    date: '2026-05-07',
+    title: 'Production hardening and discoverability',
+    summary: 'Strengthened production checks, monitoring, and search metadata for the public site.',
+    changes: [
+      'Added scheduled production monitoring every six hours through GitHub Actions.',
+      'Added production browser interaction checks for representative workflows, validation states, file re-selection, console errors, and mobile overflow.',
+      'Expanded production performance budgets to include FCP, LCP, CLS, and transferred resource sizes.',
+      'Added JSON-LD structured data for the homepage and every public tool page.',
+      'Fixed file input re-selection flows for image conversion and PDF merging.',
+      'Hardened regex worker timing, unit converter mobile layout, RGB color normalization, and analytics CSP settings.',
+    ],
+  },
+  {
+    date: '2026-05-06',
+    title: 'Production baseline',
+    summary: 'Established the first production-ready baseline for the browser-only utility catalog.',
+    changes: [
+      'Published 14 client-side tools covering text, data, calculation, security, image, and PDF workflows.',
+      'Added Cloudflare Pages deployment through GitHub Actions.',
+      'Added sitemap, robots, privacy page, Open Graph image, PWA manifest, and production security headers.',
+      'Added unit tests, browser E2E coverage, accessibility smoke scans, and keyboard-flow smoke coverage.',
+    ],
+  },
+];

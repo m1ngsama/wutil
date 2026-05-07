@@ -43,7 +43,9 @@ const checks = [
   () => expectOk('/', { method: 'HEAD' }),
   () => expectContains('/robots.txt', `Sitemap: ${routeUrl('/sitemap.xml')}`),
   () => expectContains('/sitemap.xml', `<loc>${routeUrl('/privacy')}</loc>`),
+  () => expectContains('/sitemap.xml', `<loc>${routeUrl('/changelog')}</loc>`),
   () => expectOk('/privacy', { method: 'HEAD' }),
+  () => expectOk('/changelog', { method: 'HEAD' }),
   () => expectOk('/og-image.svg', { method: 'HEAD' }),
 ];
 
