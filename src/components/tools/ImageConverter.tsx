@@ -18,6 +18,13 @@ function fmtBytes(n: number) {
   return (n / 1048576).toFixed(2) + ' MB';
 }
 
+function parseDimensionInput(value: string): number | '' {
+  if (value === '') return '';
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '';
+  return Math.max(1, Math.round(n));
+}
+
 export default function ImageConverterComponent() {
   const [imageFile, setImageFile]       = useState<File | null>(null);
   const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
@@ -66,6 +73,7 @@ export default function ImageConverterComponent() {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) loadFile(e.target.files[0]);
+    e.target.value = '';
   };
 
   const onWidthChange = (v: number | '') => {
@@ -90,6 +98,11 @@ export default function ImageConverterComponent() {
       const ctx    = canvas.getContext('2d')!;
       const w = Number(width)  || img.naturalWidth;
       const h = Number(height) || img.naturalHeight;
+      if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
+        toast.error('Width and height must be at least 1 px');
+        setProcessing(false);
+        return;
+      }
       canvas.width  = w;
       canvas.height = h;
       // White background for JPEG (transparent → white)
@@ -216,7 +229,7 @@ export default function ImageConverterComponent() {
                     <input
                       type="number" min={1} value={value}
                       aria-label={label === 'W' ? 'Output width' : 'Output height'}
-                      onChange={(e) => onChange(e.target.value ? Number(e.target.value) : '')}
+                      onChange={(e) => onChange(parseDimensionInput(e.target.value))}
                       className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
                     />
                   </div>

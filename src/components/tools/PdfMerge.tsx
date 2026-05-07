@@ -30,6 +30,12 @@ export default function PdfMergeComponent() {
     setMergedUrl(null);
   };
 
+  const clearFiles = () => {
+    setFiles([]);
+    setMergedUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
     setMergedUrl(null);
@@ -89,7 +95,10 @@ export default function PdfMergeComponent() {
         </span>
       </button>
       <input ref={fileInputRef} id="pdf-upload" type="file" multiple accept=".pdf" aria-label="Choose PDF files" className="sr-only"
-        onChange={(e) => e.target.files && addFiles(e.target.files)} />
+        onChange={(e) => {
+          if (e.target.files) addFiles(e.target.files);
+          e.target.value = '';
+        }} />
 
       {/* File list */}
       {files.length > 0 && (
@@ -100,7 +109,7 @@ export default function PdfMergeComponent() {
             </span>
             <button
               type="button"
-              onClick={() => { setFiles([]); setMergedUrl(null); }}
+              onClick={clearFiles}
               className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
             >
               Clear all

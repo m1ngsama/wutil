@@ -253,6 +253,10 @@ test('Image converter uploads and converts an image', async ({ page }) => {
   await page.locator('#img-upload').setInputFiles(path.resolve('public/icon.svg'));
   await expect(page.getByText(/icon\.svg/)).toBeVisible();
 
+  await page.getByRole('spinbutton', { name: 'Output width' }).fill('-1');
+  await expect(page.getByRole('spinbutton', { name: 'Output width' })).toHaveValue('1');
+  await expect(page.getByRole('spinbutton', { name: 'Output height' })).toHaveValue('1');
+
   await page.getByRole('button', { name: 'Convert Image' }).click();
   await expect(page.getByRole('link', { name: 'Download' })).toBeVisible();
 });
@@ -286,6 +290,15 @@ test('PDF merger uploads PDFs and exposes accessible removal controls', async ({
   await expect(page.getByText('2 files')).toBeVisible();
   await expect(page.getByText('minimal-a.pdf')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Remove minimal-a.pdf' })).toBeVisible();
+  await page.getByRole('button', { name: 'Clear all' }).click();
+  await expect(page.getByRole('button', { name: 'Add at least 2 PDFs' })).toBeVisible();
+
+  await page.locator('#pdf-upload').setInputFiles([
+    path.resolve('tests/e2e/fixtures/minimal-a.pdf'),
+    path.resolve('tests/e2e/fixtures/minimal-b.pdf'),
+  ]);
+  await expect(page.getByText('2 files')).toBeVisible();
+
   await page.getByRole('button', { name: 'Merge 2 PDFs' }).click();
   await expect(page.getByRole('link', { name: 'Download' })).toBeVisible();
 });
