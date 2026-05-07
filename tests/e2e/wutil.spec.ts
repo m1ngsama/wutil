@@ -46,6 +46,23 @@ test('home search filters tools and opens a tool', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Regex Tester' })).toBeVisible();
 });
 
+test('home search result can be opened with the keyboard', async ({ page }) => {
+  await page.goto('/');
+
+  await page.getByPlaceholder(/Search tools/).focus();
+  await page.keyboard.type('hash');
+
+  const hashTool = page.getByRole('link', { name: /Hash Generator/ });
+  await expect(hashTool).toBeVisible();
+
+  await hashTool.focus();
+  await expect(hashTool).toBeFocused();
+  await page.keyboard.press('Enter');
+
+  await expect(page).toHaveURL(/\/tools\/hash-generator$/);
+  await expect(page.getByRole('heading', { name: 'Hash Generator' })).toBeVisible();
+});
+
 test('Base64 converter handles Unicode and copy feedback', async ({ page }) => {
   await page.goto('/tools/base64-converter');
 
@@ -83,6 +100,25 @@ test('Password generator creates constrained passwords and copies them', async (
   await expect(page.getByText('Copied')).toBeVisible();
 });
 
+test('Password generator options are operable from the keyboard', async ({ page }) => {
+  await page.goto('/tools/password-generator');
+
+  const uppercase = page.getByRole('switch', { name: /Uppercase/ });
+  const numbers = page.getByRole('switch', { name: /Numbers/ });
+  const generate = page.getByRole('button', { name: 'Generate Password' });
+
+  await uppercase.focus();
+  await page.keyboard.press('Space');
+  await numbers.focus();
+  await page.keyboard.press('Space');
+  await generate.focus();
+  await page.keyboard.press('Enter');
+
+  const password = (await page.getByTestId('generated-password').textContent())?.trim() ?? '';
+  expect(password).toHaveLength(16);
+  expect(password).toMatch(/^[a-z]+$/);
+});
+
 test('Color converter keeps HEX, RGB, and HSL values in sync', async ({ page }) => {
   await page.goto('/tools/color-converter');
 
@@ -103,6 +139,22 @@ test('URL encoder decodes invalid input errors and successful round trips', asyn
   await page.getByRole('button', { name: 'Decode' }).click();
   await page.locator('textarea').first().fill('%E0%A4%A');
   await expect(page.getByText('Invalid encoded string')).toBeVisible();
+});
+
+test('URL decoder mode and copy action are operable from the keyboard', async ({ page }) => {
+  await page.goto('/tools/url-encoder');
+
+  const decode = page.getByRole('button', { name: 'Decode' });
+  await decode.focus();
+  await page.keyboard.press('Enter');
+
+  await page.locator('textarea').first().fill('hello%20world');
+  await expect(page.locator('textarea').nth(1)).toHaveValue('hello world');
+
+  const copy = page.getByRole('button', { name: 'Copy' });
+  await copy.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByText('Copied')).toBeVisible();
 });
 
 test('Text case converter transforms text to snake case', async ({ page }) => {
