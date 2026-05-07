@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import DateCalculatorComponent from '@/components/tools/DateCalculator';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Date Calculator - Days Between Dates",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <DateCalculatorComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('date-calculator')} />
+      <DateCalculatorComponent />
+    </>
+  );
 }

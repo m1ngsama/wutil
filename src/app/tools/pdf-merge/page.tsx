@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import PdfMergeComponent from '@/components/tools/PdfMerge';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "PDF Merger - Combine PDFs Online Free",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PdfMergeComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('pdf-merge')} />
+      <PdfMergeComponent />
+    </>
+  );
 }

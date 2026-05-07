@@ -9,6 +9,7 @@ wutil is a privacy-focused, client-side utility site built with Next.js static e
 The project is in a production-usable state:
 
 - The app has a registry-backed tool catalog, sitemap, robots route, privacy page, Open Graph image, PWA manifest, and Cloudflare Pages security headers.
+- The homepage and every tool page include JSON-LD structured data for search engines, including a site-level tool list and per-tool software application metadata.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
 - Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes. Keyboard-flow smoke tests cover representative homepage, switch, segmented-control, and copy interactions.
 - Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources. A separate scheduled GitHub Actions monitor runs those production checks every six hours between deployments.
@@ -73,7 +74,7 @@ Prioritize tools that are high-utility, privacy-compatible, and easy to test cli
 ### Phase 4: Trust And Discoverability
 
 - Add per-tool privacy notes where files or sensitive text are involved.
-- Add structured data for software application/tool pages.
+- Keep structured data aligned with the tool registry as new tools launch.
 - Maintain a short changelog for visible product improvements.
 - Add documentation for local development, release process, and rollback steps.
 

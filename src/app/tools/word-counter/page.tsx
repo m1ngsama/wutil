@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import WordCounterComponent from '@/components/tools/WordCounter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Word Counter - Character & Sentence Count",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <WordCounterComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('word-counter')} />
+      <WordCounterComponent />
+    </>
+  );
 }

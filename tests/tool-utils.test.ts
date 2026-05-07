@@ -8,6 +8,7 @@ import { generatePassword, randomIndex } from '../src/lib/password-utils';
 import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
 import { SITE_URL } from '../src/lib/site-config';
+import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
 import { SITEMAP_ROUTES, TOOL_REGISTRY, TOOL_ROUTES } from '../src/lib/tool-registry';
 import { parseUnitInput } from '../src/lib/unit-utils';
 
@@ -52,6 +53,32 @@ test('tool registry routes are unique and backed by pages', () => {
     const route = tool.href.replace('/tools/', '');
     assert.ok(existsSync(join(process.cwd(), 'src/app/tools', route, 'page.tsx')), `${tool.href} is missing a page`);
   }
+});
+
+test('structured data describes the home page and every tool', () => {
+  const homeData = getHomeStructuredData();
+  assert.equal(homeData['@context'], 'https://schema.org');
+  const homeGraph = homeData['@graph'] as Record<string, unknown>[];
+  assert.ok(Array.isArray(homeGraph));
+  const itemList = homeGraph.find((item) => item['@type'] === 'ItemList');
+  assert.ok(itemList);
+  const itemListElement = itemList.itemListElement as unknown[];
+  assert.ok(Array.isArray(itemListElement));
+  assert.equal(itemListElement.length, TOOL_REGISTRY.length);
+
+  for (const tool of TOOL_REGISTRY) {
+    const toolData = getToolStructuredData(tool.id);
+    assert.equal(toolData['@context'], 'https://schema.org');
+    const toolGraph = toolData['@graph'] as Record<string, unknown>[];
+    assert.ok(Array.isArray(toolGraph));
+    const app = toolGraph.find((item) => item['@type'] === 'SoftwareApplication');
+    assert.ok(app, `${tool.id} is missing SoftwareApplication data`);
+    assert.equal(app.name, tool.name);
+    assert.equal(app.url, `${SITE_URL}${tool.href}`);
+    assert.equal(app.isAccessibleForFree, true);
+  }
+
+  assert.throws(() => getToolStructuredData('missing-tool'), /Unknown tool id/);
 });
 
 test('Cloudflare Pages headers are configured for production hardening', () => {

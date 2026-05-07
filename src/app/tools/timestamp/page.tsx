@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import TimestampConverter from '@/components/tools/TimestampConverter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'Timestamp Converter',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <TimestampConverter />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('timestamp')} />
+      <TimestampConverter />
+    </>
+  );
 }

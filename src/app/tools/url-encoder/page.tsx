@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import UrlEncoderDecoder from '@/components/tools/UrlEncoderDecoder';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'URL Encoder / Decoder',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <UrlEncoderDecoder />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('url-encoder')} />
+      <UrlEncoderDecoder />
+    </>
+  );
 }

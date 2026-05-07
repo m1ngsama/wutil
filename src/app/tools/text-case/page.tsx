@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import TextCaseConverter from '@/components/tools/TextCaseConverter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'Text Case Converter',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <TextCaseConverter />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('text-case')} />
+      <TextCaseConverter />
+    </>
+  );
 }

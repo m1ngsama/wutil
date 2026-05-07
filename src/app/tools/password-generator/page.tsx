@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import PasswordGenerator from '@/components/tools/PasswordGenerator';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'Password Generator',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <PasswordGenerator />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('password-generator')} />
+      <PasswordGenerator />
+    </>
+  );
 }

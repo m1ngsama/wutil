@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import ColorConverter from '@/components/tools/ColorConverter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'Color Converter',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ColorConverter />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('color-converter')} />
+      <ColorConverter />
+    </>
+  );
 }

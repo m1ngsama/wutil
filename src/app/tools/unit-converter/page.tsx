@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import UnitConverterComponent from '@/components/tools/UnitConverter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Unit Converter - Length, Weight, Temperature",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <UnitConverterComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('unit-converter')} />
+      <UnitConverterComponent />
+    </>
+  );
 }

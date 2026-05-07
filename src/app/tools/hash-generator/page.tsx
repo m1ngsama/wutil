@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import HashGeneratorComponent from '@/components/tools/HashGenerator';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Hash Generator - SHA1, SHA256, SHA384, SHA512 Online",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <HashGeneratorComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('hash-generator')} />
+      <HashGeneratorComponent />
+    </>
+  );
 }

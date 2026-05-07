@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import RegexTester from '@/components/tools/RegexTester';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'Regex Tester',
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <RegexTester />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('regex-tester')} />
+      <RegexTester />
+    </>
+  );
 }

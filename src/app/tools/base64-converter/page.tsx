@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import Base64ConverterComponent from '@/components/tools/Base64Converter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Base64 Converter - Encode & Decode Online",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <Base64ConverterComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('base64-converter')} />
+      <Base64ConverterComponent />
+    </>
+  );
 }

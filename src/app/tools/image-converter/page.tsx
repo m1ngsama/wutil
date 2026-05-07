@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
+import StructuredData from '@/components/StructuredData';
 import ImageConverterComponent from '@/components/tools/ImageConverter';
+import { getToolStructuredData } from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: "Image Converter & Compressor - JPG, PNG, WebP",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ImageConverterComponent />;
+  return (
+    <>
+      <StructuredData data={getToolStructuredData('image-converter')} />
+      <ImageConverterComponent />
+    </>
+  );
 }
