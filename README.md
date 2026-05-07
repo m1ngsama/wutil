@@ -41,6 +41,8 @@ npm run check
 npm run test:e2e
 npm run build
 npm run audit:prod
+npm run interactions:prod
+npm run perf:prod
 ```
 
 ## Deployment
@@ -58,6 +60,8 @@ Production deploys run through GitHub Actions on pushes to `main`:
 7. `npm run build`
 8. `wrangler pages deploy out --project-name=wutil --branch=main`
 9. Verify `https://wutil.m1ng.space`, `/robots.txt`, `/sitemap.xml`, `/privacy`, and `/og-image.svg`
+10. `npm run interactions:prod`
+11. `npm run perf:prod`
 
 Required GitHub Actions secrets:
 
