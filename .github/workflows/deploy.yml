@@ -70,3 +70,6 @@ jobs:
           curl --fail --silent --show-error https://wutil.m1ng.space/sitemap.xml | grep -F "<loc>https://wutil.m1ng.space/privacy</loc>"
           curl --fail --silent --show-error --head https://wutil.m1ng.space/privacy
           curl --fail --silent --show-error --head https://wutil.m1ng.space/og-image.svg
+
+      - name: Check production performance budget
+        run: npm run perf:prod
