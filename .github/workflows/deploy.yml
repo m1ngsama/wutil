@@ -71,5 +71,8 @@ jobs:
           curl --fail --silent --show-error --head https://wutil.m1ng.space/privacy
           curl --fail --silent --show-error --head https://wutil.m1ng.space/og-image.svg
 
+      - name: Check production interactions
+        run: npm run interactions:prod
+
       - name: Check production performance budget
         run: npm run perf:prod

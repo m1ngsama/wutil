@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run test",
     "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "interactions:prod": "node scripts/check-production-interactions.mjs",
     "perf:prod": "node scripts/check-production-performance.mjs"
   },
   "dependencies": {
