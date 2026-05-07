@@ -1,0 +1,43 @@
+name: Monitor production
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    name: Monitor production
+    concurrency:
+      group: wutil-production-monitor
+      cancel-in-progress: true
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify production
+        run: npm run verify:prod
+
+      - name: Check production interactions
+        run: npm run interactions:prod
+
+      - name: Check production performance budget
+        run: npm run perf:prod

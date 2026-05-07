@@ -63,13 +63,7 @@ jobs:
           command: pages deploy out --project-name=wutil --branch=main
 
       - name: Verify production
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --head https://wutil.m1ng.space
-          curl --fail --silent --show-error https://wutil.m1ng.space/robots.txt | grep -F "Sitemap: https://wutil.m1ng.space/sitemap.xml"
-          curl --fail --silent --show-error https://wutil.m1ng.space/sitemap.xml | grep -F "<loc>https://wutil.m1ng.space/privacy</loc>"
-          curl --fail --silent --show-error --head https://wutil.m1ng.space/privacy
-          curl --fail --silent --show-error --head https://wutil.m1ng.space/og-image.svg
+        run: npm run verify:prod
 
       - name: Check production interactions
         run: npm run interactions:prod
