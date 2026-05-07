@@ -45,6 +45,8 @@ npm run interactions:prod
 npm run perf:prod
 ```
 
+`interactions:prod` runs a browser-level smoke sweep against `https://wutil.m1ng.space` by default. `perf:prod` checks production HTML response budgets, FCP/LCP/CLS budgets, and transferred resource budgets for the homepage and heavier file-tool routes.
+
 ## Deployment
 
 The app uses Next.js static export and deploys the generated `out` directory to Cloudflare Pages.

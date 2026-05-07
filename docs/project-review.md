@@ -11,7 +11,7 @@ The project is in a production-usable state:
 - The app has a registry-backed tool catalog, sitemap, robots route, privacy page, Open Graph image, PWA manifest, and Cloudflare Pages security headers.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
 - Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes. Keyboard-flow smoke tests cover representative homepage, switch, segmented-control, and copy interactions.
-- Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, a browser-level production interaction sweep, and a lightweight production performance budget after deployment.
+- Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources.
 
 ## Production Pipeline
 
@@ -26,15 +26,15 @@ The current CI/CD flow for `main` is:
 7. Deploy `out` to Cloudflare Pages.
 8. Verify `https://wutil.m1ng.space` plus `robots.txt`, `sitemap.xml`, `/privacy`, and `/og-image.svg`.
 9. Run a browser-level production interaction sweep against representative happy paths, validation/error paths, file-tool re-selection flows, console errors, and mobile horizontal overflow.
-10. Check a lightweight production performance budget for the homepage and heavier file-tool routes.
+10. Check production performance budgets for the homepage and heavier file-tool routes, including HTML response timing, FCP/LCP/CLS, and transferred resources.
 
-This is a solid baseline for a static, client-side app. The highest-value next step is to add richer production performance signals and operational monitoring, while continuing to deepen browser coverage around high-risk file and conversion paths.
+This is a solid baseline for a static, client-side app. The highest-value next step is to add operational monitoring and continue deepening browser coverage around high-risk file and conversion paths.
 
 ## Remaining Risks
 
 - The app processes user files in-browser. Large images and PDFs can still create memory pressure even with file size validation.
 - E2E coverage now spans every public tool and includes full-catalog light/dark axe scans plus representative keyboard-flow checks. CI also runs a production browser interaction sweep, but coverage remains representative rather than exhaustive for file memory pressure, unusual encodings, and very large inputs.
-- Production has response checks, a browser-level interaction sweep, and a lightweight HTML response performance budget, but no real user monitoring, uptime alerting, or Core Web Vitals budget yet.
+- Production has response checks, a browser-level interaction sweep, and synthetic browser performance budgets. It still has no real user monitoring or uptime alerting.
 - `npm audit --omit=dev --audit-level=high` passes, but Next currently carries a moderate PostCSS advisory upstream. Do not use `npm audit fix --force` because it proposes a breaking downgrade.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.
 - Most tools expose state only inside the page. There are no shareable URLs for tool inputs or settings.
@@ -45,7 +45,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 
 - Expand Playwright tests from smoke coverage into deeper validation, error-path, and large-input coverage.
 - Expand keyboard-flow coverage beyond the current representative interactions.
-- Upgrade production performance checks from response budgets to Core Web Vitals and asset budgets.
+- Keep tightening production performance budgets as the tool catalog grows.
 - Replace or upgrade the Wrangler action once Cloudflare publishes an action that targets Node 24 natively.
 - Add lightweight uptime monitoring for `https://wutil.m1ng.space`.
 
