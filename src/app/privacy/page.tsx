@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getPrivacyToolNames, PRIVACY_NOTES } from '@/lib/privacy-notes';
 
 export const metadata: Metadata = {
   title: 'Privacy',
@@ -36,6 +37,21 @@ export default function PrivacyPage() {
           <p>
             The app may use browser-managed storage for interface preferences such as theme. Tool inputs are not intentionally stored by wutil.
           </p>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold text-ink mb-2">Tool data handling</h2>
+          <div className="space-y-4">
+            {PRIVACY_NOTES.map((group) => (
+              <div key={group.title}>
+                <h3 className="text-sm font-semibold text-ink">{group.title}</h3>
+                <p>{group.note}</p>
+                <p className="text-xs leading-6 text-ink-3">
+                  Applies to: {getPrivacyToolNames(group.toolIds).join(', ')}.
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section>

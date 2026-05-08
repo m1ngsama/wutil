@@ -6,6 +6,7 @@ import { decodeBase64, encodeBase64 } from '../src/lib/base64-utils';
 import { addCalendarDays, daysBetween, toDateInputValue } from '../src/lib/date-utils';
 import { generatePassword, randomIndex } from '../src/lib/password-utils';
 import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
+import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
 import { SITE_URL } from '../src/lib/site-config';
 import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
@@ -85,6 +86,27 @@ test('structured data describes the home page and every tool', () => {
   }
 
   assert.throws(() => getToolStructuredData('missing-tool'), /Unknown tool id/);
+});
+
+test('privacy notes reference real tools and cover file tools', () => {
+  const coveredToolIds = new Set<string>();
+  const registryToolIds = new Set(TOOL_REGISTRY.map((tool) => tool.id));
+
+  for (const group of PRIVACY_NOTES) {
+    assert.ok(group.title);
+    assert.ok(group.note);
+    assert.ok(group.toolIds.length > 0);
+    assert.deepEqual(getPrivacyToolNames(group.toolIds).length, group.toolIds.length);
+
+    for (const toolId of group.toolIds) {
+      assert.ok(registryToolIds.has(toolId), `${toolId} is not in the tool registry`);
+      coveredToolIds.add(toolId);
+    }
+  }
+
+  assert.ok(coveredToolIds.has('image-converter'));
+  assert.ok(coveredToolIds.has('pdf-merge'));
+  assert.throws(() => getPrivacyToolNames(['missing-tool']), /Unknown privacy tool id/);
 });
 
 test('Cloudflare Pages headers are configured for production hardening', () => {

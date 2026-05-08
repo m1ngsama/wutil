@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-08',
+    title: 'Privacy notes by tool category',
+    summary: 'Expanded the public privacy page with clearer tool-level data handling notes.',
+    changes: [
+      'Added file-tool privacy notes for image conversion and PDF merging.',
+      'Added sensitive text handling notes for text, encoding, hashing, regex, and formatting tools.',
+      'Added tests that keep privacy notes aligned with registered tools.',
+    ],
+  },
+  {
     date: '2026-05-07',
     title: 'Production hardening and discoverability',
     summary: 'Strengthened production checks, monitoring, and search metadata for the public site.',
