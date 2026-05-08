@@ -13,8 +13,8 @@ const FORMATS = [
   { label: 'Time (UTC)',  fn: (d: Date) => d.toISOString().split('T')[1].replace('Z','') + ' UTC' },
 ];
 
-function relativeTime(d: Date): string {
-  const diff = d.getTime() - Date.now();
+function relativeTime(d: Date, nowMs: number): string {
+  const diff = d.getTime() - nowMs;
   const abs  = Math.abs(diff);
   const past = diff < 0;
   const fmt  = (n: number, u: string) => `${n} ${u}${n !== 1 ? 's' : ''} ${past ? 'ago' : 'from now'}`;
@@ -45,7 +45,6 @@ export default function TimestampConverter() {
   const [now,   setNow]   = useState<number | null>(null);
 
   useEffect(() => {
-    setNow(Math.floor(Date.now() / 1000));
     const id = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => clearInterval(id);
   }, []);
@@ -137,7 +136,9 @@ export default function TimestampConverter() {
           <div className="rounded-lg border border-edge bg-muted px-5 py-3 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Relative</p>
-              <p className="text-sm font-medium text-ink mt-0.5">{relativeTime(date)}</p>
+              <p className="text-sm font-medium text-ink mt-0.5">
+                {now !== null ? relativeTime(date, now * 1000) : 'Calculating...'}
+              </p>
             </div>
             <p className="text-xs text-ink-3">Local TZ: {tz}</p>
           </div>
@@ -149,13 +150,14 @@ export default function TimestampConverter() {
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Examples</p>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'now',             value: String(Math.floor(Date.now() / 1000)) },
+            { label: 'now',             value: now !== null ? String(now) : '' },
             { label: '2024-01-01 UTC',  value: '2024-01-01T00:00:00Z' },
             { label: '1700000000',      value: '1700000000' },
             { label: 'Unix epoch',      value: '0' },
           ].map(({ label, value }) => (
             <button key={label} type="button" onClick={() => handleInput(value)}
-              className="px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted transition-colors"
+              disabled={!value}
+              className="px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
             >
               {label}
             </button>
