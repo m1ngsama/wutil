@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { CHANGELOG_ENTRIES } from '@/lib/changelog';
+import { createPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Changelog',
   description: 'Recent production updates and reliability improvements for wutil.',
-};
+  path: '/changelog',
+});
 
 export default function ChangelogPage() {
   return (

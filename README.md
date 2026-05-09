@@ -31,6 +31,10 @@ The deployed site may be served by Cloudflare Pages, so standard hosting logs ma
 
 Recent production updates are tracked at <https://wutil.m1ng.space/changelog>.
 
+## Growth And Analytics
+
+SEO, analytics setup, paid campaign tracking, and advertising notes are documented in [docs/growth-and-analytics.md](docs/growth-and-analytics.md).
+
 ## Development
 
 ```bash

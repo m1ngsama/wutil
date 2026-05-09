@@ -1,13 +1,15 @@
 import { Metadata } from 'next';
 import StructuredData from '@/components/StructuredData';
 import UnitConverterComponent from '@/components/tools/UnitConverter';
+import { createPageMetadata } from '@/lib/seo';
 import { getToolStructuredData } from '@/lib/structured-data';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Unit Converter - Length, Weight, Temperature",
   description: "Free online unit converter for length, weight, mass, and temperature. Convert between metric and imperial units.",
   keywords: ["unit converter", "length converter", "weight converter", "temperature converter", "metric conversion"],
-};
+  path: '/tools/unit-converter',
+});
 
 export default function Page() {
   return (

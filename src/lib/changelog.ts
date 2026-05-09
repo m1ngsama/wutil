@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-09',
+    title: 'Search metadata and analytics planning',
+    summary: 'Standardized page-level sharing metadata and documented the analytics setup path.',
+    changes: [
+      'Added canonical, Open Graph, and Twitter metadata helpers for public tool and static pages.',
+      'Documented Cloudflare Web Analytics setup, search console setup, UTM campaign conventions, and ads.txt guidance.',
+      'Added tests that keep page metadata URLs aligned with the production site.',
+    ],
+  },
+  {
     date: '2026-05-08',
     title: 'Privacy notes by tool category',
     summary: 'Expanded the public privacy page with clearer tool-level data handling notes.',

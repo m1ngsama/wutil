@@ -13,6 +13,7 @@ The project is in a production-usable state:
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
 - Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes. Keyboard-flow smoke tests cover representative homepage, switch, segmented-control, and copy interactions.
 - Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources. A separate scheduled GitHub Actions monitor runs those production checks every six hours between deployments.
+- SEO and growth operations are tracked in [growth-and-analytics.md](growth-and-analytics.md). As of 2026-05-09, Cloudflare Pages Web Analytics is not enabled for the `wutil` project.
 
 ## Production Pipeline
 
@@ -37,7 +38,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 
 - The app processes user files in-browser. Large images and PDFs can still create memory pressure even with file size validation.
 - E2E coverage now spans every public tool and includes full-catalog light/dark axe scans plus representative keyboard-flow checks. CI also runs a production browser interaction sweep, but coverage remains representative rather than exhaustive for file memory pressure, unusual encodings, and very large inputs.
-- Production has response checks, a scheduled browser-level interaction sweep, and synthetic browser performance budgets. It still has no external multi-region uptime monitor or real user monitoring.
+- Production has response checks, a scheduled browser-level interaction sweep, and synthetic browser performance budgets. It still has no external multi-region uptime monitor, and Cloudflare Pages Web Analytics still needs to be enabled in the dashboard.
 - `npm audit --omit=dev --audit-level=high` passes, but Next currently carries a moderate PostCSS advisory upstream. Do not use `npm audit fix --force` because it proposes a breaking downgrade.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.
 - Most tools expose state only inside the page. There are no shareable URLs for tool inputs or settings.
@@ -75,6 +76,7 @@ Prioritize tools that are high-utility, privacy-compatible, and easy to test cli
 
 - Keep privacy notes current as tools are added or data handling behavior changes.
 - Keep structured data aligned with the tool registry as new tools launch.
+- Enable Cloudflare Pages Web Analytics and use Search Console/Bing Webmaster Tools for search performance data.
 - Keep the public changelog current with visible product and reliability improvements.
 - Add documentation for local development, release process, and rollback steps.
 

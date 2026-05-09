@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
+import { createPageMetadata } from '@/lib/seo';
 import { getPrivacyToolNames, PRIVACY_NOTES } from '@/lib/privacy-notes';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: 'Privacy',
   description: 'Privacy information for wutil, a collection of browser-only web utilities.',
-};
+  path: '/privacy',
+});
 
 export default function PrivacyPage() {
   return (

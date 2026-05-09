@@ -36,6 +36,9 @@ export const metadata: Metadata = {
   keywords: ["web tools", "online tools", "pdf merger", "image converter", "word counter", "json formatter", "client-side", "privacy"],
   authors: [{ name: "wutil" }],
   creator: "wutil",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

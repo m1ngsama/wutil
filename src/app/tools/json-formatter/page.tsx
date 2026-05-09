@@ -1,13 +1,15 @@
 import { Metadata } from 'next';
 import StructuredData from '@/components/StructuredData';
 import JsonFormatterComponent from '@/components/tools/JsonFormatter';
+import { createPageMetadata } from '@/lib/seo';
 import { getToolStructuredData } from '@/lib/structured-data';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "JSON Formatter & Validator - Beautify JSON Online",
   description: "Free online JSON formatter, validator, and minifier. Beautify your JSON code instantly.",
   keywords: ["json formatter", "json validator", "json minifier", "beautify json", "online json tool"],
-};
+  path: '/tools/json-formatter',
+});
 
 export default function Page() {
   return (

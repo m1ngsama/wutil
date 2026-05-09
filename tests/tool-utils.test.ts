@@ -8,6 +8,7 @@ import { generatePassword, randomIndex } from '../src/lib/password-utils';
 import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
 import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
+import { createPageMetadata } from '../src/lib/seo';
 import { SITE_URL } from '../src/lib/site-config';
 import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
 import { SITEMAP_ROUTES, STATIC_ROUTES, TOOL_REGISTRY, TOOL_ROUTES } from '../src/lib/tool-registry';
@@ -86,6 +87,28 @@ test('structured data describes the home page and every tool', () => {
   }
 
   assert.throws(() => getToolStructuredData('missing-tool'), /Unknown tool id/);
+});
+
+test('page metadata includes canonical and social URLs', () => {
+  const metadata = createPageMetadata({
+    title: 'JSON Formatter',
+    description: 'Format, validate, and inspect JSON in your browser.',
+    keywords: ['json formatter', 'json validator'],
+    path: '/tools/json-formatter',
+  });
+
+  assert.equal(metadata.title, 'JSON Formatter');
+  assert.equal(metadata.description, 'Format, validate, and inspect JSON in your browser.');
+  assert.equal(metadata.alternates?.canonical, '/tools/json-formatter');
+
+  const openGraph = metadata.openGraph as Record<string, unknown>;
+  assert.equal(openGraph.url, `${SITE_URL}/tools/json-formatter`);
+  assert.equal(openGraph.title, 'JSON Formatter | wutil');
+  assert.equal(openGraph.siteName, 'wutil');
+
+  const twitter = metadata.twitter as Record<string, unknown>;
+  assert.equal(twitter.title, 'JSON Formatter | wutil');
+  assert.equal(twitter.card, 'summary_large_image');
 });
 
 test('privacy notes reference real tools and cover file tools', () => {
