@@ -35,6 +35,10 @@ Recent production updates are tracked at <https://wutil.m1ng.space/changelog>.
 
 SEO, analytics setup, paid campaign tracking, and advertising notes are documented in [docs/growth-and-analytics.md](docs/growth-and-analytics.md).
 
+## Design Context
+
+Product and visual design guidance live in [PRODUCT.md](PRODUCT.md) and [DESIGN.md](DESIGN.md). The project includes the Impeccable Codex skill under `.agents/skills/impeccable` for frontend design critique, polish, and iteration.
+
 ## Development
 
 ```bash
