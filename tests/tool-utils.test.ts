@@ -138,6 +138,7 @@ test('Cloudflare Pages headers are configured for production hardening', () => {
   const headers = readFileSync(headersPath, 'utf8');
   assert.match(headers, /Content-Security-Policy:/);
   assert.match(headers, /https:\/\/static\.cloudflareinsights\.com/);
+  assert.match(headers, /connect-src 'self' https:\/\/cloudflareinsights\.com/);
   assert.match(headers, /X-Frame-Options: DENY/);
   assert.match(headers, /\/_next\/static\/\*/);
   assert.match(headers, /Cache-Control: public, max-age=31536000, immutable/);
