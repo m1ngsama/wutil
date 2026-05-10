@@ -254,6 +254,7 @@ test('Image converter uploads and converts an image', async ({ page }) => {
 
   await page.locator('#img-upload').setInputFiles(path.resolve('public/icon.svg'));
   await expect(page.getByText(/icon\.svg/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Reset to original/ })).toBeVisible();
 
   await page.getByRole('spinbutton', { name: 'Output width' }).fill('-1');
   await expect(page.getByRole('spinbutton', { name: 'Output width' })).toHaveValue('1');
