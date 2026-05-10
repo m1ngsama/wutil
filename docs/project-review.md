@@ -12,7 +12,7 @@ The project is in a production-usable state:
 - The homepage and every tool page include JSON-LD structured data for search engines, including a site-level tool list and per-tool software application metadata.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
 - Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes. Keyboard-flow smoke tests cover representative homepage, switch, segmented-control, and copy interactions.
-- Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources. A separate scheduled GitHub Actions monitor runs those production checks every six hours between deployments.
+- Production deploys run through GitHub Actions and Cloudflare Pages, with production URL verification, SEO metadata checks, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources. A separate scheduled GitHub Actions monitor runs those production checks every six hours between deployments.
 - SEO and growth operations are tracked in [growth-and-analytics.md](growth-and-analytics.md). As of 2026-05-09, Cloudflare Pages Web Analytics is not enabled for the `wutil` project.
 
 ## Production Pipeline
@@ -27,10 +27,11 @@ The current CI/CD flow for `main` is:
 6. Build the static export.
 7. Deploy `out` to Cloudflare Pages.
 8. Verify `https://wutil.m1ng.space` plus `robots.txt`, `sitemap.xml`, `/privacy`, and `/og-image.svg`.
-9. Run a browser-level production interaction sweep against representative happy paths, validation/error paths, file-tool re-selection flows, console errors, and mobile horizontal overflow.
-10. Check production performance budgets for the homepage and heavier file-tool routes, including HTML response timing, FCP/LCP/CLS, and transferred resources.
+9. Check production SEO metadata for every route in `sitemap.xml`, including canonical links, `og:url`, OG image, and Twitter card metadata.
+10. Run a browser-level production interaction sweep against representative happy paths, validation/error paths, file-tool re-selection flows, console errors, and mobile horizontal overflow.
+11. Check production performance budgets for the homepage and heavier file-tool routes, including HTML response timing, FCP/LCP/CLS, and transferred resources.
 
-The scheduled production monitor repeats steps 8-10 every six hours without deploying.
+The scheduled production monitor repeats steps 8-11 every six hours without deploying.
 
 This is a solid baseline for a static, client-side app. The highest-value next step is to continue deepening browser coverage around high-risk file and conversion paths, then add external monitoring or RUM if operational requirements grow.
 

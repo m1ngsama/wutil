@@ -50,11 +50,12 @@ npm run test:e2e
 npm run build
 npm run audit:prod
 npm run verify:prod
+npm run seo:prod
 npm run interactions:prod
 npm run perf:prod
 ```
 
-`verify:prod`, `interactions:prod`, and `perf:prod` target `https://wutil.m1ng.space` by default. They can be pointed at another deployment with `PRODUCTION_ORIGIN`.
+`verify:prod`, `seo:prod`, `interactions:prod`, and `perf:prod` target `https://wutil.m1ng.space` by default. They can be pointed at another deployment with `PRODUCTION_ORIGIN`.
 
 ## Deployment
 
@@ -71,10 +72,11 @@ Production deploys run through GitHub Actions on pushes to `main`:
 7. `npm run build`
 8. `wrangler pages deploy out --project-name=wutil --branch=main`
 9. `npm run verify:prod`
-10. `npm run interactions:prod`
-11. `npm run perf:prod`
+10. `npm run seo:prod`
+11. `npm run interactions:prod`
+12. `npm run perf:prod`
 
-`.github/workflows/production-monitor.yml` also runs the production verification, browser interaction sweep, and performance budget every six hours, plus on manual dispatch.
+`.github/workflows/production-monitor.yml` also runs production verification, SEO metadata checks, browser interaction sweep, and performance budgets every six hours, plus on manual dispatch.
 
 Required GitHub Actions secrets:
 

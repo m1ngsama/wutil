@@ -65,6 +65,9 @@ jobs:
       - name: Verify production
         run: npm run verify:prod
 
+      - name: Check production SEO metadata
+        run: npm run seo:prod
+
       - name: Check production interactions
         run: npm run interactions:prod
 

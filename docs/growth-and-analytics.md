@@ -1,6 +1,6 @@
 # Growth And Analytics
 
-Baseline checked: 2026-05-09
+Baseline checked: 2026-05-10
 
 ## Current State
 
@@ -18,8 +18,23 @@ Use these sources together because they answer different questions:
 - Cloudflare zone Analytics: edge-level request volume, bandwidth, cache behavior, threats, and status codes. This can show request frequency even before Web Analytics is enabled, but it is not a product analytics tool.
 - Google Search Console: organic search impressions, clicks, query terms, page indexing, and sitemap submission state.
 - Bing Webmaster Tools: Bing search performance, crawl/index diagnostics, and sitemap submission state.
-- GitHub Actions production monitor: synthetic availability, interaction, and performance checks. This validates uptime and behavior, not real visitor frequency.
+- GitHub Actions production monitor: synthetic availability, SEO metadata, interaction, and performance checks. This validates uptime and behavior, not real visitor frequency.
 - Ad platform dashboards: spend, impressions, CPC, CTR, and conversion data for paid campaigns.
+
+## Automated SEO Checks
+
+`npm run seo:prod` reads the production `sitemap.xml` and checks every listed route for:
+
+- A single canonical URL matching the production route.
+- `og:url` matching the production route.
+- Open Graph title, description, image, and type metadata.
+- Twitter card title, description, image, and `summary_large_image` card type.
+
+This check runs after deploys and in the scheduled production monitor. For preview deployments, run it with:
+
+```bash
+PRODUCTION_ORIGIN=https://preview.example.com npm run seo:prod
+```
 
 ## Enable Cloudflare Web Analytics
 

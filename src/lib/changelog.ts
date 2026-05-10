@@ -7,6 +7,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-05-10',
+    title: 'Production SEO monitoring',
+    summary: 'Added automated production checks for canonical and social metadata.',
+    changes: [
+      'Added a production SEO metadata check that reads sitemap routes and validates canonical, Open Graph, and Twitter metadata.',
+      'Added the SEO check to deploy and scheduled production monitoring workflows.',
+      'Documented how to run SEO checks against production or preview deployments.',
+    ],
+  },
+  {
     date: '2026-05-09',
     title: 'Search metadata and analytics planning',
     summary: 'Standardized page-level sharing metadata and documented the analytics setup path.',
