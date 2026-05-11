@@ -87,7 +87,6 @@ Required GitHub Actions secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
-- `CLOUDFLARE_ZONE_ID`
 - Optional: `CLOUDFLARE_CACHE_PURGE_API_TOKEN` with Cloudflare `Cache Purge` permission. If omitted, deploys reuse `CLOUDFLARE_API_TOKEN` for cache purge.
 
 Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` Cloudflare cache after Pages deployment so verification and users see the latest HTML.
