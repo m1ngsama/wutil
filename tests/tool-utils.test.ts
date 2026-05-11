@@ -140,7 +140,7 @@ test('Cloudflare Pages headers are configured for production hardening', () => {
   assert.match(headers, /https:\/\/static\.cloudflareinsights\.com/);
   assert.match(headers, /connect-src 'self' https:\/\/cloudflareinsights\.com/);
   assert.match(headers, /X-Frame-Options: DENY/);
-  assert.match(headers, /Cloudflare-CDN-Cache-Control: public, max-age=3600, stale-while-revalidate=86400/);
+  assert.match(headers, /Cache-Control: public, max-age=60, s-maxage=3600, stale-while-revalidate=86400/);
   assert.match(headers, /\/tools\/\*/);
   assert.match(headers, /\/_next\/static\/\*/);
   assert.match(headers, /Cache-Control: public, max-age=31536000, immutable/);
