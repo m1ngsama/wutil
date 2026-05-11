@@ -12,6 +12,19 @@ const FORMATS = [
   { value: 'image/webp', label: 'WebP', ext: 'webp' },
 ];
 
+type ImageConversionStage = 'decoding' | 'drawing' | 'encoding';
+
+type ImageWorkerResponse =
+  | { status: 'progress'; stage: ImageConversionStage; progress: number }
+  | { status: 'done'; blob: Blob; size: number }
+  | { status: 'error'; error: string };
+
+const STAGE_LABELS: Record<ImageConversionStage, string> = {
+  decoding: 'Decoding image',
+  drawing: 'Resizing image',
+  encoding: 'Encoding output',
+};
+
 function fmtBytes(n: number) {
   if (n < 1024)       return n + ' B';
   if (n < 1048576)    return (n / 1024).toFixed(1) + ' KB';
@@ -25,6 +38,10 @@ function parseDimensionInput(value: string): number | '' {
   return Math.max(1, Math.round(n));
 }
 
+function isSvgFile(file: File) {
+  return file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+}
+
 export default function ImageConverterComponent() {
   const [imageFile, setImageFile]       = useState<File | null>(null);
   const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
@@ -36,11 +53,22 @@ export default function ImageConverterComponent() {
   const [format, setFormat]             = useState('image/jpeg');
   const [quality, setQuality]           = useState(0.85);
   const [processing, setProcessing]     = useState(false);
+  const [conversionStatus, setConversionStatus] = useState('');
+  const [conversionProgress, setConversionProgress] = useState(0);
   const [resultUrl, setResultUrl]       = useState<string | null>(null);
   const [resultSize, setResultSize]     = useState(0);
   const [isDragging, setIsDragging]     = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+
+  const stopActiveConversion = useCallback(() => {
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    setProcessing(false);
+    setConversionStatus('');
+    setConversionProgress(0);
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -54,8 +82,15 @@ export default function ImageConverterComponent() {
     };
   }, [resultUrl]);
 
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+
   const loadFile = useCallback((file: File) => {
     if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    stopActiveConversion();
     const url = URL.createObjectURL(file);
     setImageFile(file);
     setPreviewUrl(url);
@@ -69,7 +104,7 @@ export default function ImageConverterComponent() {
     };
     img.onerror = () => toast.error('Could not load that image');
     img.src = url;
-  }, []);
+  }, [stopActiveConversion]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) loadFile(e.target.files[0]);
@@ -89,38 +124,118 @@ export default function ImageConverterComponent() {
     }
   };
 
-  const convert = () => {
-    if (!imageFile || !canvasRef.current) return;
-    setProcessing(true);
+  const completeConversion = (blob: Blob) => {
+    setResultUrl(URL.createObjectURL(blob));
+    setResultSize(blob.size);
+    setConversionProgress(100);
+    setConversionStatus('Ready');
+    setProcessing(false);
+    toast.success('Converted');
+  };
+
+  const convertOnMainThread = (w: number, h: number) => {
+    if (!previewUrl || !canvasRef.current) {
+      toast.error('Conversion failed');
+      setProcessing(false);
+      return;
+    }
+
+    setConversionStatus('Rasterizing image');
+    setConversionProgress(45);
+
     const img = new Image();
     img.onload = () => {
       const canvas = canvasRef.current!;
       const ctx    = canvas.getContext('2d')!;
-      const w = Number(width)  || img.naturalWidth;
-      const h = Number(height) || img.naturalHeight;
-      if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
-        toast.error('Width and height must be at least 1 px');
-        setProcessing(false);
-        return;
-      }
+
       canvas.width  = w;
       canvas.height = h;
-      // White background for JPEG (transparent → white)
+      // White background for JPEG transparency.
       if (format === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
       ctx.drawImage(img, 0, 0, w, h);
+
+      setConversionStatus('Encoding output');
+      setConversionProgress(85);
       canvas.toBlob(
         (blob) => {
           if (!blob) { toast.error('Conversion failed'); setProcessing(false); return; }
-          setResultUrl(URL.createObjectURL(blob));
-          setResultSize(blob.size);
-          setProcessing(false);
-          toast.success('Converted');
+          completeConversion(blob);
         },
         format,
         format === 'image/png' ? undefined : quality,
       );
     };
-    img.src = previewUrl!;
+    img.onerror = () => {
+      toast.error('Conversion failed');
+      setProcessing(false);
+    };
+    img.src = previewUrl;
+  };
+
+  const convertInWorker = (w: number, h: number) => {
+    if (!imageFile) return;
+
+    workerRef.current?.terminate();
+    const worker = new Worker(new URL('./image-converter.worker.ts', import.meta.url), { type: 'module' });
+    workerRef.current = worker;
+
+    const fallBackToMainThread = () => {
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+      setConversionStatus('Retrying in browser');
+      setConversionProgress(25);
+      convertOnMainThread(w, h);
+    };
+
+    worker.onmessage = (event: MessageEvent<ImageWorkerResponse>) => {
+      const message = event.data;
+
+      if (message.status === 'progress') {
+        setConversionStatus(STAGE_LABELS[message.stage]);
+        setConversionProgress(message.progress);
+        return;
+      }
+
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+
+      if (message.status === 'done') {
+        completeConversion(message.blob);
+      } else {
+        fallBackToMainThread();
+      }
+    };
+
+    worker.onerror = fallBackToMainThread;
+    worker.postMessage({ file: imageFile, width: w, height: h, format, quality });
+  };
+
+  const convert = () => {
+    if (!imageFile || !canvasRef.current) return;
+    setProcessing(true);
+    setConversionStatus('Preparing image');
+    setConversionProgress(5);
+    setResultUrl(null);
+
+    const w = Number(width)  || origW;
+    const h = Number(height) || origH;
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
+      toast.error('Width and height must be at least 1 px');
+      setProcessing(false);
+      return;
+    }
+
+    const canUseWorker =
+      !isSvgFile(imageFile) &&
+      typeof Worker !== 'undefined' &&
+      typeof OffscreenCanvas !== 'undefined' &&
+      typeof createImageBitmap !== 'undefined';
+
+    if (canUseWorker) {
+      convertInWorker(w, h);
+    } else {
+      convertOnMainThread(w, h);
+    }
   };
 
   const ext = FORMATS.find((f) => f.value === format)?.ext ?? 'jpg';
@@ -255,6 +370,36 @@ export default function ImageConverterComponent() {
           >
             {processing ? 'Converting…' : 'Convert Image'}
           </button>
+
+          {processing && (
+            <div className="rounded-xl border border-edge bg-muted p-3" aria-live="polite">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+                  {conversionStatus || 'Converting image'}
+                </span>
+                <button
+                  type="button"
+                  onClick={stopActiveConversion}
+                  className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+              <div
+                role="progressbar"
+                aria-label="Image conversion progress"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={conversionProgress}
+                className="h-1.5 rounded-full bg-surface border border-edge overflow-hidden"
+              >
+                <div
+                  className="h-full bg-accent transition-[width] duration-200"
+                  style={{ width: `${conversionProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Preview */}

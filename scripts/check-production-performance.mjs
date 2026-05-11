@@ -3,41 +3,47 @@ import { chromium } from '@playwright/test';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_PERF_TIMEOUT_MS ?? 10_000);
+const browserSettleMs = Number(process.env.PRODUCTION_PERF_SETTLE_MS ?? 750);
+
+const defaultRouteBudget = {
+  maxHtmlBytes: 120_000,
+  maxTtfbMs: 3_000,
+  maxTotalMs: 6_000,
+  maxFcpMs: 4_500,
+  maxLcpMs: 5_500,
+  maxCls: 0.02,
+  maxTotalTransferBytes: 900_000,
+  maxScriptTransferBytes: 650_000,
+};
+
+const toolPaths = [
+  '/tools/password-generator',
+  '/tools/color-converter',
+  '/tools/url-encoder',
+  '/tools/text-case',
+  '/tools/regex-tester',
+  '/tools/timestamp',
+  '/tools/word-counter',
+  '/tools/json-formatter',
+  '/tools/base64-converter',
+  '/tools/unit-converter',
+  '/tools/hash-generator',
+  '/tools/date-calculator',
+  '/tools/image-converter',
+  '/tools/pdf-merge',
+];
 
 const routes = [
   {
     path: '/',
+    ...defaultRouteBudget,
     maxHtmlBytes: 150_000,
-    maxTtfbMs: 3_000,
-    maxTotalMs: 6_000,
     maxFcpMs: 4_000,
     maxLcpMs: 5_000,
-    maxCls: 0.02,
-    maxTotalTransferBytes: 900_000,
-    maxScriptTransferBytes: 650_000,
   },
-  {
-    path: '/tools/image-converter',
-    maxHtmlBytes: 120_000,
-    maxTtfbMs: 3_000,
-    maxTotalMs: 6_000,
-    maxFcpMs: 4_500,
-    maxLcpMs: 5_500,
-    maxCls: 0.02,
-    maxTotalTransferBytes: 900_000,
-    maxScriptTransferBytes: 650_000,
-  },
-  {
-    path: '/tools/pdf-merge',
-    maxHtmlBytes: 120_000,
-    maxTtfbMs: 3_000,
-    maxTotalMs: 6_000,
-    maxFcpMs: 4_500,
-    maxLcpMs: 5_500,
-    maxCls: 0.02,
-    maxTotalTransferBytes: 900_000,
-    maxScriptTransferBytes: 650_000,
-  },
+  { path: '/privacy', ...defaultRouteBudget },
+  { path: '/changelog', ...defaultRouteBudget },
+  ...toolPaths.map((path) => ({ path, ...defaultRouteBudget })),
 ];
 
 function formatMs(value) {
@@ -134,8 +140,9 @@ async function measureBrowserRoute(browser, route) {
 
   try {
     const page = await context.newPage();
-    await page.goto(routeUrl(route.path), { waitUntil: 'networkidle', timeout: timeoutMs });
-    await page.waitForTimeout(500);
+    await page.goto(routeUrl(route.path), { waitUntil: 'load', timeout: timeoutMs });
+    await page.evaluate(() => document.fonts?.ready.then(() => undefined)).catch(() => undefined);
+    await page.waitForTimeout(browserSettleMs);
 
     return await page.evaluate(() => {
       const navigationEntry = performance.getEntriesByType('navigation')[0];

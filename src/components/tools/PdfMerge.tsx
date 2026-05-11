@@ -5,12 +5,31 @@ import { toast } from 'sonner';
 import { FilePlus2, X, FileText } from 'lucide-react';
 import { validatePdfFile } from '@/lib/pdf-utils';
 
+type PdfMergeProgress = {
+  label: string;
+  progress: number;
+};
+
+type PdfWorkerResponse =
+  | { status: 'progress'; label: string; progress: number }
+  | { status: 'done'; blob: Blob }
+  | { status: 'error'; error: string };
+
 export default function PdfMergeComponent() {
   const [files, setFiles]             = useState<File[]>([]);
   const [mergedUrl, setMergedUrl]     = useState<string | null>(null);
   const [processing, setProcessing]   = useState(false);
+  const [mergeProgress, setMergeProgress] = useState<PdfMergeProgress | null>(null);
   const [isDragging, setIsDragging]   = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const workerRef = useRef<Worker | null>(null);
+
+  const cancelMerge = () => {
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    setProcessing(false);
+    setMergeProgress(null);
+  };
 
   useEffect(() => {
     return () => {
@@ -18,7 +37,18 @@ export default function PdfMergeComponent() {
     };
   }, [mergedUrl]);
 
+  useEffect(() => {
+    return () => {
+      workerRef.current?.terminate();
+    };
+  }, []);
+
   const addFiles = (incoming: FileList | File[]) => {
+    if (processing) {
+      toast.error('Cancel the current merge before changing files');
+      return;
+    }
+
     const incomingFiles = Array.from(incoming);
     const nonPdfs = incomingFiles.filter((file) => validatePdfFile(file) === 'not-pdf');
     const oversized = incomingFiles.filter((file) => validatePdfFile(file) === 'too-large');
@@ -31,37 +61,93 @@ export default function PdfMergeComponent() {
   };
 
   const clearFiles = () => {
+    cancelMerge();
     setFiles([]);
     setMergedUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const removeFile = (index: number) => {
+    if (processing) return;
     setFiles((prev) => prev.filter((_, i) => i !== index));
     setMergedUrl(null);
   };
 
-  const mergePdfs = async () => {
-    if (files.length < 2) return;
-    setProcessing(true);
+  const completeMerge = (blob: Blob) => {
+    setMergedUrl(URL.createObjectURL(blob));
+    setMergeProgress({ label: 'Ready', progress: 100 });
+    setProcessing(false);
+    toast.success('Merged successfully');
+  };
+
+  const mergeOnMainThread = async () => {
     try {
       const { PDFDocument } = await import('pdf-lib');
       const merged = await PDFDocument.create();
-      for (const file of files) {
+      for (const [index, file] of files.entries()) {
+        setMergeProgress({
+          label: `Reading ${index + 1} of ${files.length}`,
+          progress: Math.round((index / files.length) * 80),
+        });
         const buf = await file.arrayBuffer();
         const pdf = await PDFDocument.load(buf);
         const pages = await merged.copyPages(pdf, pdf.getPageIndices());
         pages.forEach((p) => merged.addPage(p));
       }
+      setMergeProgress({ label: 'Saving merged PDF', progress: 95 });
       const bytes = await merged.save();
       const blob  = new Blob([bytes as BlobPart], { type: 'application/pdf' });
-      setMergedUrl(URL.createObjectURL(blob));
-      toast.success('Merged successfully');
+      completeMerge(blob);
     } catch {
-      toast.error('Failed — ensure all files are valid PDFs');
-    } finally {
       setProcessing(false);
+      setMergeProgress(null);
+      toast.error('Failed - ensure all files are valid PDFs');
     }
+  };
+
+  const mergePdfs = async () => {
+    if (files.length < 2) return;
+    setProcessing(true);
+    setMergedUrl(null);
+    setMergeProgress({ label: 'Preparing PDFs', progress: 5 });
+
+    if (typeof Worker === 'undefined') {
+      await mergeOnMainThread();
+      return;
+    }
+
+    workerRef.current?.terminate();
+    const worker = new Worker(new URL('./pdf-merge.worker.ts', import.meta.url), { type: 'module' });
+    workerRef.current = worker;
+
+    const failMerge = () => {
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+      setProcessing(false);
+      setMergeProgress(null);
+      toast.error('Failed - ensure all files are valid PDFs');
+    };
+
+    worker.onmessage = (event: MessageEvent<PdfWorkerResponse>) => {
+      const message = event.data;
+
+      if (message.status === 'progress') {
+        setMergeProgress({ label: message.label, progress: message.progress });
+        return;
+      }
+
+      worker.terminate();
+      if (workerRef.current === worker) workerRef.current = null;
+
+      if (message.status === 'done') {
+        completeMerge(message.blob);
+      } else {
+        failMerge();
+      }
+    };
+
+    worker.onerror = failMerge;
+    worker.postMessage({ files });
   };
 
   const totalSources = files.length;
@@ -110,7 +196,8 @@ export default function PdfMergeComponent() {
             <button
               type="button"
               onClick={clearFiles}
-              className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+              disabled={processing}
+              className="text-xs font-semibold text-ink-3 hover:text-ink disabled:opacity-40 transition-colors"
             >
               Clear all
             </button>
@@ -127,8 +214,9 @@ export default function PdfMergeComponent() {
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
+                  disabled={processing}
                   aria-label={`Remove ${file.name}`}
-                  className="shrink-0 w-5 h-5 flex items-center justify-center text-ink-3 hover:text-ink transition-colors"
+                  className="shrink-0 w-5 h-5 flex items-center justify-center text-ink-3 hover:text-ink disabled:opacity-40 transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -149,6 +237,36 @@ export default function PdfMergeComponent() {
           {processing ? 'Merging…' : files.length < 2 ? 'Add at least 2 PDFs' : `Merge ${files.length} PDFs`}
         </button>
       </div>
+
+      {processing && mergeProgress && (
+        <div className="mt-3 rounded-xl border border-edge bg-muted p-3" aria-live="polite">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+              {mergeProgress.label}
+            </span>
+            <button
+              type="button"
+              onClick={cancelMerge}
+              className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+          <div
+            role="progressbar"
+            aria-label="PDF merge progress"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={mergeProgress.progress}
+            className="h-1.5 rounded-full bg-surface border border-edge overflow-hidden"
+          >
+            <div
+              className="h-full bg-accent transition-[width] duration-200"
+              style={{ width: `${mergeProgress.progress}%` }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Download */}
       {mergedUrl && (
