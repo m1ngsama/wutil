@@ -69,6 +69,9 @@ jobs:
           CLOUDFLARE_PURGE_HOST: wutil.m1ng.space
         run: npm run purge:cf
 
+      - name: Warm production cache
+        run: npm run warm:prod
+
       - name: Verify production
         run: npm run verify:prod
 

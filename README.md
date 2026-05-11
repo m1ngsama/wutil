@@ -76,10 +76,11 @@ Production deploys run through GitHub Actions on pushes to `main`:
 7. `npm run build`
 8. `wrangler pages deploy out --project-name=wutil --branch=main`
 9. `npm run purge:cf`
-10. `npm run verify:prod`
-11. `npm run seo:prod`
-12. `npm run interactions:prod`
-13. `npm run perf:prod`
+10. `npm run warm:prod`
+11. `npm run verify:prod`
+12. `npm run seo:prod`
+13. `npm run interactions:prod`
+14. `npm run perf:prod`
 
 `.github/workflows/production-monitor.yml` also runs production verification, SEO metadata checks, browser interaction sweep, and performance budgets every six hours, plus on manual dispatch.
 
@@ -89,6 +90,6 @@ Required GitHub Actions secrets:
 - `CLOUDFLARE_ACCOUNT_ID`
 - Optional: `CLOUDFLARE_CACHE_PURGE_API_TOKEN` with Cloudflare `Cache Purge` permission. If omitted, deploys reuse `CLOUDFLARE_API_TOKEN` for cache purge.
 
-Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` Cloudflare cache after Pages deployment so verification and users see the latest HTML.
+Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` Cloudflare cache after Pages deployment, then warm the sitemap HTML routes so verification and users see the latest HTML with fewer cold-cache misses.
 
 See [docs/project-review.md](docs/project-review.md) for the current production review, remaining risks, and roadmap.
