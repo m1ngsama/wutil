@@ -6,7 +6,7 @@ Baseline checked: 2026-05-10
 
 - Production site: `https://wutil.m1ng.space`
 - SEO files are present: `robots.txt`, `sitemap.xml`, metadata, Open Graph image, Twitter card metadata, and JSON-LD structured data.
-- Cloudflare Pages project `wutil` is deployed successfully, but Pages Web Analytics is not enabled yet. The current project config has `build_config.web_analytics_tag` and `build_config.web_analytics_token` set to `null`.
+- Cloudflare Pages project `wutil` is deployed successfully, and Pages Web Analytics is enabled for the project.
 - No ad network integration is configured in this repository. `ads.txt` should stay absent until an ad platform provides the exact publisher line.
 - No paid acquisition campaign tracking convention was documented before this file.
 
@@ -34,6 +34,30 @@ This check runs after deploys and in the scheduled production monitor. For previ
 
 ```bash
 PRODUCTION_ORIGIN=https://preview.example.com npm run seo:prod
+```
+
+## Automated Traffic Report
+
+`npm run analytics:cf` queries Cloudflare's GraphQL Analytics API for the last seven days of Web Analytics RUM data on `wutil.m1ng.space`.
+
+The report includes:
+
+- Page views, visits, and views per visit.
+- Daily traffic.
+- Top pages.
+- Referrers.
+- Device, browser, and country breakdowns.
+- Real-user Web Vitals p75 values and good-sample rates.
+
+The scheduled workflow `.github/workflows/analytics-report.yml` runs this report daily and writes the Markdown output to the GitHub Actions step summary. It needs:
+
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_ANALYTICS_API_TOKEN` with Cloudflare Analytics Read permission, or a fallback `CLOUDFLARE_API_TOKEN` that can read analytics.
+
+For local use:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_ANALYTICS_API_TOKEN=... npm run analytics:cf
 ```
 
 ## Enable Cloudflare Web Analytics

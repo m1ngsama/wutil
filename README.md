@@ -53,6 +53,7 @@ npm run check
 npm run test:e2e
 npm run build
 npm run audit:prod
+npm run analytics:cf
 npm run verify:prod
 npm run seo:prod
 npm run interactions:prod
@@ -84,11 +85,14 @@ Production deploys run through GitHub Actions on pushes to `main`:
 
 `.github/workflows/production-monitor.yml` also runs production verification, SEO metadata checks, browser interaction sweep, and performance budgets every six hours, plus on manual dispatch.
 
+`.github/workflows/analytics-report.yml` runs a daily Cloudflare Web Analytics report and writes visits, page views, top pages, referrers, device/browser mix, country mix, and real-user Web Vitals to the GitHub Actions step summary.
+
 Required GitHub Actions secrets:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 - Optional: `CLOUDFLARE_CACHE_PURGE_API_TOKEN` with Cloudflare `Cache Purge` permission. If omitted, deploys reuse `CLOUDFLARE_API_TOKEN` for cache purge.
+- Optional: `CLOUDFLARE_ANALYTICS_API_TOKEN` with Cloudflare Analytics Read permission. If omitted, analytics reports reuse `CLOUDFLARE_API_TOKEN`.
 
 Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` Cloudflare cache after Pages deployment, then warm the sitemap HTML routes so verification and users see the latest HTML with fewer cold-cache misses.
 
