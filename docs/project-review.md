@@ -12,12 +12,12 @@ The project is in a production-usable state:
 - The homepage and every tool page include JSON-LD structured data for search engines, including a site-level tool list and per-tool software application metadata.
 - Tool logic that carries correctness risk is split into small utility modules under `src/lib`, with unit coverage for dates, units, Base64, passwords, regex handling, PDF validation, and registry/page consistency.
 - Browser smoke coverage exercises homepage search/navigation and all 14 public tools, including text transformations, conversions, hashing, date math, image conversion, and actual PDF merge output. The suite also includes basic axe WCAG A/AA scans for the homepage and every public tool page in both light and dark themes. Keyboard-flow smoke tests cover representative homepage, switch, segmented-control, and copy interactions.
-- Production deploys can be run manually through GitHub Actions and Cloudflare Pages, with cache purge and warmup after deployment, production URL verification, SEO metadata checks, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources.
+- Production deploys run through GitHub Actions and Cloudflare Pages when changes land on `main`, with cache purge and warmup after deployment, production URL verification, SEO metadata checks, a browser-level production interaction sweep, and production performance budgets covering HTML response timing, FCP/LCP/CLS, and transferred resources. The workflow can also be run manually when needed.
 - SEO and growth operations are tracked in [growth-and-analytics.md](growth-and-analytics.md). Cloudflare Pages Web Analytics is enabled for the `wutil` project, and the analytics report workflow can be run manually to summarize visits, page views, top pages, referrers, device/browser mix, country mix, and real-user Web Vitals.
 
 ## Production Pipeline
 
-The manual CI/CD flow is:
+The CI/CD flow for `main` is:
 
 1. Install dependencies with `npm ci`.
 2. Run production dependency audit at high severity or above.
@@ -53,7 +53,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 - Expand keyboard-flow coverage beyond the current representative interactions.
 - Keep tightening production performance budgets as the tool catalog grows.
 - Replace or upgrade the Wrangler action once Cloudflare publishes an action that targets Node 24 natively.
-- Add external multi-region uptime monitoring for `https://wutil.m1ng.space` if manual GitHub Actions checks are not enough.
+- Add external multi-region uptime monitoring for `https://wutil.m1ng.space` if deploy-time GitHub Actions checks are not enough.
 
 ### Phase 2: Product Depth
 
