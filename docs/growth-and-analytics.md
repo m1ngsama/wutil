@@ -18,7 +18,7 @@ Use these sources together because they answer different questions:
 - Cloudflare zone Analytics: edge-level request volume, bandwidth, cache behavior, threats, and status codes. This can show request frequency even before Web Analytics is enabled, but it is not a product analytics tool.
 - Google Search Console: organic search impressions, clicks, query terms, page indexing, and sitemap submission state.
 - Bing Webmaster Tools: Bing search performance, crawl/index diagnostics, and sitemap submission state.
-- GitHub Actions production monitor: synthetic availability, SEO metadata, interaction, and performance checks. This validates uptime and behavior, not real visitor frequency.
+- GitHub Actions production monitor: manually triggered synthetic availability, SEO metadata, interaction, and performance checks. This validates uptime and behavior, not real visitor frequency.
 - Ad platform dashboards: spend, impressions, CPC, CTR, and conversion data for paid campaigns.
 
 ## Automated SEO Checks
@@ -30,7 +30,7 @@ Use these sources together because they answer different questions:
 - Open Graph title, description, image, and type metadata.
 - Twitter card title, description, image, and `summary_large_image` card type.
 
-This check runs after deploys and in the scheduled production monitor. For preview deployments, run it with:
+This check runs in the manual deploy and production monitor workflows. For preview deployments, run it with:
 
 ```bash
 PRODUCTION_ORIGIN=https://preview.example.com npm run seo:prod
@@ -49,7 +49,7 @@ The report includes:
 - Device, browser, and country breakdowns.
 - Real-user Web Vitals p75 values and good-sample rates.
 
-The scheduled workflow `.github/workflows/analytics-report.yml` runs this report daily and writes the Markdown output to the GitHub Actions step summary. It needs:
+The manual workflow `.github/workflows/analytics-report.yml` runs this report and writes the Markdown output to the GitHub Actions step summary. It needs:
 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_ANALYTICS_API_TOKEN` with Cloudflare Analytics Read permission, or a fallback `CLOUDFLARE_API_TOKEN` that can read analytics.
