@@ -1,3 +1,5 @@
+import { launchProductionBrowser } from './lib/production-browser.mjs';
+
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_SEO_TIMEOUT_MS ?? 10_000);
 
@@ -29,28 +31,26 @@ function expectedUrlForPath(path) {
   return normalizeComparableUrl(routeUrl(path));
 }
 
-async function fetchText(pathOrUrl, accept = 'text/html,application/xhtml+xml') {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+async function fetchText(page, pathOrUrl, accept = 'text/html,application/xhtml+xml') {
+  await page.setExtraHTTPHeaders({ accept });
+  const response = await page.goto(new URL(pathOrUrl, origin).toString(), {
+    waitUntil: 'domcontentloaded',
+    timeout: timeoutMs,
+  });
 
-  try {
-    const response = await fetch(new URL(pathOrUrl, origin), {
-      headers: {
-        accept,
-        'user-agent': 'wutil-production-seo-check/1.0',
-      },
-      signal: controller.signal,
-    });
-
-    const text = await response.text();
-    if (!response.ok) {
-      throw new Error(`${pathOrUrl} expected HTTP 2xx, got ${response.status}`);
-    }
-
-    return { response, text };
-  } finally {
-    clearTimeout(timeout);
+  if (!response) {
+    throw new Error(`${pathOrUrl} did not return a navigation response`);
   }
+
+  const text = await response.text();
+  if (!response.ok()) {
+    throw new Error(`${pathOrUrl} expected HTTP 2xx, got ${response.status()}`);
+  }
+
+  return {
+    contentType: response.headers()['content-type'] ?? '',
+    text,
+  };
 }
 
 function parseAttributes(tag) {
@@ -163,37 +163,47 @@ function validateRoute(path, html) {
   return errors;
 }
 
-const failures = [];
-const { text: sitemapXml } = await fetchText('/sitemap.xml', 'application/xml,text/xml');
-const routes = parseSitemapRoutes(sitemapXml);
+const browser = await launchProductionBrowser();
 
-if (routes.length === 0) {
-  failures.push('sitemap.xml did not contain any same-origin routes');
-}
+try {
+  const page = await browser.newPage({ serviceWorkers: 'block' });
+  const failures = [];
+  const { text: sitemapXml } = await fetchText(
+    page,
+    '/sitemap.xml',
+    'application/xml,text/xml',
+  );
+  const routes = parseSitemapRoutes(sitemapXml);
 
-for (const path of routes) {
-  try {
-    const { response, text } = await fetchText(path);
-    const contentType = response.headers.get('content-type') ?? '';
-    if (!contentType.includes('text/html')) {
-      failures.push(`${path} expected text/html, got ${contentType || 'missing content-type'}`);
-      continue;
-    }
-
-    const routeErrors = validateRoute(path, text);
-    for (const error of routeErrors) {
-      failures.push(`${path}: ${error}`);
-    }
-  } catch (error) {
-    failures.push(error instanceof Error ? error.message : String(error));
+  if (routes.length === 0) {
+    failures.push('sitemap.xml did not contain any same-origin routes');
   }
-}
 
-if (failures.length > 0) {
-  for (const failure of failures) {
-    console.error(failure);
+  for (const path of routes) {
+    try {
+      const { contentType, text } = await fetchText(page, path);
+      if (!contentType.includes('text/html')) {
+        failures.push(`${path} expected text/html, got ${contentType || 'missing content-type'}`);
+        continue;
+      }
+
+      const routeErrors = validateRoute(path, text);
+      for (const error of routeErrors) {
+        failures.push(`${path}: ${error}`);
+      }
+    } catch (error) {
+      failures.push(error instanceof Error ? error.message : String(error));
+    }
   }
-  process.exit(1);
-}
 
-console.log(`Production SEO metadata check passed for ${routes.length} routes on ${origin}`);
+  if (failures.length > 0) {
+    for (const failure of failures) {
+      console.error(failure);
+    }
+    process.exitCode = 1;
+  } else {
+    console.log(`Production SEO metadata check passed for ${routes.length} routes on ${origin}`);
+  }
+} finally {
+  await browser.close();
+}

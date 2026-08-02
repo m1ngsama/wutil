@@ -46,7 +46,9 @@ export default function TimestampConverter() {
   const [now,   setNow]   = useState<number | null>(null);
 
   useEffect(() => {
-    const id = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
+    const updateNow = () => setNow(Math.floor(Date.now() / 1000));
+    updateNow();
+    const id = setInterval(updateNow, 1000);
     return () => clearInterval(id);
   }, []);
 
@@ -73,22 +75,26 @@ export default function TimestampConverter() {
     >
 
       {/* Live clock */}
-      {now !== null && (
-        <div className="flex items-center justify-between rounded-xl border border-edge bg-surface px-5 py-4 mb-6">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-1">Current Unix timestamp</p>
-            <p className="font-mono text-2xl font-bold text-ink">{now}</p>
-            <p className="text-xs text-ink-3 mt-0.5">{new Date(now * 1000).toUTCString()}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleInput(String(now))}
-            className="h-11 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-          >
-            Use now
-          </button>
+      <div
+        className="mb-6 flex min-h-[104px] items-center justify-between rounded-xl border border-edge bg-surface px-5 py-4"
+        aria-busy={now === null}
+      >
+        <div>
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-3">Current Unix timestamp</p>
+          <p className="font-mono text-2xl font-bold text-ink">{now ?? '—'}</p>
+          <p className="mt-0.5 text-xs text-ink-3">
+            {now !== null ? new Date(now * 1000).toUTCString() : 'Loading current time…'}
+          </p>
         </div>
-      )}
+        <button
+          type="button"
+          onClick={() => { if (now !== null) handleInput(String(now)); }}
+          disabled={now === null}
+          className="h-11 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait disabled:opacity-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+        >
+          Use now
+        </button>
+      </div>
 
       {/* Input */}
       <div className="flex flex-col gap-1.5 mb-6">

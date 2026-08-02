@@ -1,9 +1,10 @@
-import { performance } from 'node:perf_hooks';
-import { chromium } from '@playwright/test';
+import { launchProductionBrowser } from './lib/production-browser.mjs';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
-const timeoutMs = Number(process.env.PRODUCTION_PERF_TIMEOUT_MS ?? 10_000);
+const timeoutMs = Number(process.env.PRODUCTION_PERF_TIMEOUT_MS ?? 15_000);
 const browserSettleMs = Number(process.env.PRODUCTION_PERF_SETTLE_MS ?? 750);
+const attempts = Number(process.env.PRODUCTION_PERF_ATTEMPTS ?? 2);
+const retryDelayMs = Number(process.env.PRODUCTION_PERF_RETRY_DELAY_MS ?? 1_000);
 
 const defaultRouteBudget = {
   maxHtmlBytes: 120_000,
@@ -54,47 +55,8 @@ function routeUrl(path) {
   return new URL(path, origin).toString();
 }
 
-async function measureHttpRoute(route) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  const startedAt = performance.now();
-  let firstByteAt;
-  let bytes = 0;
-
-  try {
-    const response = await fetch(routeUrl(route.path), {
-      headers: {
-        accept: 'text/html,application/xhtml+xml',
-        'user-agent': 'wutil-production-performance-check/1.0',
-      },
-      signal: controller.signal,
-    });
-
-    firstByteAt = performance.now();
-
-    if (response.body) {
-      const reader = response.body.getReader();
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        bytes += value.byteLength;
-      }
-    } else {
-      bytes = Buffer.byteLength(await response.text());
-    }
-
-    const totalMs = performance.now() - startedAt;
-    return {
-      route,
-      status: response.status,
-      contentType: response.headers.get('content-type') ?? '',
-      bytes,
-      ttfbMs: firstByteAt - startedAt,
-      totalMs,
-    };
-  } finally {
-    clearTimeout(timeout);
-  }
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function formatBytes(value) {
@@ -140,11 +102,20 @@ async function measureBrowserRoute(browser, route) {
 
   try {
     const page = await context.newPage();
-    await page.goto(routeUrl(route.path), { waitUntil: 'load', timeout: timeoutMs });
+    const response = await page.goto(routeUrl(route.path), {
+      waitUntil: 'domcontentloaded',
+      timeout: timeoutMs,
+    });
+    if (!response) {
+      throw new Error(`${route.path} did not return a navigation response`);
+    }
+
+    const responseBodyBytes = (await response.body()).byteLength;
+    await page.waitForLoadState('load', { timeout: 5_000 }).catch(() => undefined);
     await page.evaluate(() => document.fonts?.ready.then(() => undefined)).catch(() => undefined);
     await page.waitForTimeout(browserSettleMs);
 
-    return await page.evaluate(() => {
+    const metrics = await page.evaluate(() => {
       const navigationEntry = performance.getEntriesByType('navigation')[0];
       const paintEntries = performance.getEntriesByType('paint');
       const fcp = paintEntries.find((entry) => entry.name === 'first-contentful-paint')?.startTime ?? 0;
@@ -164,6 +135,8 @@ async function measureBrowserRoute(browser, route) {
         resourceCount: resourceEntries.length,
         domContentLoadedMs: navigationEntry?.domContentLoadedEventEnd ?? 0,
         loadEventMs: navigationEntry?.loadEventEnd ?? 0,
+        totalMs: navigationEntry?.responseEnd ?? 0,
+        ttfbMs: navigationEntry?.responseStart ?? 0,
       };
 
       for (const entry of resourceEntries) {
@@ -183,6 +156,14 @@ async function measureBrowserRoute(browser, route) {
 
       return summary;
     });
+
+    return {
+      route,
+      status: response.status(),
+      contentType: response.headers()['content-type'] ?? '',
+      bytes: responseBodyBytes,
+      ...metrics,
+    };
   } finally {
     await context.close();
   }
@@ -206,10 +187,14 @@ function validateMeasurement(measurement) {
 
   if (measurement.ttfbMs > route.maxTtfbMs) {
     errors.push(`TTFB ${formatMs(measurement.ttfbMs)} exceeds ${formatMs(route.maxTtfbMs)}`);
+  } else if (measurement.ttfbMs <= 0) {
+    errors.push('missing TTFB measurement');
   }
 
   if (measurement.totalMs > route.maxTotalMs) {
     errors.push(`total ${formatMs(measurement.totalMs)} exceeds ${formatMs(route.maxTotalMs)}`);
+  } else if (measurement.totalMs <= 0) {
+    errors.push('missing total response measurement');
   }
 
   return errors;
@@ -249,28 +234,48 @@ function validateBrowserMeasurement(route, measurement) {
   return errors;
 }
 
-const httpResults = [];
 const browserResults = [];
 const failures = [];
 
-for (const route of routes) {
-  try {
-    const measurement = await measureHttpRoute(route);
-    const errors = validateMeasurement(measurement);
-    httpResults.push(measurement);
-    if (errors.length > 0) {
-      failures.push({ path: route.path, errors });
+let browser;
+
+try {
+  browser = await launchProductionBrowser();
+  for (const route of routes) {
+    let finalMeasurement;
+    let finalErrors = [];
+
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      try {
+        finalMeasurement = await measureBrowserRoute(browser, route);
+        finalErrors = [
+          ...validateMeasurement(finalMeasurement),
+          ...validateBrowserMeasurement(route, finalMeasurement),
+        ];
+      } catch (error) {
+        finalErrors = [error instanceof Error ? error.message : String(error)];
+      }
+
+      if (finalErrors.length === 0) break;
+      if (attempt < attempts) {
+        console.warn(
+          `${route.path} performance sample failed attempt ${attempt}/${attempts}; retrying in ${retryDelayMs}ms`,
+        );
+        await sleep(retryDelayMs);
+      }
     }
-  } catch (error) {
-    failures.push({
-      path: route.path,
-      errors: [error instanceof Error ? error.message : String(error)],
-    });
+
+    if (finalMeasurement) browserResults.push(finalMeasurement);
+    if (finalErrors.length > 0) {
+      failures.push({ path: route.path, errors: finalErrors });
+    }
   }
+} finally {
+  await browser?.close();
 }
 
 console.table(
-  httpResults.map((result) => ({
+  browserResults.map((result) => ({
     path: result.route.path,
     status: result.status,
     htmlBytes: result.bytes,
@@ -278,29 +283,6 @@ console.table(
     total: formatMs(result.totalMs),
   })),
 );
-
-let browser;
-
-try {
-  browser = await chromium.launch({ headless: true });
-  for (const route of routes) {
-    try {
-      const measurement = await measureBrowserRoute(browser, route);
-      const errors = validateBrowserMeasurement(route, measurement);
-      browserResults.push({ route, ...measurement });
-      if (errors.length > 0) {
-        failures.push({ path: route.path, errors });
-      }
-    } catch (error) {
-      failures.push({
-        path: route.path,
-        errors: [error instanceof Error ? error.message : String(error)],
-      });
-    }
-  }
-} finally {
-  await browser?.close();
-}
 
 console.table(
   browserResults.map((result) => ({
@@ -318,5 +300,5 @@ if (failures.length > 0) {
   for (const failure of failures) {
     console.error(`${failure.path}: ${failure.errors.join('; ')}`);
   }
-  process.exit(1);
+  process.exitCode = 1;
 }

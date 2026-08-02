@@ -1,3 +1,5 @@
+import { launchProductionBrowser } from './lib/production-browser.mjs';
+
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_WARM_TIMEOUT_MS ?? 10_000);
 const concurrency = Number(process.env.PRODUCTION_WARM_CONCURRENCY ?? 4);
@@ -31,26 +33,36 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function requestOnce(path, headers) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+async function requestOnce(context, path) {
+  const page = await context.newPage();
 
   try {
-    const response = await fetch(routeUrl(path), {
-      headers,
-      signal: controller.signal,
+    const navigation = await page.goto(routeUrl(path), {
+      waitUntil: 'domcontentloaded',
+      timeout: timeoutMs,
     });
-    const text = await response.text();
-    return { response, text };
+
+    if (!navigation) {
+      throw new Error(`${path} did not return a navigation response`);
+    }
+
+    return {
+      response: {
+        headers: navigation.headers(),
+        ok: navigation.ok(),
+        status: navigation.status(),
+      },
+      text: await navigation.text(),
+    };
   } finally {
-    clearTimeout(timeout);
+    await page.close();
   }
 }
 
-async function requestWithRetry(path, headers) {
+async function requestWithRetry(context, path) {
   for (let attempt = 1; attempt <= retryAttempts; attempt += 1) {
     try {
-      const result = await requestOnce(path, headers);
+      const result = await requestOnce(context, path);
       if (
         result.response.ok ||
         !shouldRetry(result.response.status) ||
@@ -59,7 +71,7 @@ async function requestWithRetry(path, headers) {
         return result;
       }
 
-      const ray = result.response.headers.get('cf-ray');
+      const ray = result.response.headers['cf-ray'];
       const delay = retryDelay(attempt);
       console.warn(
         `${path} returned ${result.response.status}${ray ? ` (cf-ray ${ray})` : ''}; retrying in ${delay}ms`,
@@ -91,24 +103,16 @@ function parseSitemapRoutes(sitemapXml) {
   return [...new Set(routes)].sort((a, b) => a.localeCompare(b));
 }
 
-async function fetchWithTimeout(path, headers = {}) {
-  const { response } = await requestWithRetry(path, {
-    accept: 'text/html,application/xhtml+xml',
-    'user-agent': 'wutil-production-cache-warmer/1.0',
-    ...headers,
-  });
+async function fetchWithTimeout(context, path) {
+  const { response } = await requestWithRetry(context, path);
   return response;
 }
 
-async function fetchText(path, headers = {}) {
-  const { response, text } = await requestWithRetry(path, {
-    accept: 'application/xml,text/xml,text/plain',
-    'user-agent': 'wutil-production-cache-warmer/1.0',
-    ...headers,
-  });
+async function fetchText(context, path) {
+  const { response, text } = await requestWithRetry(context, path);
 
   if (!response.ok) {
-    const ray = response.headers.get('cf-ray');
+    const ray = response.headers['cf-ray'];
     throw new Error(
       `${path} expected HTTP 2xx, got ${response.status}${ray ? ` (cf-ray ${ray})` : ''}`,
     );
@@ -135,63 +139,70 @@ async function mapWithConcurrency(items, mapper) {
   return results;
 }
 
-async function warmRoute(path, pass) {
-  const response = await fetchWithTimeout(path);
-  const contentType = response.headers.get('content-type') ?? '';
+async function warmRoute(context, path, pass) {
+  const response = await fetchWithTimeout(context, path);
+  const contentType = response.headers['content-type'] ?? '';
 
   return {
     pass,
     path,
     status: response.status,
     contentType,
-    cacheStatus: response.headers.get('cf-cache-status') ?? 'missing',
-    age: response.headers.get('age') ?? '',
+    cacheStatus: response.headers['cf-cache-status'] ?? 'missing',
+    age: response.headers.age ?? '',
   };
 }
 
-const sitemapXml = await fetchText('/sitemap.xml');
-const routes = parseSitemapRoutes(sitemapXml);
+const browser = await launchProductionBrowser();
 
-if (routes.length === 0) {
-  throw new Error('sitemap.xml did not contain any same-origin routes to warm');
-}
+try {
+  const context = await browser.newContext({ serviceWorkers: 'block' });
+  const sitemapXml = await fetchText(context, '/sitemap.xml');
+  const routes = parseSitemapRoutes(sitemapXml);
 
-const allResults = [];
-
-for (let pass = 1; pass <= verifyPasses + 1; pass += 1) {
-  const results = await mapWithConcurrency(routes, (path) => warmRoute(path, pass));
-  allResults.push(...results);
-}
-
-const failures = [];
-for (const result of allResults) {
-  if (result.status < 200 || result.status >= 300) {
-    failures.push(`${result.path} pass ${result.pass} expected HTTP 2xx, got ${result.status}`);
-    continue;
+  if (routes.length === 0) {
+    throw new Error('sitemap.xml did not contain any same-origin routes to warm');
   }
 
-  if (!result.contentType.includes('text/html')) {
-    failures.push(
-      `${result.path} pass ${result.pass} expected text/html, got ${result.contentType || 'missing content-type'}`,
-    );
+  const allResults = [];
+
+  for (let pass = 1; pass <= verifyPasses + 1; pass += 1) {
+    const results = await mapWithConcurrency(routes, (path) => warmRoute(context, path, pass));
+    allResults.push(...results);
   }
-}
 
-console.table(
-  allResults.map((result) => ({
-    pass: result.pass,
-    path: result.path,
-    status: result.status,
-    cache: result.cacheStatus,
-    age: result.age,
-  })),
-);
+  const failures = [];
+  for (const result of allResults) {
+    if (result.status < 200 || result.status >= 300) {
+      failures.push(`${result.path} pass ${result.pass} expected HTTP 2xx, got ${result.status}`);
+      continue;
+    }
 
-if (failures.length > 0) {
-  for (const failure of failures) {
-    console.error(failure);
+    if (!result.contentType.includes('text/html')) {
+      failures.push(
+        `${result.path} pass ${result.pass} expected text/html, got ${result.contentType || 'missing content-type'}`,
+      );
+    }
   }
-  process.exit(1);
-}
 
-console.log(`Warmed ${routes.length} production HTML routes on ${origin}`);
+  console.table(
+    allResults.map((result) => ({
+      pass: result.pass,
+      path: result.path,
+      status: result.status,
+      cache: result.cacheStatus,
+      age: result.age,
+    })),
+  );
+
+  if (failures.length > 0) {
+    for (const failure of failures) {
+      console.error(failure);
+    }
+    process.exitCode = 1;
+  } else {
+    console.log(`Warmed ${routes.length} production HTML routes on ${origin}`);
+  }
+} finally {
+  await browser.close();
+}

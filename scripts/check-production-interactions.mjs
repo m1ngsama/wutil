@@ -1,10 +1,16 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
+import { launchProductionBrowser } from './lib/production-browser.mjs';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
 const attempts = Number(process.env.PRODUCTION_INTERACTION_ATTEMPTS ?? 3);
 const retryDelayMs = Number(process.env.PRODUCTION_INTERACTION_RETRY_DELAY_MS ?? 10_000);
+const hydrationMarkerTimeoutMs = Number(
+  process.env.PRODUCTION_INTERACTION_HYDRATION_MARKER_TIMEOUT_MS ?? 10_000,
+);
+const hydrationFallbackMs = Number(
+  process.env.PRODUCTION_INTERACTION_HYDRATION_FALLBACK_MS ?? 1_500,
+);
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const routes = [
@@ -35,6 +41,19 @@ function routeUrl(route) {
   return new URL(route, origin).toString();
 }
 
+async function gotoInteractive(page, route) {
+  await page.goto(routeUrl(route), { waitUntil: 'load' });
+  await page.locator('#main-content').waitFor({ state: 'visible' });
+  try {
+    await page.locator('html[data-wutil-hydrated="true"]').waitFor({
+      state: 'attached',
+      timeout: hydrationMarkerTimeoutMs,
+    });
+  } catch {
+    await page.waitForTimeout(hydrationFallbackMs);
+  }
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -51,6 +70,15 @@ async function waitForText(page, textOrRegex, timeout = 5_000) {
   await page.getByText(textOrRegex).waitFor({ timeout });
 }
 
+function monitorPage(page, consoleErrors) {
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push({ url: page.url(), text: message.text() });
+  });
+  page.on('pageerror', (error) => {
+    consoleErrors.push({ url: page.url(), text: error.message });
+  });
+}
+
 async function runStep(failures, name, fn) {
   try {
     await fn();
@@ -65,19 +93,14 @@ async function runStep(failures, name, fn) {
 async function runAuditOnce() {
   const failures = [];
   const consoleErrors = [];
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchProductionBrowser();
 
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    page.on('console', (message) => {
-      if (message.type() === 'error') consoleErrors.push({ url: page.url(), text: message.text() });
-    });
-    page.on('pageerror', (error) => {
-      consoleErrors.push({ url: page.url(), text: error.message });
-    });
+    monitorPage(page, consoleErrors);
 
     await runStep(failures, 'home search and filters', async () => {
-      await page.goto(routeUrl('/'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/');
       await page.getByRole('searchbox', { name: 'Find a tool' }).fill('definitely-no-tool');
       await waitForText(page, /No matching tools/);
       await page.getByRole('button', { name: 'Clear filters' }).click();
@@ -87,7 +110,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'json formatter valid invalid and clear', async () => {
-      await page.goto(routeUrl('/tools/json-formatter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/json-formatter');
       await page.locator('textarea').first().fill('{"a":1,"b":[true]}');
       await page.getByRole('button', { name: 'Format' }).click();
       await expect(
@@ -103,7 +126,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'base64 url-safe swap and invalid decode', async () => {
-      await page.goto(routeUrl('/tools/base64-converter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/base64-converter');
       await page.locator('textarea').first().fill('???>>>');
       await page.getByRole('switch', { name: 'URL-safe Base64' }).click();
       const encoded = await page.locator('textarea').nth(1).inputValue();
@@ -116,7 +139,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'url encode swap and invalid decode', async () => {
-      await page.goto(routeUrl('/tools/url-encoder'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/url-encoder');
       await page.locator('textarea').first().fill('price: $50 & discount 20%');
       const encoded = await page.locator('textarea').nth(1).inputValue();
       await expect(encoded.includes('%2450') && encoded.includes('%26'), `URL encode mismatch: ${encoded}`);
@@ -127,15 +150,28 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'regex worker and invalid pattern', async () => {
-      await page.goto(routeUrl('/tools/regex-tester'), { waitUntil: 'networkidle' });
-      await page.getByRole('button', { name: 'URL' }).click();
-      await waitForText(page, '2 matches');
-      await page.locator('input[type="text"]').fill('[');
-      await waitForText(page, /Unterminated character class|Invalid regular expression/);
+      const regexPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      monitorPage(regexPage, consoleErrors);
+      try {
+        await gotoInteractive(regexPage, '/tools/regex-tester');
+        const example = regexPage.getByRole('button', { name: 'URL', exact: true });
+        const pattern = regexPage.locator('#regex-pattern');
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+          await example.click();
+          await regexPage.waitForTimeout(500);
+          if ((await pattern.inputValue()).startsWith('https?://')) break;
+          if (attempt === 3) throw new Error('URL example did not populate the regex input');
+        }
+        await waitForText(regexPage, '2 matches', 10_000);
+        await regexPage.locator('input[type="text"]').fill('[');
+        await waitForText(regexPage, /Unterminated character class|Invalid regular expression/);
+      } finally {
+        await regexPage.close();
+      }
     });
 
     await runStep(failures, 'timestamp epoch use-now and invalid input', async () => {
-      await page.goto(routeUrl('/tools/timestamp'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/timestamp');
       await page.getByRole('button', { name: 'Unix epoch', exact: true }).click();
       await page.getByRole('button', { name: /Copy ISO 8601 value/ }).waitFor();
       await expect((await visibleText(page)).includes('1970-01-01T00:00:00.000Z'), 'Unix epoch output missing');
@@ -146,7 +182,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'date calculator diff and subtract', async () => {
-      await page.goto(routeUrl('/tools/date-calculator'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/date-calculator');
       await page.getByLabel('Start date').fill('2024-01-15');
       await page.getByLabel('End date').fill('2024-01-01');
       await page.getByRole('button', { name: /Copy days value 14/ }).waitFor();
@@ -154,23 +190,23 @@ async function runAuditOnce() {
       await page.getByRole('button', { name: 'Add / subtract days' }).click();
       await page.getByLabel('Starting date').fill('2024-01-31');
       await page.getByLabel('Days to add or subtract').fill('1');
-      await page.getByRole('button', { name: '-', exact: true }).click();
+      await page.getByRole('button', { name: 'Subtract days', exact: true }).click();
       await page.getByRole('button', { name: /Copy result date 2024-01-30/ }).waitFor();
     });
 
     await runStep(failures, 'unit converter categories and empty input', async () => {
-      await page.goto(routeUrl('/tools/unit-converter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/unit-converter');
       await page.getByLabel('Input value').fill('1e3');
       await page.getByRole('button', { name: /Copy converted value 3280.84/ }).waitFor();
       await page.getByLabel('Input value').fill('');
-      await expect((await page.getByRole('button', { name: 'Converted value' }).innerText()).trim() === '—', 'empty unit input did not clear output');
+      await expect((await page.getByRole('button', { name: 'Converted value' }).innerText()).trim() === 'No result', 'empty unit input did not clear output');
       await page.getByRole('button', { name: 'Data' }).click();
       await page.getByLabel('Input value').fill('1');
       await page.getByRole('button', { name: /Copy converted value 1024/ }).waitFor();
     });
 
     await runStep(failures, 'color converter clamps and presets', async () => {
-      await page.goto(routeUrl('/tools/color-converter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/color-converter');
       await page.getByRole('spinbutton', { name: 'RGB R' }).fill('999');
       await page.getByRole('spinbutton', { name: 'RGB G' }).fill('-5');
       await page.getByRole('spinbutton', { name: 'RGB B' }).fill('12.5');
@@ -180,7 +216,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'hash generator computes and clears', async () => {
-      await page.goto(routeUrl('/tools/hash-generator'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/hash-generator');
       await page.locator('textarea').fill('hello');
       await page.getByRole('button', { name: 'Copy SHA-512 hash' }).waitFor();
       await page.locator('textarea').fill('');
@@ -188,7 +224,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'password generator options and length', async () => {
-      await page.goto(routeUrl('/tools/password-generator'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/password-generator');
       for (const label of [/Uppercase/, /Lowercase/, /Numbers/]) {
         const sw = page.getByRole('switch', { name: label });
         if ((await sw.getAttribute('aria-checked')) === 'true') await sw.click();
@@ -203,7 +239,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'text case and clear', async () => {
-      await page.goto(routeUrl('/tools/text-case'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/text-case');
       await page.locator('textarea').first().fill('Hello world 42');
       await page.getByRole('button', { name: /CONSTANT_CASE/ }).click();
       await expect((await page.locator('textarea').nth(1).inputValue()) === 'HELLO_WORLD_42', 'constant case output mismatch');
@@ -211,7 +247,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'word counter and clear', async () => {
-      await page.goto(routeUrl('/tools/word-counter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/word-counter');
       await page.locator('textarea').fill('Hello world.\n\nHello Codex!');
       await page.getByText('Words', { exact: true }).locator('..').getByText('4').waitFor();
       await page.getByRole('button', { name: 'Clear' }).click();
@@ -219,7 +255,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'image converter dimensions and same-file reselect', async () => {
-      await page.goto(routeUrl('/tools/image-converter'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/image-converter');
       const imagePath = fixturePath('public', 'icon.svg');
       await page.locator('#img-upload').setInputFiles(imagePath);
       await waitForText(page, /icon\.svg/);
@@ -233,7 +269,7 @@ async function runAuditOnce() {
     });
 
     await runStep(failures, 'pdf merger clear reselect and merge', async () => {
-      await page.goto(routeUrl('/tools/pdf-merge'), { waitUntil: 'networkidle' });
+      await gotoInteractive(page, '/tools/pdf-merge');
       const files = [
         fixturePath('tests', 'e2e', 'fixtures', 'minimal-a.pdf'),
         fixturePath('tests', 'e2e', 'fixtures', 'minimal-b.pdf'),
@@ -254,7 +290,7 @@ async function runAuditOnce() {
       const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true });
       try {
         for (const route of routes) {
-          await mobile.goto(routeUrl(route), { waitUntil: 'networkidle' });
+          await mobile.goto(routeUrl(route), { waitUntil: 'load' });
           const dimensions = await mobile.evaluate(() => ({
             viewport: document.documentElement.clientWidth,
             scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),

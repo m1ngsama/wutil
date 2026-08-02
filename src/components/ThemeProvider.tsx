@@ -7,5 +7,12 @@ export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
+  React.useEffect(() => {
+    document.documentElement.dataset.wutilHydrated = "true";
+    return () => {
+      delete document.documentElement.dataset.wutilHydrated;
+    };
+  }, []);
+
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
