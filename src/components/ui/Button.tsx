@@ -13,8 +13,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         type={type}
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-1",
+          "inline-flex touch-manipulation select-none items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
           "disabled:pointer-events-none disabled:opacity-40",
           variant === "default" &&
             "bg-accent text-accent-fg hover:bg-accent-hover",
@@ -28,10 +28,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             "text-ink hover:bg-muted",
           variant === "link" &&
             "text-accent underline-offset-4 hover:underline",
-          size === "default" && "h-10 px-4 py-2 text-sm",
-          size === "sm" && "h-8 px-3 text-xs rounded",
+          size === "default" && "h-11 px-4 py-2 text-sm",
+          size === "sm" && "h-11 px-3 text-xs fine-pointer:h-9",
           size === "lg" && "h-11 px-8 text-base rounded-lg",
-          size === "icon" && "h-9 w-9",
+          size === "icon" && "h-11 w-11 fine-pointer:h-9 fine-pointer:w-9",
           className
         )}
         {...props}

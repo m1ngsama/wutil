@@ -4,14 +4,30 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { decodeBase64, encodeBase64 } from '../src/lib/base64-utils';
 import { addCalendarDays, daysBetween, toDateInputValue } from '../src/lib/date-utils';
+import {
+  fitImageWithinOutputLimits,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_FILE_SIZE,
+  MAX_IMAGE_OUTPUT_PIXELS,
+  validateImageDimensions,
+  validateImageFile,
+} from '../src/lib/image-utils';
 import { generatePassword, randomIndex } from '../src/lib/password-utils';
 import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
 import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes';
+import { addRecentToolId, MAX_RECENT_TOOLS, parseRecentToolIds } from '../src/lib/recent-tools';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
 import { createPageMetadata } from '../src/lib/seo';
 import { SITE_URL } from '../src/lib/site-config';
 import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
-import { SITEMAP_ROUTES, STATIC_ROUTES, TOOL_REGISTRY, TOOL_ROUTES } from '../src/lib/tool-registry';
+import {
+  getRelatedTools,
+  SITEMAP_ROUTES,
+  STATIC_ROUTES,
+  TOOL_REGISTRY,
+  TOOL_REGISTRY_BY_ID,
+  TOOL_ROUTES,
+} from '../src/lib/tool-registry';
 import { parseUnitInput } from '../src/lib/unit-utils';
 
 test('Base64 round-trips Unicode and URL-safe values', () => {
@@ -33,6 +49,27 @@ test('PDF validation accepts extension fallback and enforces size limit', () => 
   assert.equal(validatePdfFile({ name: 'paper.pdf', type: '', size: 100 }), 'ok');
   assert.equal(validatePdfFile({ name: 'paper.txt', type: 'text/plain', size: 100 }), 'not-pdf');
   assert.equal(validatePdfFile({ name: 'large.pdf', type: 'application/pdf', size: MAX_PDF_SIZE + 1 }), 'too-large');
+});
+
+test('image validation limits file size and canvas memory pressure', () => {
+  assert.equal(validateImageFile({ name: 'photo.jpg', type: 'image/jpeg', size: 100 }), 'ok');
+  assert.equal(validateImageFile({ name: 'graphic.svg', type: '', size: 100 }), 'ok');
+  assert.equal(validateImageFile({ name: 'notes.txt', type: 'text/plain', size: 100 }), 'not-image');
+  assert.equal(
+    validateImageFile({ name: 'large.png', type: 'image/png', size: MAX_IMAGE_FILE_SIZE + 1 }),
+    'too-large',
+  );
+
+  assert.equal(validateImageDimensions(6000, 4000), 'ok');
+  assert.equal(validateImageDimensions(0, 4000), 'invalid');
+  assert.equal(validateImageDimensions(MAX_IMAGE_DIMENSION + 1, 100), 'too-large');
+  assert.equal(validateImageDimensions(8000, 6000), 'too-large');
+
+  const fitted = fitImageWithinOutputLimits(8000, 6000);
+  assert.ok(fitted.width * fitted.height <= MAX_IMAGE_OUTPUT_PIXELS);
+  assert.ok(fitted.width <= MAX_IMAGE_DIMENSION);
+  assert.ok(fitted.height <= MAX_IMAGE_DIMENSION);
+  assert.ok(Math.abs(fitted.width / fitted.height - 4 / 3) < 0.001);
 });
 
 test('unit input parsing accepts complete numbers only', () => {
@@ -60,7 +97,34 @@ test('tool registry routes are unique and backed by pages', () => {
   for (const tool of TOOL_REGISTRY) {
     const route = tool.href.replace('/tools/', '');
     assert.ok(existsSync(join(process.cwd(), 'src/app/tools', route, 'page.tsx')), `${tool.href} is missing a page`);
+    assert.equal(new Set(tool.relatedIds).size, tool.relatedIds.length, `${tool.id} has duplicate related tools`);
+    assert.ok(!tool.relatedIds.includes(tool.id), `${tool.id} cannot relate to itself`);
+    for (const relatedId of tool.relatedIds) {
+      assert.ok(TOOL_REGISTRY_BY_ID.has(relatedId), `${tool.id} references missing related tool ${relatedId}`);
+    }
+    assert.equal(getRelatedTools(tool.id).length, tool.relatedIds.length);
   }
+});
+
+test('recent tool history is validated, deduplicated, and ordered most-recent first', () => {
+  assert.deepEqual(parseRecentToolIds(null), []);
+  assert.deepEqual(parseRecentToolIds('not-json'), []);
+  assert.deepEqual(
+    parseRecentToolIds(JSON.stringify(['json-formatter', 'missing-tool', 'json-formatter', 'regex-tester'])),
+    ['json-formatter', 'regex-tester'],
+  );
+
+  let recentIds: string[] = [];
+  for (const tool of TOOL_REGISTRY.slice(0, MAX_RECENT_TOOLS + 1)) {
+    recentIds = addRecentToolId(recentIds, tool.id);
+  }
+  assert.equal(recentIds.length, MAX_RECENT_TOOLS);
+  assert.equal(recentIds[0], TOOL_REGISTRY[MAX_RECENT_TOOLS].id);
+
+  const movedToFront = addRecentToolId(recentIds, recentIds.at(-1)!);
+  assert.equal(movedToFront[0], recentIds.at(-1));
+  assert.equal(new Set(movedToFront).size, movedToFront.length);
+  assert.deepEqual(addRecentToolId(recentIds, 'missing-tool'), recentIds);
 });
 
 test('structured data describes the home page and every tool', () => {

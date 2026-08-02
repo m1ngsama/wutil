@@ -1,6 +1,6 @@
 # wutil Project Review
 
-Review baseline: 2026-05-11
+Review baseline: 2026-08-02
 
 ## Current State
 
@@ -41,7 +41,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 - E2E coverage now spans every public tool and includes full-catalog light/dark axe scans plus representative keyboard-flow checks. CI also runs a production browser interaction sweep, but coverage remains representative rather than exhaustive for file memory pressure, unusual encodings, and very large inputs.
 - Production has response checks, a manual browser-level interaction sweep, synthetic browser performance budgets, and Cloudflare Web Analytics. It still has no external multi-region uptime monitor.
 - Web Analytics has only recently been enabled, so traffic and Web Vitals samples are still too small for confident product or acquisition decisions.
-- `npm audit --omit=dev --audit-level=high` passes, but Next currently carries a moderate PostCSS advisory upstream. Do not use `npm audit fix --force` because it proposes a breaking downgrade.
+- Production and full dependency audits pass. Patched PostCSS and Sharp versions are pinned through package overrides until Next adopts them directly; revalidate the overrides whenever Next is upgraded.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.
 - Most tools expose state only inside the page. There are no shareable URLs for tool inputs or settings.
 
@@ -58,8 +58,8 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 ### Phase 2: Product Depth
 
 - Add shareable URLs for deterministic text tools, while keeping file tools local-only.
-- Add tool examples and presets that speed up common workflows.
-- Add recent tools or favorites stored locally in the browser.
+- Expand runnable examples and presets to the remaining deterministic text tools.
+- Consider optional favorites alongside the existing local recent-tools history.
 - Improve offline/PWA behavior so common text tools remain usable without network access.
 
 ### Phase 3: Tool Expansion

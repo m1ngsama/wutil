@@ -37,7 +37,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-base font-semibold text-ink mb-2">Browser storage</h2>
           <p>
-            The app may use browser-managed storage for interface preferences such as theme. Tool inputs are not intentionally stored by wutil.
+            The app may use browser-managed storage for interface preferences such as theme and a short list of recently used tool IDs. Tool inputs are not intentionally stored by wutil.
           </p>
         </section>
 

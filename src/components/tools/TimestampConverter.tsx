@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 
 const FORMATS = [
@@ -54,7 +55,7 @@ export default function TimestampConverter() {
     if (!value.trim()) { setDate(null); setError(null); return; }
     const d = parse(value);
     if (d) { setDate(d); setError(null); }
-    else   { setDate(null); setError('Cannot parse — try a Unix timestamp or ISO date string.'); }
+    else   { setDate(null); setError('Cannot parse this value. Try a Unix timestamp or ISO date string.'); }
   };
 
   const copy = (text: string, label: string) => {
@@ -64,12 +65,12 @@ export default function TimestampConverter() {
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Calculators</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Timestamp Converter</h1>
-        <p className="text-base text-ink-2 max-w-[50ch]">Convert Unix timestamps to readable dates — or any date string back to a timestamp.</p>
-      </header>
+    <ToolPage
+      toolId="timestamp"
+      title="Timestamp Converter"
+      description="Convert Unix timestamps to readable dates, or turn any date string back into a timestamp."
+      width="medium"
+    >
 
       {/* Live clock */}
       {now !== null && (
@@ -82,7 +83,7 @@ export default function TimestampConverter() {
           <button
             type="button"
             onClick={() => handleInput(String(now))}
-            className="h-9 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors"
+            className="h-11 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
           >
             Use now
           </button>
@@ -91,20 +92,23 @@ export default function TimestampConverter() {
 
       {/* Input */}
       <div className="flex flex-col gap-1.5 mb-6">
-        <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Timestamp or date string</label>
+        <label htmlFor="timestamp-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Timestamp or date string</label>
         <input
+          id="timestamp-input"
           type="text"
           value={input}
+          aria-describedby={error ? 'timestamp-error' : undefined}
+          aria-invalid={error ? true : undefined}
           onChange={(e) => handleInput(e.target.value)}
           placeholder="e.g. 1700000000 or 2024-01-15T12:00:00Z"
           className={[
             'h-11 w-full px-4 rounded-lg border font-mono text-sm text-ink bg-surface placeholder:text-ink-3',
-            'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
+            'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors',
             error ? 'border-red-500/70' : 'border-edge',
           ].join(' ')}
         />
         {error && (
-          <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+          <p id="timestamp-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
             {error}
           </p>
         )}
@@ -157,13 +161,13 @@ export default function TimestampConverter() {
           ].map(({ label, value }) => (
             <button key={label} type="button" onClick={() => handleInput(value)}
               disabled={!value}
-              className="px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
+              className="min-h-11 px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               {label}
             </button>
           ))}
         </div>
       </div>
-    </div>
+    </ToolPage>
   );
 }

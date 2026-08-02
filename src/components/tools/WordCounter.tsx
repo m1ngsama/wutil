@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import { useState } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 
 // Sentence splitting that handles common abbreviations and decimals
@@ -36,12 +37,12 @@ export default function WordCounterComponent() {
   }, [text]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Text</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Word Counter</h1>
-        <p className="text-base text-ink-2 max-w-[48ch]">Paste or type — words, characters, reading time, and more update instantly.</p>
-      </header>
+    <ToolPage
+      toolId="word-counter"
+      title="Word Counter"
+      description="Paste or type. Words, characters, reading time, and more update instantly."
+      width="full"
+    >
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Textarea */}
@@ -54,16 +55,18 @@ export default function WordCounterComponent() {
           />
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => setText('')}
               disabled={!text}
-              className="h-9 px-4 text-sm font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors"
+              className="h-11 px-4 text-sm font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
             >
               Clear
             </button>
             <button
+              type="button"
               onClick={() => { void copyText(text); }}
               disabled={!text}
-              className="h-9 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:opacity-35 disabled:pointer-events-none transition-colors"
+              className="h-11 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
             >
               Copy text
             </button>
@@ -99,6 +102,6 @@ export default function WordCounterComponent() {
           )}
         </div>
       </div>
-    </div>
+    </ToolPage>
   );
 }

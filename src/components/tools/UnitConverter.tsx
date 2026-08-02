@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { parseUnitInput } from '@/lib/unit-utils';
 
@@ -93,7 +94,7 @@ function convertTemp(val: number, from: string, to: string): number {
 }
 
 function formatNum(n: number): string {
-  if (!isFinite(n)) return '—';
+  if (!isFinite(n)) return '';
   if (Math.abs(n) >= 1e9 || (Math.abs(n) < 0.0001 && n !== 0)) return n.toExponential(4);
   const s = parseFloat(n.toPrecision(7)).toString();
   return s;
@@ -132,12 +133,12 @@ export default function UnitConverter() {
   const units = UNITS[category];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Calculators</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Unit Converter</h1>
-        <p className="text-base text-ink-2 max-w-[48ch]">Convert between units instantly across 7 categories.</p>
-      </header>
+    <ToolPage
+      toolId="unit-converter"
+      title="Unit Converter"
+      description="Convert between units instantly across 7 categories."
+      width="medium"
+    >
 
       {/* Category tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
@@ -146,8 +147,9 @@ export default function UnitConverter() {
             type="button"
             key={id}
             onClick={() => selectCategory(id)}
+            aria-pressed={category === id}
             className={[
-              'px-3 py-1.5 text-sm font-medium rounded-md border transition-colors',
+              'min-h-11 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9',
               category === id
                 ? 'bg-accent text-accent-fg border-accent'
                 : 'bg-surface text-ink border-edge hover:bg-muted',
@@ -169,13 +171,13 @@ export default function UnitConverter() {
               value={input}
               aria-label="Input value"
               onChange={(e) => setInput(e.target.value)}
-              className="min-w-0 w-full h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+              className="min-w-0 w-full h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             />
             <select
               value={fromId}
               aria-label="From unit"
               onChange={(e) => setFromId(e.target.value)}
-              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>
@@ -188,8 +190,9 @@ export default function UnitConverter() {
           <button
             type="button"
             onClick={swap}
-            className="h-8 w-8 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors"
+            className="h-11 w-11 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
             title="Swap units"
+            aria-label="Swap units"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
@@ -211,14 +214,14 @@ export default function UnitConverter() {
               aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
             >
               <span className={output ? 'text-ink' : 'text-ink-3'}>
-                {output || '—'}
+                {output || 'No result'}
               </span>
             </button>
             <select
               value={toId}
               aria-label="To unit"
               onChange={(e) => setToId(e.target.value)}
-              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>
@@ -226,6 +229,6 @@ export default function UnitConverter() {
           {output && <p className="text-xs text-ink-3">Click result to copy</p>}
         </div>
       </div>
-    </div>
+    </ToolPage>
   );
 }

@@ -7,6 +7,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-08-02',
+    title: 'Faster repeat workflows',
+    summary: 'Made tools easier to revisit and more consistent to use.',
+    changes: [
+      'Added a shared tool page structure with curated related-tool navigation.',
+      'Added a local recently used list with clear history controls. Tool inputs remain unstored.',
+      'Added safe, runnable examples to JSON, Base64, URL, and regex tools.',
+      'Unified long-task progress and cancellation feedback for image conversion and PDF merging.',
+      'Kept touch targets comfortable across phones and tablets, improved short-landscape layouts, and added safer image limits.',
+      'Updated framework and build dependencies to current security fixes.',
+    ],
+  },
+  {
     date: '2026-05-10',
     title: 'Production SEO monitoring',
     summary: 'Added automated production checks for canonical and social metadata.',

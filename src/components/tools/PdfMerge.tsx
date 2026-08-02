@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { FilePlus2, X, FileText } from 'lucide-react';
+import { ToolPage } from '@/components/tools/ToolPage';
+import { ToolProgress } from '@/components/tools/ToolProgress';
 import { validatePdfFile } from '@/lib/pdf-utils';
 
 type PdfMergeProgress = {
@@ -101,7 +103,7 @@ export default function PdfMergeComponent() {
     } catch {
       setProcessing(false);
       setMergeProgress(null);
-      toast.error('Failed - ensure all files are valid PDFs');
+      toast.error('Merge failed. Make sure every file is a valid PDF');
     }
   };
 
@@ -125,7 +127,7 @@ export default function PdfMergeComponent() {
       if (workerRef.current === worker) workerRef.current = null;
       setProcessing(false);
       setMergeProgress(null);
-      toast.error('Failed - ensure all files are valid PDFs');
+      toast.error('Merge failed. Make sure every file is a valid PDF');
     };
 
     worker.onmessage = (event: MessageEvent<PdfWorkerResponse>) => {
@@ -154,18 +156,19 @@ export default function PdfMergeComponent() {
   const totalSize  = (files.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(2);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Documents</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">PDF Merger</h1>
-        <p className="text-base text-ink-2 max-w-[48ch]">Combine multiple PDF files into one — entirely in your browser, nothing uploaded.</p>
-      </header>
+    <ToolPage
+      toolId="pdf-merge"
+      eyebrow="Documents"
+      title="PDF Merger"
+      description="Combine multiple PDF files in your browser. Nothing is uploaded."
+      width="medium"
+    >
 
       {/* Drop zone */}
       <button
         type="button"
         className={[
-          'w-full rounded-xl border-2 border-dashed p-10 flex flex-col items-center gap-3 text-center transition-colors mb-4',
+          'w-full rounded-xl border-2 border-dashed p-10 flex flex-col items-center gap-3 text-center transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
           isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
         ].join(' ')}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -174,13 +177,13 @@ export default function PdfMergeComponent() {
         onClick={() => fileInputRef.current?.click()}
         aria-label="Choose PDF files"
       >
-        <FilePlus2 className="w-8 h-8 text-ink-3" strokeWidth={1.5} />
+        <FilePlus2 aria-hidden="true" className="w-8 h-8 text-ink-3" strokeWidth={1.5} />
         <span className="block">
-          <span className="block text-sm font-semibold text-ink">Drop PDF files here</span>
-          <span className="block text-xs text-ink-3 mt-0.5">or click to browse — up to 10 MB each</span>
+          <span className="block text-sm font-semibold text-ink">Choose PDF files</span>
+          <span className="block text-xs text-ink-3 mt-0.5">or drop them here, up to 10 MB each</span>
         </span>
       </button>
-      <input ref={fileInputRef} id="pdf-upload" type="file" multiple accept=".pdf" aria-label="Choose PDF files" className="sr-only"
+      <input ref={fileInputRef} id="pdf-upload" name="pdf-files" type="file" multiple accept=".pdf" aria-label="Choose PDF files" className="sr-only"
         onChange={(e) => {
           if (e.target.files) addFiles(e.target.files);
           e.target.value = '';
@@ -197,7 +200,7 @@ export default function PdfMergeComponent() {
               type="button"
               onClick={clearFiles}
               disabled={processing}
-              className="text-xs font-semibold text-ink-3 hover:text-ink disabled:opacity-40 transition-colors"
+              className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               Clear all
             </button>
@@ -208,7 +211,7 @@ export default function PdfMergeComponent() {
                 <span className="shrink-0 w-5 h-5 flex items-center justify-center bg-muted border border-edge text-ink-3 rounded text-xs font-bold">
                   {i + 1}
                 </span>
-                <FileText className="shrink-0 w-4 h-4 text-ink-3" strokeWidth={1.5} />
+                <FileText aria-hidden="true" className="shrink-0 w-4 h-4 text-ink-3" strokeWidth={1.5} />
                 <span className="flex-1 text-sm text-ink truncate">{file.name}</span>
                 <span className="shrink-0 text-xs text-ink-3">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                 <button
@@ -216,9 +219,9 @@ export default function PdfMergeComponent() {
                   onClick={() => removeFile(i)}
                   disabled={processing}
                   aria-label={`Remove ${file.name}`}
-                  className="shrink-0 w-5 h-5 flex items-center justify-center text-ink-3 hover:text-ink disabled:opacity-40 transition-colors"
+                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-muted hover:text-ink disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X aria-hidden="true" className="w-3.5 h-3.5" />
                 </button>
               </li>
             ))}
@@ -232,41 +235,23 @@ export default function PdfMergeComponent() {
           type="button"
           onClick={mergePdfs}
           disabled={processing || files.length < 2}
-          className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors"
+          aria-busy={processing}
+          className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
         >
           {processing ? 'Merging…' : files.length < 2 ? 'Add at least 2 PDFs' : `Merge ${files.length} PDFs`}
         </button>
       </div>
 
-      {processing && mergeProgress && (
-        <div className="mt-3 rounded-xl border border-edge bg-muted p-3" aria-live="polite">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
-              {mergeProgress.label}
-            </span>
-            <button
-              type="button"
-              onClick={cancelMerge}
-              className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-          <div
-            role="progressbar"
-            aria-label="PDF merge progress"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={mergeProgress.progress}
-            className="h-1.5 rounded-full bg-surface border border-edge overflow-hidden"
-          >
-            <div
-              className="h-full bg-accent transition-[width] duration-200"
-              style={{ width: `${mergeProgress.progress}%` }}
-            />
-          </div>
+      {processing && mergeProgress ? (
+        <div className="mt-3">
+          <ToolProgress
+            label={mergeProgress.label}
+            value={mergeProgress.progress}
+            progressLabel="PDF merge progress"
+            onCancel={cancelMerge}
+          />
         </div>
-      )}
+      ) : null}
 
       {/* Download */}
       {mergedUrl && (
@@ -278,12 +263,12 @@ export default function PdfMergeComponent() {
           <a
             href={mergedUrl}
             download="merged.pdf"
-            className="h-9 px-4 inline-flex items-center text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors"
+            className="h-11 px-4 inline-flex items-center text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
           >
             Download
           </a>
         </div>
       )}
-    </div>
+    </ToolPage>
   );
 }

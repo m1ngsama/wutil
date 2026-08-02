@@ -1,64 +1,46 @@
 "use client";
 
+import { SunMoon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 const subscribe = () => () => {};
 const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
+const THEME_COLORS = { light: "#fafaf9", dark: "#11100f" } as const;
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
-  const isDark = resolvedTheme === "dark";
+  const selectedTheme = mounted ? theme ?? "system" : "system";
+  const selectedLabel = selectedTheme[0].toUpperCase() + selectedTheme.slice(1);
 
-  if (!mounted) {
-    return (
-      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:bg-muted focus:outline-none">
-        <span className="sr-only">Toggle theme</span>
-        <div className="w-4 h-4" />
-      </button>
-    );
-  }
+  useEffect(() => {
+    if (resolvedTheme !== "light" && resolvedTheme !== "dark") return;
+    const color = THEME_COLORS[resolvedTheme];
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
+      meta.content = color;
+    });
+  }, [resolvedTheme]);
 
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="h-8 w-8 flex items-center justify-center rounded-md text-ink-3 hover:text-ink hover:bg-muted transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
-      aria-label="Toggle Dark Mode"
+    <label
+      className="relative flex h-11 w-11 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--w-ring)] focus-within:ring-offset-2 focus-within:ring-offset-canvas fine-pointer:h-9 fine-pointer:w-9"
+      title={`Appearance: ${selectedLabel}`}
     >
-      {isDark ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-4 h-4"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-          />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-4 h-4"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-          />
-        </svg>
-      )}
-    </button>
+      <span className="sr-only">Appearance</span>
+      <SunMoon aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+      <select
+        aria-label="Appearance"
+        value={selectedTheme}
+        disabled={!mounted}
+        onChange={(event) => setTheme(event.target.value)}
+        className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-wait"
+      >
+        <option value="system">System</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
   );
 }

@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Abril_Fatface, Mulish, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "sonner";
+import { AppToaster } from "@/components/AppToaster";
 import { SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 const abrilFatface = Abril_Fatface({
@@ -25,6 +25,7 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -69,6 +70,17 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafaf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#11100f" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -77,20 +89,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${abrilFatface.variable} ${mulish.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={`${abrilFatface.variable} ${mulish.variable} ${geistMono.variable} antialiased flex min-h-dvh flex-col`}
       >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
+          <a
+            href="#main-content"
+            className="sr-only z-[60] rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-fg focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          <main className="flex-grow bg-canvas">
+          <main id="main-content" tabIndex={-1} className="flex-grow bg-canvas focus:outline-none">
             {children}
           </main>
           <Footer />
-          <Toaster position="top-center" richColors />
+          <AppToaster />
         </ThemeProvider>
       </body>
     </html>

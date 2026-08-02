@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 
 function hexToRgb(hex: string) {
@@ -52,6 +53,7 @@ function hslToRgb(h: number, s: number, l: number) {
 }
 
 const PRESETS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#1e293b','#64748b'];
+const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
 
 export default function ColorConverter() {
   const [hex, setHex] = useState('#3b82f6');
@@ -76,12 +78,12 @@ export default function ColorConverter() {
   const safe  = full.length === 7 ? full : '#3b82f6';
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Data & Dev</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Color Converter</h1>
-        <p className="text-base text-ink-2 max-w-[46ch]">Convert between HEX, RGB, and HSL. Edit any field — all update together.</p>
-      </header>
+    <ToolPage
+      toolId="color-converter"
+      title="Color Converter"
+      description="Convert between HEX, RGB, and HSL. Edit any field, and the others update with it."
+      width="compact"
+    >
 
       {/* Preview */}
       <div className="rounded-xl overflow-hidden border border-edge mb-6">
@@ -91,10 +93,10 @@ export default function ColorConverter() {
             type="color" value={safe}
             aria-label="Choose color"
             onChange={(e) => fromHex(e.target.value)}
-            className="w-9 h-9 rounded-md cursor-pointer border-0 bg-transparent p-0"
+            className="h-11 w-11 cursor-pointer rounded-md border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9 fine-pointer:w-9"
           />
           <span className="font-mono font-semibold text-ink">{full.toUpperCase()}</span>
-          <button type="button" onClick={() => copy(full.toUpperCase())} className="ml-auto text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+          <button type="button" onClick={() => copy(full.toUpperCase())} className={`${COPY_BUTTON_CLASS} ml-auto`}>Copy</button>
         </div>
       </div>
 
@@ -104,12 +106,12 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HEX</span>
-            <button type="button" onClick={() => copy(full.toUpperCase())} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(full.toUpperCase())} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <input
             type="text" value={hex}
             onChange={(e) => fromHex(e.target.value)}
-            className="w-full font-mono text-ink bg-transparent border-0 outline-none text-base"
+            className="h-11 w-full rounded-md border border-edge bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder="#000000"
           />
         </div>
@@ -118,7 +120,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">RGB</span>
-            <button type="button" onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {(['r','g','b'] as const).map((ch) => (
@@ -131,7 +133,7 @@ export default function ColorConverter() {
                     const v = Math.max(0, Math.min(255, Number(e.target.value)));
                     fromRgb(ch==='r'?v:rgb.r, ch==='g'?v:rgb.g, ch==='b'?v:rgb.b);
                   }}
-                  className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
                 />
               </div>
             ))}
@@ -143,7 +145,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HSL</span>
-            <button type="button" onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className="text-xs font-semibold text-accent hover:underline underline-offset-4">Copy</button>
+            <button type="button" onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {[
@@ -160,7 +162,7 @@ export default function ColorConverter() {
                     const v = Math.max(0, Math.min(max, Number(e.target.value)));
                     fromHsl(k==='h'?v:hsl.h, k==='s'?v:hsl.s, k==='l'?v:hsl.l);
                   }}
-                  className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
                 />
               </div>
             ))}
@@ -179,13 +181,14 @@ export default function ColorConverter() {
               key={color}
               onClick={() => fromHex(color)}
               aria-label={`Use color ${color}`}
-              className="w-8 h-8 rounded-md transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
-              style={{ backgroundColor: color, outline: color === full ? '2px solid var(--w-accent)' : undefined, outlineOffset: '2px' }}
+              aria-pressed={color.toLowerCase() === full.toLowerCase()}
+              className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${color.toLowerCase() === full.toLowerCase() ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
+              style={{ backgroundColor: color }}
               title={color}
             />
           ))}
         </div>
       </div>
-    </div>
+    </ToolPage>
   );
 }

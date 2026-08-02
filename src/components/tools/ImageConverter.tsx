@@ -5,6 +5,17 @@
 import { useEffect, useState, useRef, useCallback, ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import { ImageIcon, Lock, Unlock } from 'lucide-react';
+import { ToolPage } from '@/components/tools/ToolPage';
+import { ToolProgress } from '@/components/tools/ToolProgress';
+import {
+  fitImageWithinOutputLimits,
+  MAX_IMAGE_DIMENSION,
+  MAX_IMAGE_FILE_SIZE,
+  MAX_IMAGE_OUTPUT_PIXELS,
+  MAX_IMAGE_SOURCE_PIXELS,
+  validateImageDimensions,
+  validateImageFile,
+} from '@/lib/image-utils';
 
 const FORMATS = [
   { value: 'image/jpeg', label: 'JPEG', ext: 'jpg' },
@@ -25,10 +36,17 @@ const STAGE_LABELS: Record<ImageConversionStage, string> = {
   encoding: 'Encoding output',
 };
 
+const INTEGER_FORMATTER = new Intl.NumberFormat('en-US');
+const MAX_IMAGE_FILE_SIZE_LABEL = `${MAX_IMAGE_FILE_SIZE / 1024 / 1024} MB`;
+
 function fmtBytes(n: number) {
   if (n < 1024)       return n + ' B';
   if (n < 1048576)    return (n / 1024).toFixed(1) + ' KB';
   return (n / 1048576).toFixed(2) + ' MB';
+}
+
+function fmtInteger(n: number) {
+  return INTEGER_FORMATTER.format(n);
 }
 
 function parseDimensionInput(value: string): number | '' {
@@ -89,20 +107,48 @@ export default function ImageConverterComponent() {
   }, []);
 
   const loadFile = useCallback((file: File) => {
-    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    const fileValidation = validateImageFile(file);
+    if (fileValidation === 'not-image') {
+      toast.error('Choose an image file');
+      return;
+    }
+    if (fileValidation === 'too-large') {
+      toast.error(`Choose an image smaller than ${MAX_IMAGE_FILE_SIZE_LABEL}`);
+      return;
+    }
+
     stopActiveConversion();
     const url = URL.createObjectURL(file);
-    setImageFile(file);
-    setPreviewUrl(url);
-    setResultUrl(null);
     const img = new Image();
     img.onload = () => {
+      const sourceValidation = validateImageDimensions(
+        img.naturalWidth,
+        img.naturalHeight,
+        MAX_IMAGE_SOURCE_PIXELS,
+      );
+      if (sourceValidation !== 'ok') {
+        URL.revokeObjectURL(url);
+        toast.error(`Choose an image under ${fmtInteger(MAX_IMAGE_DIMENSION)} px per side and 64 MP`);
+        return;
+      }
+
+      const safeOutput = fitImageWithinOutputLimits(img.naturalWidth, img.naturalHeight);
+      setImageFile(file);
+      setPreviewUrl(url);
+      setResultUrl(null);
       setOrigW(img.naturalWidth);
       setOrigH(img.naturalHeight);
-      setWidth(img.naturalWidth);
-      setHeight(img.naturalHeight);
+      setWidth(safeOutput.width);
+      setHeight(safeOutput.height);
+
+      if (safeOutput.width !== img.naturalWidth || safeOutput.height !== img.naturalHeight) {
+        toast.info(`Output set to ${fmtInteger(safeOutput.width)} × ${fmtInteger(safeOutput.height)} for browser stability`);
+      }
     };
-    img.onerror = () => toast.error('Could not load that image');
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      toast.error('Could not load that image');
+    };
     img.src = url;
   }, [stopActiveConversion]);
 
@@ -212,18 +258,22 @@ export default function ImageConverterComponent() {
 
   const convert = () => {
     if (!imageFile || !canvasRef.current) return;
+    const w = Number(width)  || origW;
+    const h = Number(height) || origH;
+    const dimensionValidation = validateImageDimensions(w, h);
+    if (dimensionValidation === 'invalid') {
+      toast.error('Width and height must be at least 1 px');
+      return;
+    }
+    if (dimensionValidation === 'too-large') {
+      toast.error(`Keep output under ${fmtInteger(MAX_IMAGE_DIMENSION)} px per side and 40 MP`);
+      return;
+    }
+
     setProcessing(true);
     setConversionStatus('Preparing image');
     setConversionProgress(5);
     setResultUrl(null);
-
-    const w = Number(width)  || origW;
-    const h = Number(height) || origH;
-    if (!Number.isFinite(w) || !Number.isFinite(h) || w < 1 || h < 1) {
-      toast.error('Width and height must be at least 1 px');
-      setProcessing(false);
-      return;
-    }
 
     const canUseWorker =
       !isSvgFile(imageFile) &&
@@ -240,14 +290,17 @@ export default function ImageConverterComponent() {
 
   const ext = FORMATS.find((f) => f.value === format)?.ext ?? 'jpg';
   const ratio = origW && origH ? `${origW} × ${origH}` : '';
+  const resetDimensions = fitImageWithinOutputLimits(origW, origH);
+  const needsSafeOutput = resetDimensions.width !== origW || resetDimensions.height !== origH;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Images</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Image Converter</h1>
-        <p className="text-base text-ink-2 max-w-[50ch]">Convert, resize, and compress images to JPEG, PNG, or WebP — all in your browser.</p>
-      </header>
+    <ToolPage
+      toolId="image-converter"
+      eyebrow="Images"
+      title="Image Converter"
+      description="Convert, resize, and compress images to JPEG, PNG, or WebP. Everything stays in your browser."
+      width="xwide"
+    >
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
         {/* Controls */}
@@ -256,7 +309,7 @@ export default function ImageConverterComponent() {
           <button
             type="button"
             className={[
-              'w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors',
+              'w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
               isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
             ].join(' ')}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -269,10 +322,10 @@ export default function ImageConverterComponent() {
             onClick={() => fileInputRef.current?.click()}
             aria-label="Choose an image file"
           >
-            <ImageIcon className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
+            <ImageIcon aria-hidden="true" className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
             <span className="block">
-              <span className="block text-sm font-semibold text-ink">Drop an image here</span>
-              <span className="block text-xs text-ink-3 mt-0.5">or click to browse</span>
+              <span className="block text-sm font-semibold text-ink">Choose an image</span>
+              <span className="block text-xs text-ink-3 mt-0.5">or drop one here, up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
             </span>
             {imageFile && (
               <span className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
@@ -280,7 +333,7 @@ export default function ImageConverterComponent() {
               </span>
             )}
           </button>
-          <input ref={fileInputRef} id="img-upload" type="file" accept="image/*" aria-label="Choose image file" className="sr-only" onChange={handleFileChange} />
+          <input ref={fileInputRef} id="img-upload" name="image-file" type="file" accept="image/*" aria-label="Choose image file" className="sr-only" onChange={handleFileChange} />
 
           {/* Format */}
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
@@ -292,7 +345,8 @@ export default function ImageConverterComponent() {
                     type="button"
                     key={f.value}
                     onClick={() => setFormat(f.value)}
-                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    aria-pressed={format === f.value}
+                    className={`min-h-11 flex-1 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
                       format === f.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
                     }`}
                   >
@@ -312,7 +366,7 @@ export default function ImageConverterComponent() {
                   type="range" min={0.1} max={1} step={0.05} value={quality}
                   aria-label="Image quality"
                   onChange={(e) => setQuality(parseFloat(e.target.value))}
-                  className="w-full accent-[var(--w-accent)]"
+                  className="h-11 w-full accent-[var(--w-accent)]"
                 />
                 <div className="flex justify-between text-xs text-ink-3 mt-0.5"><span>Low</span><span>Max</span></div>
               </div>
@@ -325,12 +379,13 @@ export default function ImageConverterComponent() {
                 <button
                   type="button"
                   onClick={() => setLockAspect((l) => !l)}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+                  aria-pressed={lockAspect}
+                  className="flex min-h-11 items-center gap-1.5 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
                   title={lockAspect ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}
                 >
                   {lockAspect
-                    ? <Lock className="w-3.5 h-3.5" />
-                    : <Unlock className="w-3.5 h-3.5" />}
+                    ? <Lock aria-hidden="true" className="w-3.5 h-3.5" />
+                    : <Unlock aria-hidden="true" className="w-3.5 h-3.5" />}
                   {lockAspect ? 'Locked' : 'Free'}
                 </button>
               </div>
@@ -344,19 +399,23 @@ export default function ImageConverterComponent() {
                     <input
                       type="number" min={1} value={value}
                       aria-label={label === 'W' ? 'Output width' : 'Output height'}
+                      aria-describedby="image-dimension-limit"
                       onChange={(e) => onChange(parseDimensionInput(e.target.value))}
-                      className="w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)]"
+                      className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
                     />
                   </div>
                 ))}
               </div>
+              <p id="image-dimension-limit" className="mt-2 text-xs leading-relaxed text-ink-3">
+                Maximum output: {fmtInteger(MAX_IMAGE_DIMENSION)} px per side, {MAX_IMAGE_OUTPUT_PIXELS / 1_000_000} MP.
+              </p>
               {origW > 0 && (
                 <button
                   type="button"
-                  onClick={() => { setWidth(origW); setHeight(origH); }}
-                  className="mt-2 text-xs font-semibold text-accent hover:underline underline-offset-4"
+                  onClick={() => { setWidth(resetDimensions.width); setHeight(resetDimensions.height); }}
+                  className="mt-2 min-h-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
                 >
-                  Reset to original ({origW} × {origH})
+                  {needsSafeOutput ? 'Reset to safe size' : 'Reset to original'} ({resetDimensions.width} × {resetDimensions.height})
                 </button>
               )}
             </div>
@@ -366,40 +425,20 @@ export default function ImageConverterComponent() {
             type="button"
             onClick={convert}
             disabled={!imageFile || processing}
-            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors"
+            aria-busy={processing}
+            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           >
             {processing ? 'Converting…' : 'Convert Image'}
           </button>
 
-          {processing && (
-            <div className="rounded-xl border border-edge bg-muted p-3" aria-live="polite">
-              <div className="flex items-center justify-between gap-3 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
-                  {conversionStatus || 'Converting image'}
-                </span>
-                <button
-                  type="button"
-                  onClick={stopActiveConversion}
-                  className="text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-              <div
-                role="progressbar"
-                aria-label="Image conversion progress"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={conversionProgress}
-                className="h-1.5 rounded-full bg-surface border border-edge overflow-hidden"
-              >
-                <div
-                  className="h-full bg-accent transition-[width] duration-200"
-                  style={{ width: `${conversionProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
+          {processing ? (
+            <ToolProgress
+              label={conversionStatus || 'Converting image'}
+              value={conversionProgress}
+              progressLabel="Image conversion progress"
+              onCancel={stopActiveConversion}
+            />
+          ) : null}
         </div>
 
         {/* Preview */}
@@ -414,7 +453,7 @@ export default function ImageConverterComponent() {
                 <a
                   href={resultUrl}
                   download={`converted.${ext}`}
-                  className="h-7 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors"
+                  className="h-11 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
                 >
                   Download
                 </a>
@@ -423,9 +462,21 @@ export default function ImageConverterComponent() {
           </div>
           <div className="flex-1 flex items-center justify-center p-4 min-h-[360px]">
             {resultUrl ? (
-              <img src={resultUrl} alt="Converted" className="max-w-full max-h-[500px] rounded object-contain" />
+              <img
+                src={resultUrl}
+                alt="Converted"
+                width={Number(width) || origW}
+                height={Number(height) || origH}
+                className="max-w-full max-h-[500px] rounded object-contain"
+              />
             ) : previewUrl ? (
-              <img src={previewUrl} alt="Original" className="max-w-full max-h-[500px] rounded object-contain opacity-70" />
+              <img
+                src={previewUrl}
+                alt="Original"
+                width={origW}
+                height={origH}
+                className="max-w-full max-h-[500px] rounded object-contain opacity-70"
+              />
             ) : (
               <div className="text-center text-ink-3">
                 <ImageIcon className="mx-auto w-10 h-10 mb-2" strokeWidth={1} />
@@ -437,6 +488,6 @@ export default function ImageConverterComponent() {
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
-    </div>
+    </ToolPage>
   );
 }

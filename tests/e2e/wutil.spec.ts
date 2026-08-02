@@ -38,7 +38,7 @@ test('home search filters tools and opens a tool', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('heading', { name: 'Web Utilities' })).toBeVisible();
-  await page.getByPlaceholder(/Search tools/).fill('regex');
+  await page.getByRole('searchbox', { name: 'Find a tool' }).fill('regex');
 
   await expect(page.getByRole('link', { name: /Regex Tester/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Password Generator/ })).toBeHidden();
@@ -51,7 +51,7 @@ test('home search filters tools and opens a tool', async ({ page }) => {
 test('home search result can be opened with the keyboard', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByPlaceholder(/Search tools/).focus();
+  await page.getByRole('searchbox', { name: 'Find a tool' }).focus();
   await page.keyboard.type('hash');
 
   const hashTool = page.getByRole('link', { name: /Hash Generator/ });
@@ -63,6 +63,87 @@ test('home search result can be opened with the keyboard', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/tools\/hash-generator$/);
   await expect(page.getByRole('heading', { name: 'Hash Generator' })).toBeVisible();
+});
+
+test('home search shortcut and tool wayfinding are keyboard accessible', async ({ page }) => {
+  await page.goto('/');
+
+  await page.keyboard.press('/');
+  const search = page.getByRole('searchbox', { name: 'Find a tool' });
+  await expect(search).toBeFocused();
+  await page.keyboard.type('json');
+  await page.getByRole('link', { name: /JSON Formatter/ }).click();
+
+  const allTools = page.getByRole('link', { name: 'All tools' });
+  await expect(allTools).toBeVisible();
+  await allTools.focus();
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test('appearance control supports system, light, and dark modes', async ({ page }) => {
+  await page.goto('/');
+
+  const appearance = page.getByRole('combobox', { name: 'Appearance' });
+  await appearance.selectOption('dark');
+  await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute('content', '#11100f');
+
+  await appearance.selectOption('light');
+  await expect(page.locator('html')).not.toHaveClass(/dark/);
+  await expect(page.locator('meta[name="theme-color"]').first()).toHaveAttribute('content', '#fafaf9');
+});
+
+test('touch layouts preserve comfortable controls and reveal work in short landscapes', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({
+    baseURL: baseURL ?? 'http://localhost:3100',
+    viewport: { width: 768, height: 1024 },
+    hasTouch: true,
+    isMobile: true,
+    deviceScaleFactor: 2,
+  });
+  const touchPage = await context.newPage();
+
+  try {
+    await touchPage.goto('/');
+    expect(await touchPage.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+
+    for (const control of [
+      touchPage.getByRole('button', { name: 'All tools' }),
+      touchPage.getByRole('combobox', { name: 'Appearance' }),
+      touchPage.getByRole('link', { name: 'View wutil on GitHub' }),
+    ]) {
+      const box = await control.boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+    }
+
+    await touchPage.setViewportSize({ width: 844, height: 390 });
+    await touchPage.goto('/tools/json-formatter');
+
+    const formatBox = await touchPage.getByRole('button', { name: 'Format' }).boundingBox();
+    const inputBox = await touchPage.getByRole('textbox', { name: 'Input' }).boundingBox();
+    const inputFontSize = await touchPage.getByRole('textbox', { name: 'Input' }).evaluate(
+      (element) => Number.parseFloat(getComputedStyle(element).fontSize),
+    );
+    expect(formatBox?.height).toBeGreaterThanOrEqual(44);
+    expect(inputFontSize).toBeGreaterThanOrEqual(16);
+    expect(inputBox?.y).toBeLessThan(390);
+
+    await touchPage.setViewportSize({ width: 320, height: 568 });
+    await touchPage.goto('/tools/json-formatter');
+    const copyBox = await touchPage.getByRole('button', { name: 'Copy output' }).boundingBox();
+    const clearBox = await touchPage.getByRole('button', { name: 'Clear' }).boundingBox();
+    expect(Math.abs((copyBox?.y ?? 0) - (clearBox?.y ?? 0))).toBeLessThan(2);
+
+    const widths = await touchPage.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      page: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+    }));
+    expect(widths.page).toBeLessThanOrEqual(widths.viewport + 1);
+  } finally {
+    await context.close();
+  }
 });
 
 test('Base64 converter handles Unicode and copy feedback', async ({ page }) => {
@@ -203,6 +284,28 @@ test('JSON formatter formats valid JSON and reports invalid JSON', async ({ page
   await page.locator('textarea').first().fill('{bad');
   await page.getByRole('button', { name: 'Format' }).click();
   await expect(page.getByText('Invalid JSON')).toBeVisible();
+});
+
+test('JSON examples are runnable and populate formatted output immediately', async ({ page }) => {
+  await page.goto('/tools/json-formatter');
+
+  await page.getByRole('button', { name: 'Unicode' }).click();
+  await expect(page.locator('textarea').first()).toHaveValue('{"message":"你好，世界 👋","language":"zh-CN"}');
+  await expect(page.locator('textarea').nth(1)).toContainText('"message": "你好，世界 👋"');
+});
+
+test('tool pages expose related tools and recent history can be cleared', async ({ page }) => {
+  await page.goto('/tools/json-formatter');
+
+  await expect(page.getByRole('heading', { name: 'Related tools' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Regex Tester/ })).toBeVisible();
+
+  await page.getByRole('link', { name: 'All tools' }).click();
+  await expect(page.getByRole('heading', { name: 'Recently used' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /JSON Formatter/ }).first()).toBeVisible();
+
+  await page.getByRole('button', { name: 'Clear history' }).click();
+  await expect(page.getByRole('heading', { name: 'Recently used' })).toBeHidden();
 });
 
 test('Unit converter handles length and temperature conversions', async ({ page }) => {

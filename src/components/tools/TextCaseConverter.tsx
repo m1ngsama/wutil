@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 
 function toTitleCase(str: string): string {
@@ -57,19 +58,20 @@ export default function TextCaseConverter() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Text</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Text Case Converter</h1>
-        <p className="text-base text-ink-2 max-w-[50ch]">Paste text, pick a format — see the result before copying.</p>
-      </header>
+    <ToolPage
+      toolId="text-case"
+      title="Text Case Converter"
+      description="Paste text, pick a format, and preview the result before copying."
+      width="xwide"
+    >
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: input + format picker */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
+            <label htmlFor="text-case-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
             <textarea
+              id="text-case-input"
               className="h-40 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
               placeholder="Type or paste your text here…"
               value={input}
@@ -78,8 +80,9 @@ export default function TextCaseConverter() {
             />
             {input && (
               <button
+                type="button"
                 onClick={() => { setInput(''); setSelected(null); }}
-                className="self-start text-xs font-semibold text-ink-3 hover:text-ink transition-colors"
+                className="min-h-11 self-start rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
               >
                 Clear
               </button>
@@ -93,9 +96,11 @@ export default function TextCaseConverter() {
               const active = selected === i;
               return (
                 <button
+                  type="button"
                   key={label}
                   onClick={() => handleSelect(i)}
                   disabled={!input}
+                  aria-pressed={active}
                   className={[
                     'flex flex-col text-left px-4 py-3 rounded-lg border transition-colors',
                     'disabled:opacity-40 disabled:pointer-events-none',
@@ -119,26 +124,28 @@ export default function TextCaseConverter() {
         {/* Right: output */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            <label htmlFor="text-case-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
               {activeCase ? activeCase.label : 'Output'}
             </label>
             <button
+              type="button"
               onClick={handleCopy}
               disabled={!outputText}
-              className="text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none"
+              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               Copy
             </button>
           </div>
           <textarea
+            id="text-case-output"
             readOnly
-            className="flex-1 min-h-[20rem] w-full p-4 rounded-lg border border-edge bg-muted text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none"
+            className="flex-1 min-h-[20rem] w-full p-4 rounded-lg border border-edge bg-muted text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder={activeCase ? 'Select text and a format to see output…' : 'Pick a format on the left…'}
             value={outputText}
             spellCheck={false}
           />
         </div>
       </div>
-    </div>
+    </ToolPage>
   );
 }

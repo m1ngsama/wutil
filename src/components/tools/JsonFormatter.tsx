@@ -2,7 +2,27 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { ExamplePicker } from '@/components/tools/ExamplePicker';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
+
+const JSON_EXAMPLES = [
+  {
+    id: 'object',
+    label: 'Simple object',
+    value: '{"name":"wutil","private":true,"tools":14}',
+  },
+  {
+    id: 'nested',
+    label: 'Nested data',
+    value: '{"project":"wutil","release":{"stable":true,"tools":["json","regex","base64"]},"stats":{"users":1200}}',
+  },
+  {
+    id: 'unicode',
+    label: 'Unicode',
+    value: '{"message":"你好，世界 👋","language":"zh-CN"}',
+  },
+] as const;
 
 export default function JsonFormatterComponent() {
   const [input, setInput] = useState('');
@@ -48,60 +68,72 @@ export default function JsonFormatterComponent() {
     setError(null);
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  const loadExample = (example: (typeof JSON_EXAMPLES)[number]) => {
+    setInput(example.value);
+    setOutput(JSON.stringify(JSON.parse(example.value), null, 2));
+    setError(null);
+  };
 
-      {/* Masthead */}
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">
-          Data &amp; Dev
-        </p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">
-          JSON Formatter
-        </h1>
-        <p className="text-base text-ink-2 max-w-[52ch]">
-          Beautify, minify, and validate your JSON. Paste it in — errors are caught instantly.
-        </p>
-      </header>
+  return (
+    <ToolPage
+      toolId="json-formatter"
+      title="JSON Formatter"
+      description="Beautify, minify, and validate your JSON. Paste it in, and errors are caught instantly."
+      width="full"
+    >
+      <div className="json-tool-workspace flex flex-col">
 
       {/* Action bar */}
-      <div className="flex items-center gap-2 mb-5 flex-wrap">
+      <div className="json-tool-actions mb-5 grid grid-cols-2 gap-2 min-[360px]:flex min-[360px]:flex-wrap min-[360px]:items-center">
         <button
+          type="button"
           onClick={formatJson}
-          className="h-9 px-4 text-sm font-semibold rounded-md bg-accent text-accent-fg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+          className="h-11 w-full rounded-md bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
         >
           Format
         </button>
         <button
+          type="button"
           onClick={minifyJson}
-          className="h-9 px-4 text-sm font-medium rounded-md border border-edge bg-surface text-ink hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
         >
           Minify
         </button>
         <button
+          type="button"
           onClick={handleCopy}
           disabled={!output}
-          className="h-9 px-4 text-sm font-medium rounded-md border border-edge bg-surface text-ink hover:bg-muted transition-colors disabled:opacity-35 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
         >
           Copy output
         </button>
         <button
+          type="button"
           onClick={handleClear}
-          className="h-9 px-4 text-sm font-medium rounded-md text-ink-3 hover:text-ink hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] ml-auto"
+          className="h-11 w-full rounded-md px-4 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:ml-auto min-[360px]:w-auto fine-pointer:h-9"
         >
           Clear
         </button>
       </div>
 
+      <ExamplePicker
+        examples={JSON_EXAMPLES}
+        onSelect={loadExample}
+        className="json-tool-examples mb-5"
+      />
+
       {/* Editor panes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ height: 'calc(100vh - 22rem)', minHeight: '380px' }}>
+      <div className="json-tool-editors grid h-[calc(100dvh-25rem)] min-h-[380px] grid-cols-1 gap-4 lg:grid-cols-2">
 
         {/* Input */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+          <label htmlFor="json-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
             Input
           </label>
           <textarea
+            id="json-input"
+            aria-describedby={error ? 'json-error' : undefined}
+            aria-invalid={error ? true : undefined}
             className={[
               'flex-1 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink',
               'placeholder:text-ink-3 transition-colors',
@@ -109,12 +141,14 @@ export default function JsonFormatterComponent() {
               error ? 'border-red-500/70 dark:border-red-500/50' : 'border-edge',
             ].join(' ')}
             placeholder={'{\n  "paste": "your JSON here"\n}'}
+            name="json-input"
+            autoComplete="off"
             value={input}
             onChange={(e) => { setInput(e.target.value); setError(null); }}
             spellCheck={false}
           />
           {error && (
-            <p className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            <p id="json-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
               {error}
             </p>
           )}
@@ -122,12 +156,13 @@ export default function JsonFormatterComponent() {
 
         {/* Output */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+          <label htmlFor="json-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
             Output
           </label>
           <textarea
+            id="json-output"
             readOnly
-            className="flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none"
+            className="flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder="Result will appear here…"
             value={output}
             spellCheck={false}
@@ -135,7 +170,8 @@ export default function JsonFormatterComponent() {
         </div>
 
       </div>
+      </div>
 
-    </div>
+    </ToolPage>
   );
 }

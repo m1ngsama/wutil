@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 
 const ALGOS = [
@@ -45,18 +46,19 @@ export default function HashGeneratorComponent() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Security</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Hash Generator</h1>
-        <p className="text-base text-ink-2 max-w-[50ch]">Generate SHA-1, SHA-256, SHA-384, and SHA-512 hashes — all computed locally.</p>
-      </header>
+    <ToolPage
+      toolId="hash-generator"
+      title="Hash Generator"
+      description="Generate SHA-1, SHA-256, SHA-384, and SHA-512 hashes. Everything is computed locally."
+      width="wide"
+    >
 
       <div className="flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
+          <label htmlFor="hash-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
           <textarea
-            className="h-32 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
+            id="hash-input"
+            className="h-32 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors"
             placeholder="Type or paste text to hash…"
             value={input}
             onChange={(e) => handleInput(e.target.value)}
@@ -87,6 +89,6 @@ export default function HashGeneratorComponent() {
           <p className="text-sm text-ink-3">Hashes update as you type.</p>
         )}
       </div>
-    </div>
+    </ToolPage>
   );
 }

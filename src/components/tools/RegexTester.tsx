@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ExamplePicker } from '@/components/tools/ExamplePicker';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { MAX_REGEX_MATCH_DETAILS, REGEX_TEST_TIMEOUT_MS, type RegexResult } from '@/lib/regex-utils';
 
@@ -12,15 +14,15 @@ const FLAG_OPTIONS = [
 ];
 
 const EXAMPLES = [
-  { name: 'Email', pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', flags: 'g',
+  { id: 'email', label: 'Email', pattern: '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}', flags: 'g',
     test: 'Contact us at hello@example.com or support@wutil.dev' },
-  { name: 'URL',   pattern: 'https?://[^\\s]+', flags: 'g',
+  { id: 'url', label: 'URL', pattern: 'https?://[^\\s]+', flags: 'g',
     test: 'Visit https://wutil.m1ng.space or http://example.com for more.' },
-  { name: 'IPv4',  pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', flags: 'g',
+  { id: 'ipv4', label: 'IPv4', pattern: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b', flags: 'g',
     test: 'Server IPs: 192.168.1.1 and 10.0.0.255' },
-  { name: 'Phone', pattern: '\\+?[1-9]\\d{1,14}', flags: 'g',
+  { id: 'phone', label: 'Phone', pattern: '\\+?[1-9]\\d{1,14}', flags: 'g',
     test: 'Call us at +1234567890 or 0987654321' },
-];
+] as const;
 
 export default function RegexTester() {
   const [pattern,    setPattern]    = useState('');
@@ -82,45 +84,47 @@ export default function RegexTester() {
   const isTesting = hasInput && resultState.status === 'pending';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Data & Dev</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Regex Tester</h1>
-        <p className="text-base text-ink-2 max-w-[50ch]">Test regular expressions with real-time match highlighting and capture group details.</p>
-      </header>
+    <ToolPage
+      toolId="regex-tester"
+      title="Regex Tester"
+      description="Test regular expressions with real-time match highlighting and capture group details."
+      width="wide"
+    >
 
-      {/* Examples */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {EXAMPLES.map((ex) => (
-          <button key={ex.name} type="button" onClick={() => { setPattern(ex.pattern); setFlags(ex.flags); setTestString(ex.test); }}
-            className="px-3 py-1.5 text-xs font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted transition-colors"
-          >
-            {ex.name}
-          </button>
-        ))}
-      </div>
+      <ExamplePicker
+        examples={EXAMPLES}
+        onSelect={(example) => {
+          setPattern(example.pattern);
+          setFlags(example.flags);
+          setTestString(example.test);
+        }}
+        className="mb-6"
+      />
 
       {/* Pattern */}
-      <div className="rounded-xl border border-edge bg-surface p-4 mb-4">
-        <label className="block text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Pattern</label>
+      <div className="rounded-xl border border-edge bg-surface p-4 mb-4 focus-within:ring-2 focus-within:ring-[var(--w-ring)] focus-within:ring-offset-2 focus-within:ring-offset-canvas">
+        <label htmlFor="regex-pattern" className="block text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Pattern</label>
         <div className="flex items-center gap-2">
           <span className="text-ink-3 text-lg font-mono">/</span>
           <input
+            id="regex-pattern"
             type="text" value={pattern}
+            aria-describedby={result?.valid === false ? 'regex-error' : undefined}
+            aria-invalid={result?.valid === false ? true : undefined}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="Enter regex…"
-            className="flex-1 font-mono text-ink bg-transparent border-0 outline-none text-sm placeholder:text-ink-3"
+            className="h-11 flex-1 font-mono text-ink bg-transparent border-0 outline-none text-sm placeholder:text-ink-3"
             spellCheck={false}
           />
           <span className="text-ink-3 text-lg font-mono">/{flags || ''}</span>
         </div>
         {result?.valid === false && (
-          <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+          <p id="regex-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
             {result.error}
           </p>
         )}
         {isTesting && (
-          <p className="mt-2 text-xs font-medium text-ink-3 bg-muted rounded-md px-3 py-2">
+          <p role="status" aria-live="polite" className="mt-2 text-xs font-medium text-ink-3 bg-muted rounded-md px-3 py-2">
             Testing regex…
           </p>
         )}
@@ -129,7 +133,7 @@ export default function RegexTester() {
       {/* Flags */}
       <div className="flex flex-wrap gap-4 mb-4">
         {FLAG_OPTIONS.map(({ flag, label }) => (
-          <label key={flag} className="flex items-center gap-2 cursor-pointer">
+          <label key={flag} className="flex min-h-11 cursor-pointer items-center gap-2 fine-pointer:min-h-9">
             <input
               type="checkbox"
               checked={flags.includes(flag)}
@@ -146,9 +150,10 @@ export default function RegexTester() {
 
       {/* Test string */}
       <div className="flex flex-col gap-1.5 mb-4">
-        <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Test string</label>
+        <label htmlFor="regex-test-string" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Test string</label>
         <textarea
-          className="h-28 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
+          id="regex-test-string"
+          className="h-28 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors"
           placeholder="Enter text to test against…"
           value={testString}
           onChange={(e) => setTestString(e.target.value)}
@@ -190,7 +195,7 @@ export default function RegexTester() {
               <button
                 type="button"
                 key={i}
-                className="w-full flex items-start gap-3 text-left text-sm hover:bg-muted rounded-md px-2 py-1.5 transition-colors"
+                className="w-full min-h-11 flex items-start gap-3 text-left text-sm hover:bg-muted rounded-md px-2 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
                 onClick={() => { void copyText(match.text, 'Match copied'); }}
                 aria-label={`Copy match ${i + 1}`}
               >
@@ -211,6 +216,6 @@ export default function RegexTester() {
           </div>
         </div>
       )}
-    </div>
+    </ToolPage>
   );
 }

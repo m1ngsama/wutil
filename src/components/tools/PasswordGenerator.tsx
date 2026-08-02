@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { generatePassword } from '@/lib/password-utils';
 
@@ -51,12 +52,12 @@ export default function PasswordGenerator() {
   };
 
   return (
-    <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Security</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Password Generator</h1>
-        <p className="text-base text-ink-2 max-w-[46ch]">Cryptographically random passwords, generated entirely in your browser.</p>
-      </header>
+    <ToolPage
+      toolId="password-generator"
+      title="Password Generator"
+      description="Cryptographically random passwords, generated entirely in your browser."
+      width="compact"
+    >
 
       {/* Output */}
       <div className="rounded-xl border border-edge bg-surface p-5 mb-5">
@@ -70,9 +71,10 @@ export default function PasswordGenerator() {
             {password || <span className="text-ink-3 font-sans text-sm tracking-normal">Click Generate…</span>}
           </span>
           <button
+            type="button"
             onClick={() => { if (!password) return; void copyText(password); }}
             disabled={!password}
-            className="shrink-0 h-9 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:opacity-35 disabled:pointer-events-none transition-colors"
+            className="shrink-0 h-11 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
           >
             Copy
           </button>
@@ -85,8 +87,8 @@ export default function PasswordGenerator() {
             </div>
             <div className="w-full h-1 rounded-full bg-muted overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-300 ${strength.color}`}
-                style={{ width: `${strength.pct}%` }}
+                className={`h-full w-full origin-left rounded-full transition-transform duration-300 ${strength.color}`}
+                style={{ transform: `scaleX(${strength.pct / 100})` }}
               />
             </div>
           </div>
@@ -104,36 +106,37 @@ export default function PasswordGenerator() {
             type="range" min={4} max={64} value={length}
             aria-label="Password length"
             onChange={(e) => setLength(Number(e.target.value))}
-            className="w-full accent-[var(--w-accent)]"
+            className="h-11 w-full accent-[var(--w-accent)]"
           />
           <div className="flex justify-between text-xs text-ink-3 mt-1"><span>4</span><span>64</span></div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-1 sm:grid-cols-2 sm:gap-3">
           {(Object.keys(options) as (keyof typeof options)[]).map((key) => (
-            <div key={key} className="flex items-center gap-3">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={options[key]}
-                aria-label={OPTION_LABELS[key]}
-                className={`relative shrink-0 w-9 h-5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 ${options[key] ? 'bg-accent' : 'bg-edge-strong'}`}
-                onClick={() => setOptions((prev) => ({ ...prev, [key]: !prev[key] }))}
-              >
-                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${options[key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
-              </button>
+            <button
+              key={key}
+              type="button"
+              role="switch"
+              aria-checked={options[key]}
+              className="flex min-h-11 w-full items-center gap-3 rounded-md px-1 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+              onClick={() => setOptions((prev) => ({ ...prev, [key]: !prev[key] }))}
+            >
+              <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${options[key] ? 'bg-accent' : 'bg-edge-strong'}`}>
+                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform ${options[key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
+              </span>
               <span className="text-sm text-ink-2">{OPTION_LABELS[key]}</span>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
       <button
+        type="button"
         onClick={generate}
-        className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover transition-colors"
+        className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
       >
         Generate Password
       </button>
-    </div>
+    </ToolPage>
   );
 }

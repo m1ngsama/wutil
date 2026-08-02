@@ -78,8 +78,8 @@ async function runAuditOnce() {
 
     await runStep(failures, 'home search and filters', async () => {
       await page.goto(routeUrl('/'), { waitUntil: 'networkidle' });
-      await page.getByPlaceholder(/Search tools/).fill('definitely-no-tool');
-      await waitForText(page, /No tools found/);
+      await page.getByRole('searchbox', { name: 'Find a tool' }).fill('definitely-no-tool');
+      await waitForText(page, /No matching tools/);
       await page.getByRole('button', { name: 'Clear filters' }).click();
       await page.getByRole('link', { name: /JSON Formatter/ }).waitFor();
       await page.getByRole('button', { name: 'Images & PDF' }).click();

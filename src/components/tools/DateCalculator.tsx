@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { addCalendarDays, daysBetween, toDateInputValue } from '@/lib/date-utils';
 
@@ -43,12 +44,12 @@ export default function DateCalculator() {
   }, [base, delta, direction]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Calculators</p>
-        <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Date Calculator</h1>
-        <p className="text-base text-ink-2 max-w-[48ch]">Find the difference between two dates, or add and subtract days.</p>
-      </header>
+    <ToolPage
+      toolId="date-calculator"
+      title="Date Calculator"
+      description="Find the difference between two dates, or add and subtract days."
+      width="narrow"
+    >
 
       {/* Tab switcher */}
       <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit">
@@ -57,7 +58,8 @@ export default function DateCalculator() {
             type="button"
             key={id}
             onClick={() => setTab(id)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            aria-pressed={tab === id}
+            className={`min-h-11 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
               tab === id ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
             }`}
           >
@@ -82,12 +84,12 @@ export default function DateCalculator() {
                     value={value}
                     aria-label={label}
                     onChange={(e) => set(e.target.value)}
-                    className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+                    className="flex-1 h-11 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
                   />
                   <button
                     type="button"
                     onClick={() => set(todayStr())}
-                    className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
+                    className="h-11 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
                   >
                     Today
                   </button>
@@ -143,12 +145,12 @@ export default function DateCalculator() {
                 value={base}
                 aria-label="Starting date"
                 onChange={(e) => setBase(e.target.value)}
-                className="flex-1 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+                className="flex-1 h-11 px-3 rounded-md border border-edge bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
               />
               <button
                 type="button"
                 onClick={() => setBase(todayStr())}
-                className="h-10 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors"
+                className="h-11 px-3 rounded-md border border-edge bg-surface text-xs font-semibold text-ink-2 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
               >
                 Today
               </button>
@@ -164,7 +166,9 @@ export default function DateCalculator() {
                     type="button"
                     key={d}
                     onClick={() => setDir(d)}
-                    className={`w-10 font-mono text-base font-bold transition-colors ${
+                    aria-pressed={direction === d}
+                    aria-label={d === '+' ? 'Add days' : 'Subtract days'}
+                    className={`h-11 w-11 font-mono text-base font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
                       direction === d ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
                     }`}
                   >
@@ -178,7 +182,7 @@ export default function DateCalculator() {
                 value={delta}
                 aria-label="Days to add or subtract"
                 onChange={(e) => setDelta(e.target.value)}
-                className="w-28 h-10 px-3 rounded-md border border-edge bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1"
+                className="w-28 h-11 px-3 rounded-md border border-edge bg-surface text-ink text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
               />
               <span className="flex items-center text-sm text-ink-3">days</span>
             </div>
@@ -209,7 +213,7 @@ export default function DateCalculator() {
                   type="button"
                   key={n}
                   onClick={() => { setDelta(String(n)); setDir('+'); }}
-                  className="px-3 py-1.5 text-xs font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted transition-colors"
+                  className="min-h-11 px-3 py-1.5 text-xs font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
                 >
                   +{n}d
                 </button>
@@ -218,6 +222,6 @@ export default function DateCalculator() {
           </div>
         </div>
       )}
-    </div>
+    </ToolPage>
   );
 }
