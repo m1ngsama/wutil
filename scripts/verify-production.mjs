@@ -1,10 +1,16 @@
 import { launchProductionBrowser } from './lib/production-browser.mjs';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
+const canonicalOrigin =
+  process.env.PRODUCTION_CANONICAL_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_VERIFY_TIMEOUT_MS ?? 10_000);
 
 function routeUrl(path) {
   return new URL(path, origin).toString();
+}
+
+function canonicalRouteUrl(path) {
+  return new URL(path, canonicalOrigin).toString();
 }
 
 async function navigate(page, path) {
@@ -42,9 +48,9 @@ try {
   const page = await browser.newPage({ serviceWorkers: 'block' });
   const checks = [
     () => expectOk(page, '/'),
-    () => expectContains(page, '/robots.txt', `Sitemap: ${routeUrl('/sitemap.xml')}`),
-    () => expectContains(page, '/sitemap.xml', `<loc>${routeUrl('/privacy')}</loc>`),
-    () => expectContains(page, '/sitemap.xml', `<loc>${routeUrl('/changelog')}</loc>`),
+    () => expectContains(page, '/robots.txt', `Sitemap: ${canonicalRouteUrl('/sitemap.xml')}`),
+    () => expectContains(page, '/sitemap.xml', `<loc>${canonicalRouteUrl('/privacy')}</loc>`),
+    () => expectContains(page, '/sitemap.xml', `<loc>${canonicalRouteUrl('/changelog')}</loc>`),
     () => expectOk(page, '/privacy'),
     () => expectOk(page, '/changelog'),
     () => expectOk(page, '/og-image.svg'),
@@ -66,7 +72,9 @@ try {
     }
     process.exitCode = 1;
   } else {
-    console.log(`Production verification passed for ${origin}`);
+    console.log(
+      `Production verification passed for ${origin} (canonical origin ${canonicalOrigin})`,
+    );
   }
 } finally {
   await browser.close();

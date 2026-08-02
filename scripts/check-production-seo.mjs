@@ -1,10 +1,12 @@
 import { launchProductionBrowser } from './lib/production-browser.mjs';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
+const canonicalOrigin =
+  process.env.PRODUCTION_CANONICAL_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_SEO_TIMEOUT_MS ?? 10_000);
 
-function routeUrl(path) {
-  return new URL(path, origin).toString();
+function canonicalRouteUrl(path) {
+  return new URL(path, canonicalOrigin).toString();
 }
 
 function escapeRegExp(value) {
@@ -22,13 +24,13 @@ function decodeHtml(value) {
 }
 
 function normalizeComparableUrl(value) {
-  const parsed = new URL(decodeHtml(value), origin);
+  const parsed = new URL(decodeHtml(value), canonicalOrigin);
   const pathname = parsed.pathname === '/' ? '/' : parsed.pathname.replace(/\/$/, '');
   return `${parsed.origin}${pathname}${parsed.search}${parsed.hash}`;
 }
 
 function expectedUrlForPath(path) {
-  return normalizeComparableUrl(routeUrl(path));
+  return normalizeComparableUrl(canonicalRouteUrl(path));
 }
 
 async function fetchText(page, pathOrUrl, accept = 'text/html,application/xhtml+xml') {
@@ -91,12 +93,12 @@ function canonicalHref(linkTags) {
 }
 
 function parseSitemapRoutes(sitemapXml) {
-  const originUrl = new URL(origin);
+  const canonicalOriginUrl = new URL(canonicalOrigin);
   const routes = [];
 
   for (const match of sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
     const parsed = new URL(decodeHtml(match[1]));
-    if (parsed.origin !== originUrl.origin) continue;
+    if (parsed.origin !== canonicalOriginUrl.origin) continue;
     routes.push(parsed.pathname === '/' ? '/' : parsed.pathname.replace(/\/$/, ''));
   }
 
@@ -176,7 +178,7 @@ try {
   const routes = parseSitemapRoutes(sitemapXml);
 
   if (routes.length === 0) {
-    failures.push('sitemap.xml did not contain any same-origin routes');
+    failures.push('sitemap.xml did not contain any canonical-origin routes');
   }
 
   for (const path of routes) {
@@ -202,7 +204,9 @@ try {
     }
     process.exitCode = 1;
   } else {
-    console.log(`Production SEO metadata check passed for ${routes.length} routes on ${origin}`);
+    console.log(
+      `Production SEO metadata check passed for ${routes.length} routes on ${origin} (canonical origin ${canonicalOrigin})`,
+    );
   }
 } finally {
   await browser.close();

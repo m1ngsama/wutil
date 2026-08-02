@@ -24,6 +24,12 @@ const EXAMPLES = [
     test: 'Call us at +1234567890 or 0987654321' },
 ] as const;
 
+const REGEX_WORKER_STARTUP_TIMEOUT_MS = 10_000;
+
+type RegexWorkerResponse =
+  | { type: 'ready' }
+  | { type: 'result'; result: RegexResult };
+
 export default function RegexTester() {
   const [pattern,    setPattern]    = useState('');
   const [flags,      setFlags]      = useState('g');
@@ -47,16 +53,25 @@ export default function RegexTester() {
       setResultState({ status: 'pending', result: null });
       worker = new Worker(new URL('./regex.worker.ts', import.meta.url), { type: 'module' });
 
-      timeoutId = window.setTimeout(() => {
-        worker?.terminate();
-        worker = null;
-        setResultState({
-          status: 'done',
-          result: { valid: false, error: `Regex timed out after ${REGEX_TEST_TIMEOUT_MS}ms.` },
-        });
-      }, REGEX_TEST_TIMEOUT_MS);
+      const failAfter = (delay: number, error: string) => {
+        if (timeoutId !== null) window.clearTimeout(timeoutId);
+        timeoutId = window.setTimeout(() => {
+          worker?.terminate();
+          worker = null;
+          setResultState({ status: 'done', result: { valid: false, error } });
+        }, delay);
+      };
 
-      worker.onmessage = (event: MessageEvent<{ result: RegexResult }>) => {
+      worker.onmessage = (event: MessageEvent<RegexWorkerResponse>) => {
+        if (event.data.type === 'ready') {
+          failAfter(
+            REGEX_TEST_TIMEOUT_MS,
+            `Regex timed out after ${REGEX_TEST_TIMEOUT_MS}ms.`,
+          );
+          worker?.postMessage({ pattern, flags, testString });
+          return;
+        }
+
         if (timeoutId !== null) window.clearTimeout(timeoutId);
         worker?.terminate();
         worker = null;
@@ -70,7 +85,7 @@ export default function RegexTester() {
         setResultState({ status: 'done', result: { valid: false, error: 'Regex worker failed.' } });
       };
 
-      worker.postMessage({ pattern, flags, testString });
+      failAfter(REGEX_WORKER_STARTUP_TIMEOUT_MS, 'Regex worker could not start.');
     }, 120);
 
     return () => {

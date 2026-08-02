@@ -60,7 +60,7 @@ npm run interactions:prod
 npm run perf:prod
 ```
 
-`verify:prod`, `seo:prod`, `interactions:prod`, and `perf:prod` target `https://wutil.m1ng.space` by default. They can be pointed at another deployment with `PRODUCTION_ORIGIN`.
+`verify:prod`, `seo:prod`, `interactions:prod`, and `perf:prod` target `https://wutil.m1ng.space` by default. They can be pointed at another deployment with `PRODUCTION_ORIGIN`; set `PRODUCTION_CANONICAL_ORIGIN` separately when checking a Pages deployment URL whose metadata should still reference the public production hostname.
 
 ## Deployment
 
@@ -77,13 +77,13 @@ Production deploys run through GitHub Actions on pushes to `main`:
 7. `npm run build`
 8. `wrangler pages deploy out --project-name=wutil --branch=main`
 9. `npm run purge:cf`
-10. `npm run warm:prod`
-11. `npm run verify:prod`
-12. `npm run seo:prod`
-13. `npm run interactions:prod`
-14. `npm run perf:prod`
+10. Warm every sitemap route on the exact Pages deployment URL returned by Wrangler.
+11. Run response and canonical-host verification against that deployed artifact.
+12. Check SEO metadata for every sitemap route on that deployed artifact.
+13. Run the production interaction sweep on that deployed artifact.
+14. Check its synthetic performance budgets.
 
-`.github/workflows/production-monitor.yml` also runs production verification, SEO metadata checks, browser interaction sweep, and performance budgets every six hours, plus on manual dispatch.
+`.github/workflows/production-monitor.yml` can also run production verification, SEO metadata checks, browser interaction sweeps, and performance budgets on manual dispatch. It checks the stable `wutil.pages.dev` production artifact while requiring canonical metadata to point to `wutil.m1ng.space`.
 
 `.github/workflows/analytics-report.yml` runs a daily Cloudflare Web Analytics report and writes visits, page views, top pages, referrers, device/browser mix, country mix, and real-user Web Vitals to the GitHub Actions step summary.
 
@@ -94,6 +94,6 @@ Required GitHub Actions secrets:
 - Optional: `CLOUDFLARE_CACHE_PURGE_API_TOKEN` with Cloudflare `Cache Purge` permission. If omitted, deploys reuse `CLOUDFLARE_API_TOKEN` for cache purge.
 - Optional: `CLOUDFLARE_ANALYTICS_API_TOKEN` with Cloudflare Analytics Read permission. If omitted, analytics reports reuse `CLOUDFLARE_API_TOKEN`.
 
-Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` Cloudflare cache after Pages deployment, then warm the sitemap HTML routes so verification and users see the latest HTML with fewer cold-cache misses.
+Cloudflare Pages reads `public/_headers` after static export. It sets security headers for all routes, immutable browser caching for fingerprinted `/_next/static/*` assets, and short browser / longer edge caching for static HTML. Production deploys purge the `wutil.m1ng.space` cache, then exercise every sitemap route on Wrangler's immutable deployment URL. This avoids custom-host traffic protection blocking GitHub Runner checks while still validating that robots, sitemap, canonical, and social metadata point to the public production hostname. Running `npm run warm:prod` locally still targets and warms `wutil.m1ng.space` by default.
 
 See [docs/project-review.md](docs/project-review.md) for the current production review, remaining risks, and roadmap.

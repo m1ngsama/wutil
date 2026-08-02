@@ -15,5 +15,7 @@ const ctx = self as unknown as WorkerContext;
 
 ctx.onmessage = (event: MessageEvent<RegexWorkerRequest>) => {
   const { pattern, flags, testString } = event.data;
-  ctx.postMessage({ result: evaluateRegex(pattern, flags, testString) });
+  ctx.postMessage({ type: 'result', result: evaluateRegex(pattern, flags, testString) });
 };
+
+ctx.postMessage({ type: 'ready' });

@@ -56,6 +56,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Cloudflare Pages
+        id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -69,17 +70,30 @@ jobs:
           CLOUDFLARE_PURGE_HOST: wutil.m1ng.space
         run: npm run purge:cf
 
-      - name: Warm production cache
+      - name: Warm deployed artifact
+        env:
+          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
+          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
         run: npm run warm:prod
 
-      - name: Verify production
+      - name: Verify deployed artifact
+        env:
+          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
+          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
         run: npm run verify:prod
 
-      - name: Check production SEO metadata
+      - name: Check deployed SEO metadata
+        env:
+          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
+          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
         run: npm run seo:prod
 
-      - name: Check production interactions
+      - name: Check deployed interactions
+        env:
+          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
         run: npm run interactions:prod
 
-      - name: Check production performance budget
+      - name: Check deployed performance budget
+        env:
+          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
         run: npm run perf:prod

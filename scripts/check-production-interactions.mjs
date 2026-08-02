@@ -72,11 +72,25 @@ async function waitForText(page, textOrRegex, timeout = 5_000) {
 
 function monitorPage(page, consoleErrors) {
   page.on('console', (message) => {
-    if (message.type() === 'error') consoleErrors.push({ url: page.url(), text: message.text() });
+    if (message.type() === 'error') {
+      consoleErrors.push({
+        url: page.url(),
+        source: message.location().url,
+        text: message.text(),
+      });
+    }
   });
   page.on('pageerror', (error) => {
     consoleErrors.push({ url: page.url(), text: error.message });
   });
+}
+
+function isExpectedExternalNoise(entry) {
+  return (
+    entry.text.includes('net::ERR_ABORTED') ||
+    entry.text.includes('https://cloudflareinsights.com/cdn-cgi/rum') ||
+    entry.source === 'https://cloudflareinsights.com/cdn-cgi/rum'
+  );
 }
 
 async function runStep(failures, name, fn) {
@@ -309,7 +323,7 @@ async function runAuditOnce() {
 
   return {
     failures,
-    consoleErrors: consoleErrors.filter((entry) => !entry.text.includes('net::ERR_ABORTED')),
+    consoleErrors: consoleErrors.filter((entry) => !isExpectedExternalNoise(entry)),
   };
 }
 

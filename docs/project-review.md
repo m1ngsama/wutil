@@ -27,11 +27,11 @@ The CI/CD flow for `main` is:
 6. Build the static export.
 7. Deploy `out` to Cloudflare Pages.
 8. Purge the Cloudflare cache for `wutil.m1ng.space`.
-9. Warm production HTML routes from the sitemap.
-10. Verify `https://wutil.m1ng.space` plus `robots.txt`, `sitemap.xml`, `/privacy`, and `/og-image.svg`.
-11. Check production SEO metadata for every route in `sitemap.xml`, including canonical links, `og:url`, OG image, and Twitter card metadata.
-12. Run a browser-level production interaction sweep against representative happy paths, validation/error paths, file-tool re-selection flows, console errors, and mobile horizontal overflow.
-13. Check production performance budgets for the homepage and heavier file-tool routes, including HTML response timing, FCP/LCP/CLS, and transferred resources.
+9. Warm every sitemap route on Wrangler's immutable Pages deployment URL.
+10. Verify that deployed artifact plus `robots.txt`, `sitemap.xml`, `/privacy`, and `/og-image.svg`, while requiring public URLs to reference `https://wutil.m1ng.space`.
+11. Check SEO metadata for every route in `sitemap.xml`, including canonical links, `og:url`, OG image, and Twitter card metadata.
+12. Run a browser-level interaction sweep against representative happy paths, validation/error paths, file-tool re-selection flows, console errors, and mobile horizontal overflow.
+13. Check performance budgets for the homepage and heavier file-tool routes, including HTML response timing, FCP/LCP/CLS, and transferred resources.
 
 This is a solid baseline for a static, client-side app. The highest-value next step is to continue deepening browser coverage around high-risk file and conversion paths, then add external monitoring or RUM if operational requirements grow.
 
@@ -39,7 +39,7 @@ This is a solid baseline for a static, client-side app. The highest-value next s
 
 - The app processes user files in-browser. Large images and PDFs can still create memory pressure even with file size validation.
 - E2E coverage now spans every public tool and includes full-catalog light/dark axe scans plus representative keyboard-flow checks. CI also runs a production browser interaction sweep, but coverage remains representative rather than exhaustive for file memory pressure, unusual encodings, and very large inputs.
-- Production has response checks, a manual browser-level interaction sweep, synthetic browser performance budgets, and Cloudflare Web Analytics. It still has no external multi-region uptime monitor.
+- Production has deployed-artifact response checks, a manual browser-level interaction sweep, synthetic browser performance budgets, and Cloudflare Web Analytics. GitHub Runner checks use the Pages production artifact because custom-host traffic protection blocks those runner IPs; the public hostname still needs independent uptime coverage.
 - Web Analytics has only recently been enabled, so traffic and Web Vitals samples are still too small for confident product or acquisition decisions.
 - Production and full dependency audits pass. Patched PostCSS and Sharp versions are pinned through package overrides until Next adopts them directly; revalidate the overrides whenever Next is upgraded.
 - `cloudflare/wrangler-action@v3` still emits a Node.js 20 deprecation annotation, even though the workflow forces JavaScript actions to Node 24.

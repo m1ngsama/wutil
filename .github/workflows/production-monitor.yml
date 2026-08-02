@@ -10,6 +10,9 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     name: Monitor production
+    env:
+      PRODUCTION_ORIGIN: https://wutil.pages.dev
+      PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
     concurrency:
       group: wutil-production-monitor
       cancel-in-progress: true

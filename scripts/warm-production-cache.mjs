@@ -1,6 +1,8 @@
 import { launchProductionBrowser } from './lib/production-browser.mjs';
 
 const origin = process.env.PRODUCTION_ORIGIN ?? 'https://wutil.m1ng.space';
+const canonicalOrigin =
+  process.env.PRODUCTION_CANONICAL_ORIGIN ?? 'https://wutil.m1ng.space';
 const timeoutMs = Number(process.env.PRODUCTION_WARM_TIMEOUT_MS ?? 10_000);
 const concurrency = Number(process.env.PRODUCTION_WARM_CONCURRENCY ?? 4);
 const verifyPasses = Number(process.env.PRODUCTION_WARM_VERIFY_PASSES ?? 1);
@@ -91,12 +93,12 @@ async function requestWithRetry(context, path) {
 }
 
 function parseSitemapRoutes(sitemapXml) {
-  const originUrl = new URL(origin);
+  const canonicalOriginUrl = new URL(canonicalOrigin);
   const routes = [];
 
   for (const match of sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
     const parsed = new URL(decodeHtml(match[1]));
-    if (parsed.origin !== originUrl.origin) continue;
+    if (parsed.origin !== canonicalOriginUrl.origin) continue;
     routes.push(parsed.pathname === '/' ? '/' : parsed.pathname.replace(/\/$/, ''));
   }
 
@@ -161,7 +163,7 @@ try {
   const routes = parseSitemapRoutes(sitemapXml);
 
   if (routes.length === 0) {
-    throw new Error('sitemap.xml did not contain any same-origin routes to warm');
+    throw new Error('sitemap.xml did not contain any canonical-origin routes to warm');
   }
 
   const allResults = [];
@@ -201,7 +203,9 @@ try {
     }
     process.exitCode = 1;
   } else {
-    console.log(`Warmed ${routes.length} production HTML routes on ${origin}`);
+    console.log(
+      `Warmed ${routes.length} HTML routes on ${origin} (canonical origin ${canonicalOrigin})`,
+    );
   }
 } finally {
   await browser.close();
