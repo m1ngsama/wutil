@@ -115,7 +115,7 @@ export default function UuidGenerator() {
                     onChange={() => handleVersionChange(option.value)}
                     className="peer sr-only"
                   />
-                  <span className="flex min-h-16 flex-col justify-center rounded-lg border border-edge bg-canvas px-4 py-3 transition-colors hover:border-edge-strong peer-checked:border-accent peer-checked:bg-muted peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--w-ring)] peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-canvas">
+                  <span className="flex min-h-16 flex-col justify-center rounded-lg border border-edge bg-canvas px-4 py-3 transition-colors hover:border-edge-strong peer-checked:border-accent peer-checked:bg-muted peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--w-ring)]">
                     <span className="text-sm font-semibold text-ink">{option.label}</span>
                     <span className="mt-0.5 text-xs leading-relaxed text-ink-3">{option.description}</span>
                   </span>
@@ -144,7 +144,7 @@ export default function UuidGenerator() {
                   setQuantity(event.target.value);
                   setQuantityError('');
                 }}
-                className="mt-2 h-11 w-full rounded-md border border-edge bg-canvas px-3 font-mono text-sm text-ink outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-[var(--w-ring)]"
+                className="mt-2 h-11 w-full rounded-md border border-edge bg-canvas px-3 font-mono text-sm text-ink outline-none transition-colors focus:border-accent"
               />
               {quantityError ? (
                 <p id="uuid-quantity-error" role="alert" className="mt-1.5 text-xs font-medium text-red-700">
@@ -167,7 +167,7 @@ export default function UuidGenerator() {
                   role="switch"
                   aria-checked={uppercase}
                   onClick={() => setUppercase((enabled) => !enabled)}
-                  className="flex min-h-11 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="flex min-h-11 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-2 hover:bg-muted"
                 >
                   <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${uppercase ? 'bg-accent' : 'bg-edge-strong'}`}>
                     <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform ${uppercase ? 'translate-x-4' : 'translate-x-0.5'}`} />
@@ -179,7 +179,7 @@ export default function UuidGenerator() {
                   role="switch"
                   aria-checked={hyphens}
                   onClick={() => setHyphens((enabled) => !enabled)}
-                  className="flex min-h-11 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="flex min-h-11 items-center gap-2 rounded-md px-2 text-left text-sm text-ink-2 hover:bg-muted"
                 >
                   <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${hyphens ? 'bg-accent' : 'bg-edge-strong'}`}>
                     <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform ${hyphens ? 'translate-x-4' : 'translate-x-0.5'}`} />
@@ -219,7 +219,7 @@ export default function UuidGenerator() {
             <ol
               aria-label="Generated UUIDs"
               tabIndex={0}
-              className="max-h-[28rem] overflow-y-auto rounded-lg border border-edge bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+              className="max-h-[28rem] overflow-y-auto rounded-lg border border-edge bg-canvas"
             >
               {displayedUuids.map((uuid, index) => (
                 <li

@@ -30,15 +30,15 @@ function toSentenceCase(str: string): string {
 }
 
 const cases = [
-  { label: 'UPPER CASE',    fn: (s: string) => s.toUpperCase(),  example: 'HELLO WORLD'  },
-  { label: 'lower case',    fn: (s: string) => s.toLowerCase(),  example: 'hello world'  },
-  { label: 'Title Case',    fn: toTitleCase,                     example: 'Hello World'  },
-  { label: 'Sentence case', fn: toSentenceCase,                  example: 'Hello world'  },
-  { label: 'camelCase',     fn: toCamelCase,                     example: 'helloWorld'   },
-  { label: 'PascalCase',    fn: toPascalCase,                    example: 'HelloWorld'   },
-  { label: 'snake_case',    fn: toSnakeCase,                     example: 'hello_world'  },
-  { label: 'kebab-case',    fn: toKebabCase,                     example: 'hello-world'  },
-  { label: 'CONSTANT_CASE', fn: toConstantCase,                  example: 'HELLO_WORLD'  },
+  { label: 'UPPER CASE', fn: (s: string) => s.toUpperCase(), example: 'HELLO WORLD' },
+  { label: 'lower case', fn: (s: string) => s.toLowerCase(), example: 'hello world' },
+  { label: 'Title Case', fn: toTitleCase, example: 'Hello World' },
+  { label: 'Sentence case', fn: toSentenceCase, example: 'Hello world' },
+  { label: 'camelCase', fn: toCamelCase, example: 'helloWorld' },
+  { label: 'PascalCase', fn: toPascalCase, example: 'HelloWorld' },
+  { label: 'snake_case', fn: toSnakeCase, example: 'hello_world' },
+  { label: 'kebab-case', fn: toKebabCase, example: 'hello-world' },
+  { label: 'CONSTANT_CASE', fn: toConstantCase, example: 'HELLO_WORLD' },
 ];
 
 export default function TextCaseConverter() {
@@ -64,7 +64,7 @@ export default function TextCaseConverter() {
                 <button
                   type="button"
                   onClick={() => setInput('')}
-                  className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-8"
+                  className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors fine-pointer:min-h-8"
                 >
                   Clear
                 </button>
@@ -72,7 +72,7 @@ export default function TextCaseConverter() {
             </div>
             <textarea
               id="text-case-input"
-              className="h-40 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
+              className="h-40 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 transition-colors"
               placeholder="Type or paste your text here…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -92,7 +92,6 @@ export default function TextCaseConverter() {
                   aria-pressed={active}
                   className={[
                     'flex flex-col text-left px-4 py-3 rounded-lg border transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]',
                     active
                       ? 'border-accent bg-accent-subtle'
                       : 'border-edge bg-surface hover:border-edge-strong hover:bg-muted',
@@ -119,7 +118,7 @@ export default function TextCaseConverter() {
           <textarea
             id="text-case-output"
             readOnly
-            className="h-32 w-full flex-1 p-4 rounded-lg border border-edge bg-muted lg:h-auto lg:min-h-[20rem] text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-32 w-full flex-1 p-4 rounded-lg border border-edge bg-muted lg:h-auto lg:min-h-[20rem] text-ink text-sm font-mono resize-none placeholder:text-ink-3"
             placeholder="Enter text to see the result…"
             value={outputText}
             spellCheck={false}

@@ -18,7 +18,7 @@ export function ToolProgress({ label, value, progressLabel, onCancel }: ToolProg
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+            className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-9"
           >
             Cancel
           </button>

@@ -111,7 +111,7 @@ export function GlobalToolSearch() {
         onClick={openDialog}
         aria-haspopup="dialog"
         aria-keyshortcuts="Meta+K Control+K"
-        className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas md:w-auto md:px-3 fine-pointer:h-9 fine-pointer:w-9 md:fine-pointer:w-auto"
+        className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink md:w-auto md:px-3 fine-pointer:h-9 fine-pointer:w-9 md:fine-pointer:w-auto"
       >
         <Search aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
         <span className="hidden text-xs font-semibold md:inline">Find a tool</span>
@@ -145,7 +145,7 @@ export function GlobalToolSearch() {
                 type="button"
                 onClick={closeDialog}
                 aria-label="Close tool search"
-                className="flex h-11 w-11 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:h-9 fine-pointer:w-9"
+                className="flex h-11 w-11 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:h-9 fine-pointer:w-9"
               >
                 <X aria-hidden="true" className="h-4 w-4" />
               </button>
@@ -174,7 +174,7 @@ export function GlobalToolSearch() {
                 }}
                 onKeyDown={handleInputKeyDown}
                 placeholder="Try “merge files” or “format JSON”…"
-                className="h-11 w-full rounded-md border border-edge bg-surface pl-10 pr-3 text-base text-ink placeholder:text-ink-3 transition-colors hover:border-edge-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+                className="h-11 w-full rounded-md border border-edge bg-surface pl-10 pr-3 text-base text-ink placeholder:text-ink-3 transition-colors hover:border-edge-strong"
               />
             </div>
             <p id="global-tool-search-help" className="mt-2 hidden text-xs text-ink-3 fine-pointer:block">
@@ -202,7 +202,7 @@ export function GlobalToolSearch() {
                         onClick={closeDialog}
                         onFocus={() => setActiveIndex(index)}
                         onMouseEnter={() => setActiveIndex(index)}
-                        className={`group grid min-h-16 items-center gap-x-4 gap-y-1 rounded-md sm:grid-cols-[minmax(0,1fr)_auto] px-3 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${active ? 'bg-accent-subtle' : 'hover:bg-muted'}`}
+                        className={`group grid min-h-16 items-center gap-x-4 gap-y-1 rounded-md sm:grid-cols-[minmax(0,1fr)_auto] px-3 py-3 transition-colors focus-visible:-outline-offset-2 ${active ? 'bg-accent-subtle' : 'hover:bg-muted'}`}
                       >
                         <span className="min-w-0">
                           <span className={`block text-sm font-semibold ${active ? 'text-accent' : 'text-ink'}`}>

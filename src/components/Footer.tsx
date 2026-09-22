@@ -4,6 +4,14 @@ const GITHUB_ISSUE_URL = 'https://github.com/m1ngsama/wutil/issues/new';
 const SUGGEST_TOOL_URL = `${GITHUB_ISSUE_URL}?title=${encodeURIComponent('Tool request: ')}&body=${encodeURIComponent('What should the tool do?\n\nExample input and expected output:\n\nWhy is browser-only processing useful here?\n')}`;
 const REPORT_BUG_URL = `${GITHUB_ISSUE_URL}?title=${encodeURIComponent('Bug: ')}&body=${encodeURIComponent('What happened?\n\nSteps to reproduce:\n1. \n2. \n\nExpected result:\n\nBrowser and device:\n')}`;
 
+const FOOTER_LINKS = [
+  ['Suggest a tool', SUGGEST_TOOL_URL],
+  ['Report a bug', REPORT_BUG_URL],
+  ['GitHub', 'https://github.com/m1ngsama/wutil'],
+  ['Privacy', '/privacy'],
+  ['Changelog', '/changelog'],
+];
+
 export default function Footer() {
   return (
     <footer className="border-t border-edge bg-canvas mt-auto">
@@ -13,7 +21,7 @@ export default function Footer() {
           <div className="space-y-1.5">
             <Link
               href="/"
-              className="inline-flex min-h-11 items-center rounded-md font-display text-2xl leading-none text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
+              className="inline-flex min-h-11 items-center rounded-md font-display text-2xl leading-none text-ink fine-pointer:min-h-0"
             >
               wutil
             </Link>
@@ -23,42 +31,16 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:gap-5">
-            <a
-              href={SUGGEST_TOOL_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
-            >
-              Suggest a tool
-            </a>
-            <a
-              href={REPORT_BUG_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
-            >
-              Report a bug
-            </a>
-            <a
-              href="https://github.com/m1ngsama/wutil"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
-            >
-              GitHub
-            </a>
-            <Link
-              href="/privacy"
-              className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/changelog"
-              className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-0"
-            >
-              Changelog
-            </Link>
+            {FOOTER_LINKS.map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                {...(href.startsWith('https:') && { target: '_blank', rel: 'noreferrer' })}
+                className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-0"
+              >
+                {label}
+              </Link>
+            ))}
             <span className="text-xs text-ink-3">
               &copy; {new Date().getFullYear()}
             </span>

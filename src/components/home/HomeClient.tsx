@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { favoriteToolStore, recentToolStore } from '@/lib/tool-store';
 import {
   searchTools,
@@ -69,7 +68,7 @@ function FeaturedTool({ tool }: { tool: ToolRegistryItem }) {
   return (
     <Link
       href={tool.href}
-      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-edge bg-surface p-4 transition-colors hover:border-edge-strong hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:p-5"
+      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-edge bg-surface p-4 transition-colors hover:border-edge-strong hover:bg-muted sm:p-5"
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-subtle text-accent">
         <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -100,7 +99,7 @@ function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
           <li key={tool.id} className="border-t border-edge">
             <Link
               href={tool.href}
-              className="group -mx-2 grid min-h-24 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2 py-4 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="group -mx-2 grid min-h-24 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2 py-4 transition-colors hover:bg-muted"
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-ink-2 transition-colors group-hover:bg-accent-subtle group-hover:text-accent">
                 <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
@@ -145,7 +144,7 @@ function CompactToolList({ tools }: { tools: ToolRegistryItem[] }) {
         >
           <Link
             href={tool.href}
-            className="group flex min-h-16 items-center justify-between gap-3 px-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)]"
+            className="group flex min-h-16 items-center justify-between gap-3 px-3 py-3 focus-visible:-outline-offset-2"
           >
             <span className="min-w-0">
               <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3">
@@ -259,14 +258,14 @@ export default function HomeClient() {
               className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"
               strokeWidth={1.75}
             />
-            <Input
+            <input
               ref={searchInputRef}
               id="tool-search"
               type="search"
               autoComplete="off"
               aria-controls="tool-results"
               aria-keyshortcuts="/ Meta+K Control+K"
-              className="pl-10"
+              className="flex h-11 w-full rounded-md border border-edge bg-surface pl-10 pr-3 py-2 text-sm text-ink transition-colors placeholder:text-ink-3 hover:border-edge-strong"
               placeholder="Search by name or task…"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -335,7 +334,7 @@ export default function HomeClient() {
               <button
                 type="button"
                 onClick={() => recentToolStore.update(() => [])}
-                className="min-h-11 rounded-md px-2 text-xs font-semibold text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+                className="min-h-11 rounded-md px-2 text-xs font-semibold text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:min-h-9"
               >
                 Clear history
               </button>

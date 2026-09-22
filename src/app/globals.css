@@ -3,30 +3,23 @@
 @variant dark (&:where(.dark, .dark *));
 @custom-variant fine-pointer (@media (hover: hover) and (pointer: fine));
 
-/* ─── Design Tokens ─────────────────────────────────────────────────────── */
-
 :root {
-  /* Accent: warm terracotta */
   --w-accent:        #9a3412;
   --w-accent-hover:  #7c2d12;
   --w-accent-subtle: #ffedd5;
   --w-accent-fg:     #ffffff;
 
-  /* Canvas and surfaces: warm off-white */
   --w-canvas:  #fafaf9;
   --w-surface: #ffffff;
   --w-muted:   #f5f5f4;
 
-  /* Text: warm near-blacks */
   --w-ink:   #1c1917;
   --w-ink-2: #374151;
   --w-ink-3: #4b5563;
 
-  /* Borders */
   --w-edge:       oklch(88% 0.014 70);
   --w-edge-strong: oklch(76% 0.018 70);
 
-  /* Focus ring */
   --w-ring: oklch(60% 0.175 44);
 
   color-scheme: light;
@@ -54,10 +47,7 @@
   color-scheme: dark;
 }
 
-/* ─── Tailwind Theme Registration ───────────────────────────────────────── */
-
 @theme inline {
-  /* Colors */
   --color-accent:        var(--w-accent);
   --color-accent-hover:  var(--w-accent-hover);
   --color-accent-subtle: var(--w-accent-subtle);
@@ -71,13 +61,10 @@
   --color-edge:          var(--w-edge);
   --color-edge-strong:   var(--w-edge-strong);
 
-  /* Fonts */
-  --font-display: var(--font-abril);
-  --font-sans:    var(--font-mulish);
+  --font-display: var(--font-abril), Georgia, serif;
+  --font-sans:    var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono), ui-monospace, "Cascadia Code", monospace;
 }
-
-/* ─── Base ───────────────────────────────────────────────────────────────── */
 
 html {
   scrollbar-gutter: stable;
@@ -88,7 +75,6 @@ html {
 body {
   background: var(--w-canvas);
   color: var(--w-ink);
-  font-family: var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
   min-height: 100dvh;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
@@ -98,12 +84,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--w-ring);
+    outline-offset: 2px;
+  }
+}
+
 ::selection {
   background: var(--w-accent-subtle);
   color: var(--w-ink);
 }
 
-:where(a, button, select, summary) {
+:where(a, button, select) {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -112,14 +105,14 @@ body {
   transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-:where(button:not(:disabled), [role="button"], summary) {
+:where(button:not(:disabled)) {
   cursor: pointer;
   transform: translateZ(0);
   transition-duration: 160ms;
   transition-property: color, background-color, border-color, opacity, transform;
 }
 
-:where(button:not(:disabled), [role="button"], summary):active {
+:where(button:not(:disabled)):active {
   transform: scale(0.98);
   transition-duration: 80ms;
 }
@@ -219,13 +212,6 @@ body {
   }
 }
 
-@media (forced-colors: active) {
-  :focus-visible {
-    outline: 2px solid Highlight !important;
-    outline-offset: 2px !important;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -236,13 +222,7 @@ body {
     transition-duration: 0.01ms !important;
   }
 
-  :where(button:not(:disabled), [role="button"], summary):active {
+  :where(button:not(:disabled)):active {
     transform: none;
   }
-}
-
-/* ─── Utility: display font helper ──────────────────────────────────────── */
-
-.font-display {
-  font-family: var(--font-abril), Georgia, serif;
 }

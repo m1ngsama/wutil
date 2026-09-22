@@ -48,7 +48,7 @@ export function ToolPage({
           <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
             <Link
               href="/"
-              className="-ml-2 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 normal-case tracking-normal text-sm text-ink-2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9"
+              className="-ml-2 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 normal-case tracking-normal text-sm text-ink-2 transition-colors hover:text-ink fine-pointer:min-h-9"
             >
               <ChevronLeft aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
               All tools
@@ -69,7 +69,7 @@ export function ToolPage({
                 title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
                 onClick={() => favoriteToolStore.update((ids) => toggleFavoriteToolId(ids, toolId))}
                 className={cn(
-                  'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
+                  'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
                   isFavorite
                     ? 'border-accent bg-accent-subtle text-accent'
                     : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
@@ -104,7 +104,7 @@ export function ToolPage({
               <li key={relatedTool.id} className="border-t border-edge">
                 <Link
                   href={relatedTool.href}
-                  className="group -mx-2 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-md px-2 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+                  className="group -mx-2 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-md px-2 py-3"
                 >
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-accent">

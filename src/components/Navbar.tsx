@@ -10,7 +10,7 @@ export default function Navbar() {
 
           <Link
             href="/"
-            className="group flex min-h-11 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            className="group flex min-h-11 items-center gap-3 rounded-md"
           >
             <span className="font-display text-[1.6rem] leading-none text-ink">
               wutil
@@ -26,7 +26,7 @@ export default function Navbar() {
               href="https://github.com/m1ngsama/wutil"
               target="_blank"
               rel="noreferrer"
-              className="hidden h-11 w-11 touch-manipulation items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:flex fine-pointer:h-9 fine-pointer:w-9"
+              className="hidden h-11 w-11 touch-manipulation items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink sm:flex fine-pointer:h-9 fine-pointer:w-9"
               aria-label="View wutil on GitHub"
             >
               <svg aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" className="h-4 w-4">
