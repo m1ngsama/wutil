@@ -127,7 +127,7 @@ async function runAuditOnce() {
     await runStep(failures, 'json formatter valid invalid and clear', async () => {
       await gotoInteractive(page, '/tools/json-formatter');
       await page.locator('textarea').first().fill('{"a":1,"b":[true]}');
-      await page.getByRole('button', { name: 'Format' }).click();
+      await page.getByRole('button', { name: 'Format', exact: true }).click();
       await expect(
         (await page.locator('textarea').nth(1).inputValue()) === '{\n  "a": 1,\n  "b": [\n    true\n  ]\n}',
         'formatted JSON output mismatch',
@@ -135,7 +135,7 @@ async function runAuditOnce() {
       await page.getByRole('button', { name: 'Minify' }).click();
       await expect((await page.locator('textarea').nth(1).inputValue()) === '{"a":1,"b":[true]}', 'minified JSON output mismatch');
       await page.locator('textarea').first().fill('{bad');
-      await page.getByRole('button', { name: 'Format' }).click();
+      await page.getByRole('button', { name: 'Format', exact: true }).click();
       await waitForText(page, 'Invalid JSON');
       await page.getByRole('button', { name: 'Clear' }).click();
     });
@@ -148,7 +148,7 @@ async function runAuditOnce() {
       await expect(Boolean(encoded) && !/[+/=]/.test(encoded), `URL-safe output invalid: ${encoded}`);
       await page.getByRole('button', { name: 'Swap' }).click();
       await expect((await page.locator('textarea').nth(1).inputValue()) === '???>>>', 'Base64 swap decode mismatch');
-      await page.getByRole('button', { name: 'Decode' }).click();
+      await page.getByRole('button', { name: 'decode', exact: true }).click();
       await page.locator('textarea').first().fill('%%%');
       await waitForText(page, /Invalid Base64/);
     });
