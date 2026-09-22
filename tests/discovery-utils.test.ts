@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  parseFavoriteToolIds,
-  toggleFavoriteToolId,
-} from '../src/lib/favorite-tools.ts';
+import { MAX_FAVORITE_TOOLS, parseToolIds, toggleFavoriteToolId } from '../src/lib/tool-store.ts';
 import {
   matchesToolSearch,
   searchTools,
@@ -42,10 +39,10 @@ test('every registry entry supplies useful discovery metadata', () => {
 });
 
 test('favorite tools are local-safe, validated, deduplicated, and toggleable', () => {
-  assert.deepEqual(parseFavoriteToolIds(null), []);
-  assert.deepEqual(parseFavoriteToolIds('not-json'), []);
+  assert.deepEqual(parseToolIds(null, MAX_FAVORITE_TOOLS), []);
+  assert.deepEqual(parseToolIds('not-json', MAX_FAVORITE_TOOLS), []);
   assert.deepEqual(
-    parseFavoriteToolIds(JSON.stringify(['json-formatter', 'missing-tool', 'json-formatter', 'pdf-merge'])),
+    parseToolIds(JSON.stringify(['json-formatter', 'missing-tool', 'json-formatter', 'pdf-merge']), MAX_FAVORITE_TOOLS),
     ['json-formatter', 'pdf-merge'],
   );
 

@@ -3,10 +3,8 @@
 import Link from 'next/link';
 import { useEffect, type ReactNode } from 'react';
 import { ArrowRight, ChevronLeft, ShieldCheck, Star } from 'lucide-react';
-import { useFavoriteToolIds } from '@/hooks/useFavoriteTools';
-import { toggleFavoriteTool } from '@/lib/favorite-tools';
 import { cn } from '@/lib/utils';
-import { recordRecentTool } from '@/lib/recent-tools';
+import { addRecentToolId, favoriteToolStore, recentToolStore, toggleFavoriteToolId } from '@/lib/tool-store';
 import { getRelatedTools, TOOL_CATEGORY_NAMES, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
 
 type ToolPageWidth = 'narrow' | 'wide';
@@ -36,11 +34,11 @@ export function ToolPage({
   const tool = TOOL_REGISTRY_BY_ID.get(toolId);
   const relatedTools = getRelatedTools(toolId);
   const categoryLabel = eyebrow ?? (tool ? TOOL_CATEGORY_NAMES[tool.category] : 'Tool');
-  const favoriteToolIds = useFavoriteToolIds();
+  const favoriteToolIds = favoriteToolStore.useIds();
   const isFavorite = favoriteToolIds.includes(toolId);
 
   useEffect(() => {
-    recordRecentTool(toolId);
+    recentToolStore.update((ids) => addRecentToolId(ids, toolId));
   }, [toolId]);
 
   return (
@@ -69,7 +67,7 @@ export function ToolPage({
                 aria-pressed={isFavorite}
                 aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
                 title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
-                onClick={() => toggleFavoriteTool(toolId)}
+                onClick={() => favoriteToolStore.update((ids) => toggleFavoriteToolId(ids, toolId))}
                 className={cn(
                   'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
                   isFavorite

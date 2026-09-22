@@ -4,9 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useFavoriteToolIds } from '@/hooks/useFavoriteTools';
-import { useRecentToolIds } from '@/hooks/useRecentTools';
-import { clearRecentTools } from '@/lib/recent-tools';
+import { favoriteToolStore, recentToolStore } from '@/lib/tool-store';
 import {
   searchTools,
   TOOL_CATEGORY_NAMES,
@@ -169,8 +167,8 @@ export default function HomeClient() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<'all' | ToolCategory>('all');
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const favoriteToolIds = useFavoriteToolIds();
-  const recentToolIds = useRecentToolIds();
+  const favoriteToolIds = favoriteToolStore.useIds();
+  const recentToolIds = recentToolStore.useIds();
   const hasSearch = search.trim() !== '';
 
   useEffect(() => {
@@ -336,7 +334,7 @@ export default function HomeClient() {
               </div>
               <button
                 type="button"
-                onClick={clearRecentTools}
+                onClick={() => recentToolStore.update(() => [])}
                 className="min-h-11 rounded-md px-2 text-xs font-semibold text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
               >
                 Clear history

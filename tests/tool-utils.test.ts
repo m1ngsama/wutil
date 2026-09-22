@@ -15,7 +15,7 @@ import {
 import { generatePassword, randomIndex } from '../src/lib/password-utils.ts';
 import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils.ts';
 import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes.ts';
-import { addRecentToolId, MAX_RECENT_TOOLS, parseRecentToolIds } from '../src/lib/recent-tools.ts';
+import { addRecentToolId, MAX_RECENT_TOOLS, parseToolIds } from '../src/lib/tool-store.ts';
 import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils.ts';
 import { createPageMetadata } from '../src/lib/seo.ts';
 import { SITE_URL } from '../src/lib/site-config.ts';
@@ -107,10 +107,10 @@ test('tool registry routes are unique and backed by pages', () => {
 });
 
 test('recent tool history is validated, deduplicated, and ordered most-recent first', () => {
-  assert.deepEqual(parseRecentToolIds(null), []);
-  assert.deepEqual(parseRecentToolIds('not-json'), []);
+  assert.deepEqual(parseToolIds(null, MAX_RECENT_TOOLS), []);
+  assert.deepEqual(parseToolIds('not-json', MAX_RECENT_TOOLS), []);
   assert.deepEqual(
-    parseRecentToolIds(JSON.stringify(['json-formatter', 'missing-tool', 'json-formatter', 'regex-tester'])),
+    parseToolIds(JSON.stringify(['json-formatter', 'missing-tool', 'json-formatter', 'regex-tester']), MAX_RECENT_TOOLS),
     ['json-formatter', 'regex-tester'],
   );
 
