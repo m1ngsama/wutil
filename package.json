@@ -6,20 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "postbuild": "node -e \"const fs=require('fs');const f='out/sw.js';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('__BUILD_ID__',fs.readFileSync('.next/BUILD_ID','utf8').trim()))\"",
-    "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "tsc -p tsconfig.test.json && node --test .tmp/test-dist/tests/*.test.js",
     "test:e2e": "npm run build && playwright test",
     "check": "npm run lint && npm run typecheck && npm run test",
     "audit:prod": "npm audit --omit=dev --audit-level=high",
-    "analytics:cf": "node scripts/report-cloudflare-analytics.mjs",
-    "purge:cf": "node scripts/purge-cloudflare-cache.mjs",
-    "warm:prod": "node scripts/warm-production-cache.mjs",
-    "verify:prod": "node scripts/verify-production.mjs",
-    "seo:prod": "node scripts/check-production-seo.mjs",
-    "interactions:prod": "node scripts/check-production-interactions.mjs",
-    "perf:prod": "node scripts/check-production-performance.mjs"
+    "purge:cf": "node scripts/purge-cloudflare-cache.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.8.0",

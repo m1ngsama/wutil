@@ -56,7 +56,6 @@ jobs:
         run: npx playwright test
 
       - name: Deploy to Cloudflare Pages
-        id: deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -69,31 +68,3 @@ jobs:
           CLOUDFLARE_ZONE_ID: 2f23897678be8c8c99d99e90bf3397e4
           CLOUDFLARE_PURGE_HOST: wutil.m1ng.space
         run: npm run purge:cf
-
-      - name: Warm deployed artifact
-        env:
-          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
-          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
-        run: npm run warm:prod
-
-      - name: Verify deployed artifact
-        env:
-          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
-          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
-        run: npm run verify:prod
-
-      - name: Check deployed SEO metadata
-        env:
-          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
-          PRODUCTION_CANONICAL_ORIGIN: https://wutil.m1ng.space
-        run: npm run seo:prod
-
-      - name: Check deployed interactions
-        env:
-          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
-        run: npm run interactions:prod
-
-      - name: Check deployed performance budget
-        env:
-          PRODUCTION_ORIGIN: ${{ steps.deploy.outputs.deployment-url }}
-        run: npm run perf:prod

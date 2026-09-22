@@ -3,7 +3,7 @@ import { Abril_Fatface, Mulish, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { ThemeProvider } from "next-themes";
 import { AppToaster } from "@/components/AppToaster";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { SITE_NAME, SITE_URL } from "@/lib/site-config";
