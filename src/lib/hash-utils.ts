@@ -1,3 +1,5 @@
+import { toHex } from './utils.ts';
+
 export const HASH_ALGORITHMS = [
   { name: 'SHA-1', algorithm: 'SHA-1', hexLength: 40, legacy: true },
   { name: 'SHA-256', algorithm: 'SHA-256', hexLength: 64, legacy: false },
@@ -14,7 +16,7 @@ export async function digestData(
 ): Promise<string> {
   const config = HASH_ALGORITHMS.find((item) => item.name === algorithmName);
   if (!config) throw new Error(`Unsupported hash algorithm: ${algorithmName}`);
-  return new Uint8Array(await crypto.subtle.digest(config.algorithm, data)).toHex();
+  return toHex(new Uint8Array(await crypto.subtle.digest(config.algorithm, data)));
 }
 
 export function normalizeExpectedHash(value: string): string {
