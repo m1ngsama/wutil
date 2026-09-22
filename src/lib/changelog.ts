@@ -7,6 +7,21 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
   {
+    date: '2026-09-22',
+    title: 'Better on phones, and a few new tools',
+    summary: 'Tools now start closer to the top of the screen and behave the same way everywhere.',
+    changes: [
+      'Added a UUID generator for v4 and time-sortable v7 identifiers.',
+      'The hash generator can now hash and verify files without uploading them.',
+      'Search for any tool from every page, and star tools to keep them at the top of the home page.',
+      'wutil can be installed as an app, and pages you have opened keep working offline.',
+      'Tool pages use a compact header, so the tool itself is visible on the first screen of a phone.',
+      'Copy buttons, examples, and input and output boxes now look and sit the same in every tool.',
+      'Password and UUID generators show a result as soon as they open.',
+      'Keyboard and drag-and-drop hints only appear on devices that can use them.',
+    ],
+  },
+  {
     date: '2026-08-02',
     title: 'Faster repeat workflows',
     summary: 'Made tools easier to revisit and more consistent to use.',

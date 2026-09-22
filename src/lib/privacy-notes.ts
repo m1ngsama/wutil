@@ -9,8 +9,8 @@ export interface PrivacyNote {
 export const PRIVACY_NOTES: PrivacyNote[] = [
   {
     title: 'Files',
-    toolIds: ['image-converter', 'pdf-merge'],
-    note: 'Selected images and PDFs are read by browser APIs on your device. They are not uploaded to wutil for conversion or merging.',
+    toolIds: ['image-converter', 'pdf-merge', 'hash-generator'],
+    note: 'Selected images, PDFs, and files to hash are read by browser APIs on your device. They are not uploaded to wutil for conversion, merging, or hashing.',
   },
   {
     title: 'Sensitive text',

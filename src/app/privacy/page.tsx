@@ -12,7 +12,6 @@ export default function PrivacyPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <header className="mb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 mb-2">Privacy</p>
         <h1 className="font-display text-4xl sm:text-5xl text-ink leading-none mb-3">Privacy</h1>
         <p className="text-base text-ink-2 max-w-[56ch]">
           wutil is designed so utility work happens in your browser.
@@ -37,7 +36,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-base font-semibold text-ink mb-2">Browser storage</h2>
           <p>
-            The app may use browser-managed storage for interface preferences such as theme and a short list of recently used tool IDs. Tool inputs are not intentionally stored by wutil.
+            The app may use browser-managed storage for interface preferences such as theme, favorite tools, and a short list of recently used tool IDs. These stay on this device. Tool inputs are not intentionally stored by wutil.
           </p>
         </section>
 
