@@ -42,7 +42,7 @@ export default function WordCounterComponent() {
           </div>
           <textarea
             id="word-counter-input"
-            className="h-[28rem] w-full p-4 rounded-xl border border-edge bg-surface text-ink text-sm resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
+            className="h-[28rem] w-full p-4 rounded-xl border border-edge bg-surface text-ink text-sm resize-none placeholder:text-ink-3 transition-colors"
             placeholder="Type or paste your text here…"
             value={text}
             onChange={(e) => setText(e.target.value)}
@@ -56,13 +56,13 @@ export default function WordCounterComponent() {
           {stats ? (
             <div className="rounded-xl border border-edge bg-surface overflow-hidden">
               {[
-                { label: 'Words',            value: stats.words.toLocaleString()      },
-                { label: 'Characters',       value: stats.chars.toLocaleString()      },
-                { label: 'No spaces',        value: stats.charsNoSpaces.toLocaleString()  },
-                { label: 'Sentences',        value: stats.sentences.toLocaleString()  },
-                { label: 'Paragraphs',       value: stats.paragraphs.toLocaleString() },
-                { label: 'Unique words',     value: stats.uniqueWords.toLocaleString()},
-                { label: 'Reading time',     value: stats.readLabel                   },
+                { label: 'Words', value: stats.words.toLocaleString() },
+                { label: 'Characters', value: stats.chars.toLocaleString() },
+                { label: 'No spaces', value: stats.charsNoSpaces.toLocaleString() },
+                { label: 'Sentences', value: stats.sentences.toLocaleString() },
+                { label: 'Paragraphs', value: stats.paragraphs.toLocaleString() },
+                { label: 'Unique words', value: stats.uniqueWords.toLocaleString()},
+                { label: 'Reading time', value: stats.readLabel },
               ].map(({ label, value }, i, arr) => (
                 <div
                   key={label}

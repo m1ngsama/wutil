@@ -138,7 +138,7 @@ export default function HashGeneratorComponent() {
             type="button"
             aria-pressed={mode === nextMode}
             onClick={() => setMode(nextMode)}
-            className={`min-h-11 px-4 text-sm font-semibold capitalize transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9 ${mode === nextMode ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'}`}
+            className={`min-h-11 px-4 text-sm font-semibold capitalize transition-colors focus-visible:-outline-offset-2 fine-pointer:min-h-9 ${mode === nextMode ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'}`}
           >
             {nextMode}
           </button>
@@ -151,7 +151,7 @@ export default function HashGeneratorComponent() {
             <label htmlFor="hash-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Text to hash</label>
             <textarea
               id="hash-input"
-              className="h-32 w-full resize-none rounded-lg border border-edge bg-surface p-4 font-mono text-sm text-ink placeholder:text-ink-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+              className="h-32 w-full resize-none rounded-lg border border-edge bg-surface p-4 font-mono text-sm text-ink placeholder:text-ink-3 transition-colors"
               placeholder="Type or paste text to hash…"
               value={input}
               onChange={(event) => handleInput(event.target.value)}
@@ -185,7 +185,7 @@ export default function HashGeneratorComponent() {
                 setDragging(false);
                 chooseFile(event.dataTransfer.files[0] ?? null);
               }}
-              className={`flex min-h-48 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas ${dragging ? 'border-accent bg-accent-subtle' : 'border-edge hover:border-edge-strong'}`}
+              className={`flex min-h-48 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragging ? 'border-accent bg-accent-subtle' : 'border-edge hover:border-edge-strong'}`}
             >
               <FileUp aria-hidden="true" className="h-8 w-8 text-ink-3" strokeWidth={1.5} />
               <span>
@@ -206,7 +206,7 @@ export default function HashGeneratorComponent() {
                   aria-label={`Remove ${file.name}`}
                   onClick={clearFile}
                   disabled={processing}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink"
                 >
                   <X aria-hidden="true" className="h-4 w-4" />
                 </button>
@@ -235,7 +235,7 @@ export default function HashGeneratorComponent() {
                     setFileAlgorithm(event.target.value as HashAlgorithmName);
                     resetFileResult();
                   }}
-                  className="h-11 rounded-md border border-edge bg-canvas px-3 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                  className="h-11 rounded-md border border-edge bg-canvas px-3 text-sm text-ink"
                 >
                   {HASH_ALGORITHMS.map(({ name, legacy }) => (
                     <option key={name} value={name}>{name}{legacy ? ' (legacy)' : ''}</option>
@@ -252,7 +252,7 @@ export default function HashGeneratorComponent() {
                   aria-describedby={expectedError ? 'expected-file-hash-error' : undefined}
                   placeholder="Paste a checksum to verify"
                   spellCheck={false}
-                  className={`h-11 rounded-md border bg-canvas px-3 font-mono text-sm text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas ${expectedError ? 'border-red-500/70' : 'border-edge'}`}
+                  className={`h-11 rounded-md border bg-canvas px-3 font-mono text-sm text-ink placeholder:text-ink-3 ${expectedError ? 'border-red-500/70' : 'border-edge'}`}
                 />
               </div>
               {expectedError ? (
@@ -263,7 +263,7 @@ export default function HashGeneratorComponent() {
                 onClick={hashFile}
                 disabled={processing}
                 aria-busy={processing}
-                className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:col-span-2"
+                className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover sm:col-span-2"
               >
                 {processing ? `Calculating ${fileAlgorithm}…` : `Calculate ${fileAlgorithm}`}
               </button>
@@ -271,7 +271,7 @@ export default function HashGeneratorComponent() {
                 <button
                   type="button"
                   onClick={resetFileResult}
-                  className="min-h-11 text-sm font-semibold text-ink-3 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] sm:col-span-2"
+                  className="min-h-11 text-sm font-semibold text-ink-3 hover:text-ink sm:col-span-2"
                 >
                   Stop waiting for this result
                 </button>
@@ -292,7 +292,7 @@ export default function HashGeneratorComponent() {
                   <a
                     href={checksumDownload}
                     download={`${file.name}.${fileAlgorithm.toLowerCase().replace('-', '')}`}
-                    className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 text-xs font-semibold text-accent-fg hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-8"
+                    className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 text-xs font-semibold text-accent-fg hover:bg-accent-hover fine-pointer:min-h-8"
                   >
                     Download
                   </a>

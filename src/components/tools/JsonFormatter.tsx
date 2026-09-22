@@ -82,21 +82,21 @@ export default function JsonFormatterComponent() {
         <button
           type="button"
           onClick={formatJson}
-          className="h-11 rounded-md bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 rounded-md bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover fine-pointer:h-9"
         >
           Format
         </button>
         <button
           type="button"
           onClick={minifyJson}
-          className="h-11 rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted fine-pointer:h-9"
         >
           Minify
         </button>
         <button
           type="button"
           onClick={handleClear}
-          className="h-11 rounded-md px-3 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 rounded-md px-3 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:h-9"
         >
           Clear
         </button>
@@ -125,7 +125,6 @@ export default function JsonFormatterComponent() {
             className={[
               'h-40 lg:h-auto lg:flex-1 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink',
               'placeholder:text-ink-3 transition-colors',
-              'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1',
               error ? 'border-red-500/70 dark:border-red-500/50' : 'border-edge',
             ].join(' ')}
             placeholder="Paste JSON here…"
@@ -153,7 +152,7 @@ export default function JsonFormatterComponent() {
           <textarea
             id="json-output"
             readOnly
-            className="h-40 lg:h-auto lg:flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-40 lg:h-auto lg:flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3"
             placeholder="Result will appear here…"
             value={output}
             spellCheck={false}

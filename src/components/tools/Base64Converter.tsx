@@ -54,7 +54,7 @@ export default function Base64ConverterComponent() {
               key={m}
               onClick={() => setMode(m)}
               aria-pressed={mode === m}
-              className={`min-h-11 px-4 py-2 text-sm font-medium transition-colors capitalize focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9 ${
+              className={`min-h-11 px-4 py-2 text-sm font-medium transition-colors capitalize focus-visible:-outline-offset-2 fine-pointer:min-h-9 ${
                 mode === m
                   ? 'bg-accent text-accent-fg'
                   : 'bg-surface text-ink hover:bg-muted'
@@ -69,7 +69,7 @@ export default function Base64ConverterComponent() {
           type="button"
           onClick={swap}
           disabled={!result.output}
-          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors fine-pointer:h-9"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
@@ -83,7 +83,7 @@ export default function Base64ConverterComponent() {
             role="switch"
             aria-checked={urlSafe}
             aria-label="URL-safe Base64"
-            className="flex min-h-11 shrink-0 items-center gap-2 rounded-md px-1 text-sm text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9"
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-md px-1 text-sm text-ink-2 fine-pointer:min-h-9"
             onClick={() => setUrlSafe((v) => !v)}
           >
             <span className={`relative h-5 w-9 rounded-full transition-colors ${urlSafe ? 'bg-accent' : 'bg-edge-strong'}`}>
@@ -118,7 +118,7 @@ export default function Base64ConverterComponent() {
             aria-invalid={result.error ? true : undefined}
             className={[
               'h-32 lg:h-52 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
-              'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
+              'transition-colors',
               result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
             placeholder={mode === 'encode' ? 'Type or paste text…' : 'Paste Base64…'}
@@ -143,7 +143,7 @@ export default function Base64ConverterComponent() {
           <textarea
             id="base64-output"
             readOnly
-            className="h-32 lg:h-52 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-32 lg:h-52 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3"
             placeholder="Result appears here…"
             value={result.output}
             spellCheck={false}

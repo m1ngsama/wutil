@@ -24,10 +24,10 @@ function getStrength(pw: string): { label: string; pct: number; color: string } 
   if (/[a-z]/.test(pw)) s++;
   if (/[0-9]/.test(pw)) s++;
   if (/[^A-Za-z0-9]/.test(pw)) s++;
-  if (s <= 2) return { label: 'Weak',   pct: 25,  color: 'bg-red-500'   };
-  if (s <= 4) return { label: 'Fair',   pct: 50,  color: 'bg-yellow-500' };
-  if (s <= 5) return { label: 'Good',   pct: 75,  color: 'bg-blue-500'  };
-  return         { label: 'Strong', pct: 100, color: 'bg-green-500'  };
+  if (s <= 2) return { label: 'Weak', pct: 25, color: 'bg-red-500' };
+  if (s <= 4) return { label: 'Fair', pct: 50, color: 'bg-yellow-500' };
+  if (s <= 5) return { label: 'Good', pct: 75, color: 'bg-blue-500' };
+  return         { label: 'Strong', pct: 100, color: 'bg-green-500' };
 }
 
 export default function PasswordGenerator() {
@@ -85,7 +85,7 @@ export default function PasswordGenerator() {
               type="button"
               role="switch"
               aria-checked={options[key]}
-              className="flex min-h-11 w-full items-center gap-3 rounded-md px-1 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+              className="flex min-h-11 w-full items-center gap-3 rounded-md px-1 text-left hover:bg-muted"
               onClick={() => setOptions((prev) => ({ ...prev, [key]: !prev[key] }))}
             >
               <span className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${options[key] ? 'bg-accent' : 'bg-edge-strong'}`}>

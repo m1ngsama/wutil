@@ -65,7 +65,7 @@ export default function ColorConverter() {
                 onClick={() => fromHex(color)}
                 aria-label={`Use color ${color}`}
                 aria-pressed={hexIsValid && color.toLowerCase() === validHex}
-                className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${hexIsValid && color.toLowerCase() === validHex ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
+                className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow fine-pointer:h-8 fine-pointer:w-8 ${hexIsValid && color.toLowerCase() === validHex ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
                 style={{ backgroundColor: color }}
                 title={color}
               />
@@ -85,7 +85,7 @@ export default function ColorConverter() {
               type="color" value={validHex}
               aria-label="Choose color"
               onChange={(e) => fromHex(e.target.value)}
-              className="h-11 w-11 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="h-11 w-11 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0"
             />
             <input
               id="hex-color"
@@ -93,7 +93,7 @@ export default function ColorConverter() {
               aria-invalid={!hexIsValid}
               aria-describedby={hexError ? 'hex-color-error' : undefined}
               onChange={(e) => fromHex(e.target.value)}
-              className={`h-11 min-w-0 flex-1 rounded-md border bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas ${hexError ? 'border-red-500/70' : 'border-edge'}`}
+              className={`h-11 min-w-0 flex-1 rounded-md border bg-muted px-3 font-mono text-base text-ink ${hexError ? 'border-red-500/70' : 'border-edge'}`}
               placeholder="#000000"
             />
           </div>
@@ -120,7 +120,7 @@ export default function ColorConverter() {
                     const v = Math.max(0, Math.min(255, Number(e.target.value)));
                     fromRgb(ch==='r'?v:rgb.r, ch==='g'?v:rgb.g, ch==='b'?v:rgb.b);
                   }}
-                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5"
                 />
               </div>
             ))}
@@ -148,7 +148,7 @@ export default function ColorConverter() {
                     const v = Math.max(0, Math.min(max, Number(e.target.value)));
                     fromHsl(k==='h'?v:hsl.h, k==='s'?v:hsl.s, k==='l'?v:hsl.l);
                   }}
-                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                  className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5"
                 />
               </div>
             ))}

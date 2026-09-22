@@ -1,44 +1,22 @@
-import { ButtonHTMLAttributes, forwardRef } from "react";
+import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "default" | "outline" | "ghost" | "link" | "secondary" | "destructive";
-  size?: "default" | "sm" | "lg" | "icon";
+interface ButtonProps extends ComponentProps<"button"> {
+  variant?: "default" | "outline";
+  size: "sm" | "lg";
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", type = "button", ...props }, ref) => {
-    return (
-      <button
-        type={type}
-        ref={ref}
-        className={cn(
-          "inline-flex touch-manipulation select-none items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
-          "disabled:pointer-events-none",
-          variant === "default" &&
-            "bg-accent text-accent-fg hover:bg-accent-hover",
-          variant === "destructive" &&
-            "bg-red-600 text-white hover:bg-red-700",
-          variant === "outline" &&
-            "border border-edge bg-surface text-ink hover:bg-muted",
-          variant === "secondary" &&
-            "bg-muted text-ink hover:bg-[var(--w-edge)]",
-          variant === "ghost" &&
-            "text-ink hover:bg-muted",
-          variant === "link" &&
-            "text-accent underline-offset-4 hover:underline",
-          size === "default" && "h-11 px-4 py-2 text-sm",
-          size === "sm" && "h-11 px-3 text-xs fine-pointer:h-9",
-          size === "lg" && "h-11 px-8 text-base rounded-lg",
-          size === "icon" && "h-11 w-11 fine-pointer:h-9 fine-pointer:w-9",
-          className
-        )}
-        {...props}
-      />
-    );
-  }
-);
-Button.displayName = "Button";
-
-export { Button };
+export function Button({ className, variant = "default", size, type = "button", ...props }: ButtonProps) {
+  return (
+    <button
+      type={type}
+      className={cn(
+        "inline-flex touch-manipulation select-none items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors disabled:pointer-events-none",
+        variant === "default" ? "bg-accent text-accent-fg hover:bg-accent-hover" : "border border-edge bg-surface text-ink hover:bg-muted",
+        size === "sm" ? "h-11 px-3 text-xs fine-pointer:h-9" : "h-11 rounded-lg px-8 text-base",
+        className,
+      )}
+      {...props}
+    />
+  );
+}

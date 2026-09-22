@@ -12,77 +12,77 @@ interface Unit { id: string; label: string; factor: number }
 
 const UNITS: Record<Category, Unit[]> = {
   length: [
-    { id: 'km',  label: 'Kilometers',    factor: 1000      },
-    { id: 'm',   label: 'Meters',         factor: 1         },
-    { id: 'cm',  label: 'Centimeters',    factor: 0.01      },
-    { id: 'mm',  label: 'Millimeters',    factor: 0.001     },
-    { id: 'mi',  label: 'Miles',          factor: 1609.344  },
-    { id: 'yd',  label: 'Yards',          factor: 0.9144    },
-    { id: 'ft',  label: 'Feet',           factor: 0.3048    },
-    { id: 'in',  label: 'Inches',         factor: 0.0254    },
-    { id: 'nmi', label: 'Nautical miles', factor: 1852      },
+    { id: 'km', label: 'Kilometers', factor: 1000 },
+    { id: 'm', label: 'Meters', factor: 1 },
+    { id: 'cm', label: 'Centimeters', factor: 0.01 },
+    { id: 'mm', label: 'Millimeters', factor: 0.001 },
+    { id: 'mi', label: 'Miles', factor: 1609.344 },
+    { id: 'yd', label: 'Yards', factor: 0.9144 },
+    { id: 'ft', label: 'Feet', factor: 0.3048 },
+    { id: 'in', label: 'Inches', factor: 0.0254 },
+    { id: 'nmi', label: 'Nautical miles', factor: 1852 },
   ],
   weight: [
-    { id: 't',   label: 'Tonnes',      factor: 1000       },
-    { id: 'kg',  label: 'Kilograms',   factor: 1          },
-    { id: 'g',   label: 'Grams',       factor: 0.001      },
-    { id: 'mg',  label: 'Milligrams',  factor: 0.000001   },
-    { id: 'lb',  label: 'Pounds',      factor: 0.453592   },
-    { id: 'oz',  label: 'Ounces',      factor: 0.0283495  },
-    { id: 'st',  label: 'Stone',       factor: 6.35029    },
+    { id: 't', label: 'Tonnes', factor: 1000 },
+    { id: 'kg', label: 'Kilograms', factor: 1 },
+    { id: 'g', label: 'Grams', factor: 0.001 },
+    { id: 'mg', label: 'Milligrams', factor: 0.000001 },
+    { id: 'lb', label: 'Pounds', factor: 0.453592 },
+    { id: 'oz', label: 'Ounces', factor: 0.0283495 },
+    { id: 'st', label: 'Stone', factor: 6.35029 },
   ],
   temperature: [
-    { id: 'c', label: 'Celsius',    factor: 1 },
+    { id: 'c', label: 'Celsius', factor: 1 },
     { id: 'f', label: 'Fahrenheit', factor: 1 },
-    { id: 'k', label: 'Kelvin',     factor: 1 },
+    { id: 'k', label: 'Kelvin', factor: 1 },
   ],
   volume: [
-    { id: 'l',    label: 'Liters',         factor: 1           },
-    { id: 'ml',   label: 'Milliliters',    factor: 0.001       },
-    { id: 'm3',   label: 'Cubic meters',   factor: 1000        },
-    { id: 'gal',  label: 'Gallons (US)',   factor: 3.78541     },
-    { id: 'qt',   label: 'Quarts (US)',    factor: 0.946353    },
-    { id: 'pt',   label: 'Pints (US)',     factor: 0.473176    },
-    { id: 'cup',  label: 'Cups (US)',      factor: 0.236588    },
-    { id: 'floz', label: 'Fl oz (US)',     factor: 0.0295735   },
-    { id: 'tbsp', label: 'Tablespoons',    factor: 0.0147868   },
-    { id: 'tsp',  label: 'Teaspoons',      factor: 0.00492892  },
+    { id: 'l', label: 'Liters', factor: 1 },
+    { id: 'ml', label: 'Milliliters', factor: 0.001 },
+    { id: 'm3', label: 'Cubic meters', factor: 1000 },
+    { id: 'gal', label: 'Gallons (US)', factor: 3.78541 },
+    { id: 'qt', label: 'Quarts (US)', factor: 0.946353 },
+    { id: 'pt', label: 'Pints (US)', factor: 0.473176 },
+    { id: 'cup', label: 'Cups (US)', factor: 0.236588 },
+    { id: 'floz', label: 'Fl oz (US)', factor: 0.0295735 },
+    { id: 'tbsp', label: 'Tablespoons', factor: 0.0147868 },
+    { id: 'tsp', label: 'Teaspoons', factor: 0.00492892 },
   ],
   area: [
-    { id: 'km2', label: 'Sq kilometers',  factor: 1_000_000  },
-    { id: 'm2',  label: 'Sq meters',      factor: 1          },
-    { id: 'cm2', label: 'Sq centimeters', factor: 0.0001     },
-    { id: 'ha',  label: 'Hectares',       factor: 10_000     },
-    { id: 'ac',  label: 'Acres',          factor: 4046.856   },
-    { id: 'mi2', label: 'Sq miles',       factor: 2_589_988  },
-    { id: 'ft2', label: 'Sq feet',        factor: 0.092903   },
-    { id: 'in2', label: 'Sq inches',      factor: 0.00064516 },
+    { id: 'km2', label: 'Sq kilometers', factor: 1_000_000 },
+    { id: 'm2', label: 'Sq meters', factor: 1 },
+    { id: 'cm2', label: 'Sq centimeters', factor: 0.0001 },
+    { id: 'ha', label: 'Hectares', factor: 10_000 },
+    { id: 'ac', label: 'Acres', factor: 4046.856 },
+    { id: 'mi2', label: 'Sq miles', factor: 2_589_988 },
+    { id: 'ft2', label: 'Sq feet', factor: 0.092903 },
+    { id: 'in2', label: 'Sq inches', factor: 0.00064516 },
   ],
   speed: [
-    { id: 'kph',  label: 'km/h',   factor: 1         },
-    { id: 'mph',  label: 'mph',    factor: 1.60934   },
-    { id: 'mps',  label: 'm/s',    factor: 3.6       },
-    { id: 'fps',  label: 'ft/s',   factor: 1.09728   },
-    { id: 'kn',   label: 'Knots',  factor: 1.852     },
+    { id: 'kph', label: 'km/h', factor: 1 },
+    { id: 'mph', label: 'mph', factor: 1.60934 },
+    { id: 'mps', label: 'm/s', factor: 3.6 },
+    { id: 'fps', label: 'ft/s', factor: 1.09728 },
+    { id: 'kn', label: 'Knots', factor: 1.852 },
   ],
   data: [
-    { id: 'tb',  label: 'Terabytes',  factor: 1_099_511_627_776 },
-    { id: 'gb',  label: 'Gigabytes',  factor: 1_073_741_824     },
-    { id: 'mb',  label: 'Megabytes',  factor: 1_048_576         },
-    { id: 'kb',  label: 'Kilobytes',  factor: 1024              },
-    { id: 'b',   label: 'Bytes',      factor: 1                 },
-    { id: 'bit', label: 'Bits',       factor: 0.125             },
+    { id: 'tb', label: 'Terabytes', factor: 1_099_511_627_776 },
+    { id: 'gb', label: 'Gigabytes', factor: 1_073_741_824 },
+    { id: 'mb', label: 'Megabytes', factor: 1_048_576 },
+    { id: 'kb', label: 'Kilobytes', factor: 1024 },
+    { id: 'b', label: 'Bytes', factor: 1 },
+    { id: 'bit', label: 'Bits', factor: 0.125 },
   ],
 };
 
 const CATEGORIES: { id: Category; label: string }[] = [
-  { id: 'length',      label: 'Length'      },
-  { id: 'weight',      label: 'Weight'      },
+  { id: 'length', label: 'Length' },
+  { id: 'weight', label: 'Weight' },
   { id: 'temperature', label: 'Temperature' },
-  { id: 'volume',      label: 'Volume'      },
-  { id: 'area',        label: 'Area'        },
-  { id: 'speed',       label: 'Speed'       },
-  { id: 'data',        label: 'Data'        },
+  { id: 'volume', label: 'Volume' },
+  { id: 'area', label: 'Area' },
+  { id: 'speed', label: 'Speed' },
+  { id: 'data', label: 'Data' },
 ];
 
 function convertTemp(val: number, from: string, to: string): number {
@@ -150,7 +150,7 @@ export default function UnitConverter() {
             onClick={() => selectCategory(id)}
             aria-pressed={category === id}
             className={[
-              'min-h-11 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9',
+              'min-h-11 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors fine-pointer:min-h-9',
               category === id
                 ? 'bg-accent text-accent-fg border-accent'
                 : 'bg-surface text-ink border-edge hover:bg-muted',
@@ -172,13 +172,13 @@ export default function UnitConverter() {
               value={input}
               aria-label="Input value"
               onChange={(e) => setInput(e.target.value)}
-              className="min-w-0 w-full h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+              className="min-w-0 w-full h-11 px-4 rounded-md border border-edge bg-canvas text-ink font-mono text-base"
             />
             <select
               value={fromId}
               aria-label="From unit"
               onChange={(e) => setFromId(e.target.value)}
-              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>
@@ -191,7 +191,7 @@ export default function UnitConverter() {
           <button
             type="button"
             onClick={swap}
-            className="h-11 w-11 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            className="h-11 w-11 flex items-center justify-center rounded-full border border-edge bg-surface text-ink-2 hover:bg-muted hover:text-ink transition-colors"
             title="Swap units"
             aria-label="Swap units"
           >
@@ -221,7 +221,7 @@ export default function UnitConverter() {
               value={toId}
               aria-label="To unit"
               onChange={(e) => setToId(e.target.value)}
-              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+              className="w-full sm:w-auto h-11 px-3 rounded-md border border-edge bg-canvas text-ink text-sm"
             >
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>

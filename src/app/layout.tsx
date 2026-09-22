@@ -87,12 +87,12 @@ export default function RootLayout({
         >
           <a
             href="#main-content"
-            className="sr-only z-[60] rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-fg focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="sr-only z-[60] rounded-md bg-accent px-4 py-3 text-sm font-semibold text-accent-fg focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
           >
             Skip to content
           </a>
           <Navbar />
-          <main id="main-content" tabIndex={-1} className="flex-grow bg-canvas focus:outline-none">
+          <main id="main-content" tabIndex={-1} className="flex-grow bg-canvas outline-none">
             {children}
           </main>
           <Footer />

@@ -199,7 +199,7 @@ export default function PdfMergeComponent() {
       <button
         type="button"
         className={[
-          'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:p-10',
+          'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors mb-4 sm:p-10',
           isDragging ? 'border-accent bg-accent/5' : 'border-edge-strong hover:border-accent/60',
         ].join(' ')}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -234,7 +234,7 @@ export default function PdfMergeComponent() {
               type="button"
               onClick={clearFiles}
               disabled={processing}
-              className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+              className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors fine-pointer:min-h-9"
             >
               Clear all
             </button>
@@ -253,7 +253,7 @@ export default function PdfMergeComponent() {
                   onClick={() => removeFile(i)}
                   disabled={processing}
                   aria-label={`Remove ${file.name}`}
-                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-muted hover:text-ink transition-colors"
                 >
                   <X aria-hidden="true" className="w-3.5 h-3.5" />
                 </button>
@@ -269,7 +269,7 @@ export default function PdfMergeComponent() {
           onClick={mergePdfs}
           disabled={processing || files.length < 2}
           aria-busy={processing}
-          className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+          className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors"
         >
           {processing ? 'Merging…' : files.length < 2 ? 'Add at least 2 PDFs' : `Merge ${files.length} PDFs`}
         </button>
@@ -296,7 +296,7 @@ export default function PdfMergeComponent() {
           <a
             href={mergedUrl}
             download="merged.pdf"
-            className="h-11 px-4 inline-flex items-center text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+            className="h-11 px-4 inline-flex items-center text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover transition-colors fine-pointer:h-9"
           >
             Download
           </a>

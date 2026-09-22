@@ -29,7 +29,7 @@ export function CopyButton({ value, label = 'Copy', successMessage, className, .
         if (await copyText(value, successMessage)) setCopied(true);
       }}
       className={cn(
-        'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border border-edge bg-surface px-3 text-xs font-semibold text-ink-2 transition-colors hover:border-edge-strong hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-8',
+        'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border border-edge bg-surface px-3 text-xs font-semibold text-ink-2 transition-colors hover:border-edge-strong hover:bg-muted hover:text-ink fine-pointer:min-h-8',
         className,
       )}
     >

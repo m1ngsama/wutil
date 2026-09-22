@@ -7,10 +7,10 @@ import { copyText } from '@/lib/clipboard';
 import { MAX_REGEX_MATCH_DETAILS, REGEX_TEST_TIMEOUT_MS, type RegexResult } from '@/lib/regex-utils';
 
 const FLAG_OPTIONS = [
-  { flag: 'g', label: 'Global'     },
+  { flag: 'g', label: 'Global' },
   { flag: 'i', label: 'Ignore case'},
-  { flag: 'm', label: 'Multiline'  },
-  { flag: 's', label: 'Dot all'    },
+  { flag: 'm', label: 'Multiline' },
+  { flag: 's', label: 'Dot all' },
 ];
 
 const EXAMPLES = [
@@ -168,7 +168,7 @@ export default function RegexTester() {
         <label htmlFor="regex-test-string" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Test string</label>
         <textarea
           id="regex-test-string"
-          className="h-28 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors"
+          className="h-28 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 transition-colors"
           placeholder="Enter text to test against…"
           value={testString}
           onChange={(e) => setTestString(e.target.value)}
@@ -213,7 +213,7 @@ export default function RegexTester() {
               <button
                 type="button"
                 key={i}
-                className="w-full min-h-11 flex items-start gap-3 text-left text-sm hover:bg-muted rounded-md px-2 py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                className="w-full min-h-11 flex items-start gap-3 text-left text-sm hover:bg-muted rounded-md px-2 py-2.5 transition-colors"
                 onClick={() => { void copyText(match.text, 'Match copied'); }}
                 aria-label={`Copy match ${i + 1}`}
               >

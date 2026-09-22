@@ -19,7 +19,7 @@ import {
 
 const FORMATS = [
   { value: 'image/jpeg', label: 'JPEG', ext: 'jpg' },
-  { value: 'image/png',  label: 'PNG',  ext: 'png' },
+  { value: 'image/png', label: 'PNG', ext: 'png' },
   { value: 'image/webp', label: 'WebP', ext: 'webp' },
 ];
 
@@ -358,7 +358,7 @@ export default function ImageConverterComponent() {
           <button
             type="button"
             className={[
-              'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+              'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors',
               isDragging ? 'border-accent bg-accent/5' : 'border-edge-strong hover:border-accent/60',
             ].join(' ')}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -399,7 +399,7 @@ export default function ImageConverterComponent() {
                       setFormat(f.value);
                     }}
                     aria-pressed={format === f.value}
-                    className={`min-h-11 flex-1 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
+                    className={`min-h-11 flex-1 py-2 text-sm font-medium transition-colors focus-visible:-outline-offset-2 ${
                       format === f.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
                     }`}
                   >
@@ -436,7 +436,7 @@ export default function ImageConverterComponent() {
                   type="button"
                   onClick={() => setLockAspect((l) => !l)}
                   aria-pressed={lockAspect}
-                  className="flex min-h-11 items-center gap-1.5 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+                  className="flex min-h-11 items-center gap-1.5 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors fine-pointer:min-h-9"
                   title={lockAspect ? 'Aspect ratio locked' : 'Aspect ratio unlocked'}
                 >
                   {lockAspect
@@ -454,7 +454,7 @@ export default function ImageConverterComponent() {
                     aria-label="Output width"
                     aria-describedby="image-dimension-limit"
                     onChange={(e) => onWidthChange(parseDimensionInput(e.target.value))}
-                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5"
                   />
                 </div>
                 <div>
@@ -465,7 +465,7 @@ export default function ImageConverterComponent() {
                     aria-label="Output height"
                     aria-describedby="image-dimension-limit"
                     onChange={(e) => onHeightChange(parseDimensionInput(e.target.value))}
-                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5"
                   />
                 </div>
               </div>
@@ -480,7 +480,7 @@ export default function ImageConverterComponent() {
                     setWidth(resetDimensions.width);
                     setHeight(resetDimensions.height);
                   }}
-                  className="mt-2 min-h-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+                  className="mt-2 min-h-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 fine-pointer:min-h-9"
                 >
                   {needsSafeOutput ? 'Reset to safe size' : 'Reset to original'} ({resetDimensions.width} × {resetDimensions.height})
                 </button>
@@ -494,7 +494,7 @@ export default function ImageConverterComponent() {
               onClick={convert}
               disabled={processing}
               aria-busy={processing}
-              className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors"
             >
               {processing ? 'Converting…' : 'Convert Image'}
             </button>
@@ -522,7 +522,7 @@ export default function ImageConverterComponent() {
                   <a
                     href={resultUrl}
                     download={`converted.${ext}`}
-                    className="h-11 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+                    className="h-11 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors fine-pointer:h-9"
                   >
                     Download
                   </a>

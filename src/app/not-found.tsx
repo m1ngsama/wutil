@@ -20,7 +20,7 @@ export default function NotFound() {
           <li key={tool.id} className="border-t border-edge">
             <Link
               href={tool.href}
-              className="group -mx-2 flex min-h-12 items-center justify-between gap-3 rounded-md px-2 py-2 text-sm font-semibold text-ink transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+              className="group -mx-2 flex min-h-12 items-center justify-between gap-3 rounded-md px-2 py-2 text-sm font-semibold text-ink transition-colors hover:text-accent"
             >
               {tool.name}
               <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-3 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-accent" />

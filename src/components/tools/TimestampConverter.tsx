@@ -7,13 +7,13 @@ import { copyText } from '@/lib/clipboard';
 import { parseTimestampInput, type TimestampUnit } from '@/lib/timestamp-utils';
 
 const FORMATS = [
-  { label: 'Unix (s)',     fn: (d: Date) => String(Math.floor(d.getTime() / 1000))   },
-  { label: 'Unix (ms)',    fn: (d: Date) => String(d.getTime())                       },
-  { label: 'ISO 8601',    fn: (d: Date) => d.toISOString()                           },
-  { label: 'UTC',         fn: (d: Date) => d.toUTCString()                           },
-  { label: 'Local',       fn: (d: Date) => d.toLocaleString()                        },
-  { label: 'Date only',   fn: (d: Date) => d.toISOString().split('T')[0]             },
-  { label: 'Time (UTC)',  fn: (d: Date) => d.toISOString().split('T')[1].replace('Z','') + ' UTC' },
+  { label: 'Unix (s)', fn: (d: Date) => String(Math.floor(d.getTime() / 1000)) },
+  { label: 'Unix (ms)', fn: (d: Date) => String(d.getTime()) },
+  { label: 'ISO 8601', fn: (d: Date) => d.toISOString() },
+  { label: 'UTC', fn: (d: Date) => d.toUTCString() },
+  { label: 'Local', fn: (d: Date) => d.toLocaleString() },
+  { label: 'Date only', fn: (d: Date) => d.toISOString().split('T')[0] },
+  { label: 'Time (UTC)', fn: (d: Date) => d.toISOString().split('T')[1].replace('Z','') + ' UTC' },
 ];
 
 function relativeTime(d: Date, nowMs: number): string {
@@ -84,7 +84,7 @@ export default function TimestampConverter() {
           placeholder="1700000000 or 2024-01-15"
           className={[
             'h-11 w-full px-4 rounded-lg border font-mono text-sm text-ink bg-surface',
-            'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors',
+            'transition-colors',
             error ? 'border-red-500/70' : 'border-edge',
           ].join(' ')}
         />
@@ -113,7 +113,7 @@ export default function TimestampConverter() {
                 setTimestampUnit(value);
                 handleInput(input, value);
               }}
-              className={`min-h-11 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9 ${
+              className={`min-h-11 px-3 py-2 text-sm font-medium transition-colors focus-visible:-outline-offset-2 fine-pointer:min-h-9 ${
                 timestampUnit === value
                   ? 'bg-accent text-accent-fg'
                   : 'bg-surface text-ink hover:bg-muted'
@@ -186,7 +186,7 @@ export default function TimestampConverter() {
             handleInput(String(now), 'seconds');
           }}
           disabled={now === null}
-          className="h-11 shrink-0 whitespace-nowrap px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 shrink-0 whitespace-nowrap px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait transition-colors fine-pointer:h-9"
         >
           Use now
         </button>
@@ -197,17 +197,17 @@ export default function TimestampConverter() {
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Examples</p>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'now',             value: now !== null ? String(now) : '', unit: 'seconds' as const },
-            { label: '2024-01-01 UTC',  value: '2024-01-01T00:00:00Z' },
-            { label: '1700000000',      value: '1700000000', unit: 'seconds' as const },
-            { label: 'Unix epoch',      value: '0', unit: 'seconds' as const },
+            { label: 'now', value: now !== null ? String(now) : '', unit: 'seconds' as const },
+            { label: '2024-01-01 UTC', value: '2024-01-01T00:00:00Z' },
+            { label: '1700000000', value: '1700000000', unit: 'seconds' as const },
+            { label: 'Unix epoch', value: '0', unit: 'seconds' as const },
           ].map(({ label, value, unit }) => (
             <button key={label} type="button" onClick={() => {
               if (unit) setTimestampUnit(unit);
               handleInput(value, unit ?? timestampUnit);
             }}
               disabled={!value}
-              className="min-h-11 px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+              className="min-h-11 px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:cursor-wait transition-colors fine-pointer:min-h-9"
             >
               {label}
             </button>
