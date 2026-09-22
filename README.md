@@ -42,3 +42,7 @@ Product and visual guidance live in [PRODUCT.md](PRODUCT.md) and [DESIGN.md](DES
 Every push to `main` runs [`deploy.yml`](.github/workflows/deploy.yml): checks, static export, end-to-end tests, a Cloudflare Pages deploy of `out/`, and a cache purge for `wutil.m1ng.space`. Headers and caching rules live in [`public/_headers`](public/_headers).
 
 Required GitHub Actions secrets are `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. An optional `CLOUDFLARE_CACHE_PURGE_API_TOKEN` scopes the purge step.
+
+## License
+
+[MIT](LICENSE)
