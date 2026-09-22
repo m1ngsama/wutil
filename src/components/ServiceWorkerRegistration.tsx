@@ -6,17 +6,10 @@ export function ServiceWorkerRegistration() {
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production' || !('serviceWorker' in navigator)) return;
 
-    const register = async () => {
-      try {
-        const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        await registration.update();
-      } catch {
-        // Offline support is progressive enhancement. Core tools remain usable online.
-      }
-    };
+    const register = () => navigator.serviceWorker.register('/sw.js').catch(() => {});
 
     if (document.readyState === 'complete') {
-      void register();
+      register();
       return;
     }
 

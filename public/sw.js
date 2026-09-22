@@ -16,20 +16,18 @@ const CORE_RESOURCES = [
   '/icon-maskable-512.png',
 ];
 
-function canStore(response) {
-  return response && response.ok && (response.type === 'basic' || response.type === 'default');
-}
-
-async function fetchAndStore(cache, request) {
-  const response = await fetch(request, { cache: 'reload' });
-  if (canStore(response)) await cache.put(request, response.clone());
+async function fetchAndStore(cacheName, request, init) {
+  const response = await fetch(request, init);
+  if (response.ok && (response.type === 'basic' || response.type === 'default')) {
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response.clone());
+  }
   return response;
 }
 
 async function precacheShell() {
-  const cache = await caches.open(SHELL_CACHE);
   const results = await Promise.allSettled(
-    CORE_RESOURCES.map((resource) => fetchAndStore(cache, resource)),
+    CORE_RESOURCES.map((resource) => fetchAndStore(SHELL_CACHE, resource, { cache: 'reload' })),
   );
   const homeResult = results[0];
   if (homeResult.status !== 'fulfilled' || !homeResult.value.ok) return;
@@ -37,17 +35,14 @@ async function precacheShell() {
   const html = await homeResult.value.clone().text();
   const discovered = new Set();
   for (const match of html.matchAll(/(?:src|href)=["']([^"']+)["']/g)) {
-    try {
-      const url = new URL(match[1], self.location.origin);
-      if (url.origin !== self.location.origin) continue;
-      if (url.pathname.startsWith('/_next/static/')) discovered.add(url.pathname);
-    } catch {
-      // Ignore malformed or non-URL attributes.
+    const url = URL.parse(match[1], self.location.origin);
+    if (url?.origin === self.location.origin && url.pathname.startsWith('/_next/static/')) {
+      discovered.add(url.pathname);
     }
   }
 
   await Promise.allSettled(
-    [...discovered].map((resource) => fetchAndStore(cache, resource)),
+    [...discovered].map((resource) => fetchAndStore(SHELL_CACHE, resource, { cache: 'reload' })),
   );
 }
 
@@ -69,12 +64,7 @@ self.addEventListener('activate', (event) => {
 
 async function networkFirst(request, cacheName, fallback) {
   try {
-    const response = await fetch(request);
-    if (canStore(response)) {
-      const cache = await caches.open(cacheName);
-      await cache.put(request, response.clone());
-    }
-    return response;
+    return await fetchAndStore(cacheName, request);
   } catch {
     const cached = await caches.match(request, { ignoreSearch: true });
     if (cached) return cached;
@@ -91,24 +81,10 @@ async function cacheFirst(request) {
   const cached = await caches.match(request, { ignoreSearch: true });
   if (cached) return cached;
   try {
-    const response = await fetch(request);
-    if (canStore(response)) {
-      const cache = await caches.open(ASSET_CACHE);
-      await cache.put(request, response.clone());
-    }
-    return response;
+    return await fetchAndStore(ASSET_CACHE, request);
   } catch {
     return new Response('', { status: 504 });
   }
-}
-
-async function refreshAsset(request) {
-  const response = await fetch(request);
-  if (canStore(response)) {
-    const cache = await caches.open(ASSET_CACHE);
-    await cache.put(request, response.clone());
-  }
-  return response;
 }
 
 self.addEventListener('fetch', (event) => {
@@ -137,7 +113,7 @@ self.addEventListener('fetch', (event) => {
   if (['font', 'image', 'script', 'style'].includes(request.destination)) {
     event.respondWith((async () => {
       const cached = await caches.match(request, { ignoreSearch: true });
-      const refresh = refreshAsset(request).catch(() => null);
+      const refresh = fetchAndStore(ASSET_CACHE, request).catch(() => null);
       if (cached) {
         event.waitUntil(refresh);
         return cached;
