@@ -67,7 +67,7 @@ export default function TimestampConverter() {
       toolId="timestamp"
       title="Timestamp Converter"
       description="Convert Unix timestamps to readable dates, or turn any date string back into a timestamp."
-      width="medium"
+      width="narrow"
     >
 
       {/* Live clock */}

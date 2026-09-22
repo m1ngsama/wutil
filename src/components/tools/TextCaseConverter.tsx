@@ -62,7 +62,7 @@ export default function TextCaseConverter() {
       toolId="text-case"
       title="Text Case Converter"
       description="Paste text, pick a format, and preview the result before copying."
-      width="xwide"
+      width="wide"
     >
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -103,7 +103,7 @@ export default function TextCaseConverter() {
                   aria-pressed={active}
                   className={[
                     'flex flex-col text-left px-4 py-3 rounded-lg border transition-colors',
-                    'disabled:opacity-40 disabled:pointer-events-none',
+                    'disabled:pointer-events-none',
                     active
                       ? 'border-accent bg-accent-subtle'
                       : 'border-edge bg-surface hover:border-edge-strong hover:bg-muted',
@@ -131,7 +131,7 @@ export default function TextCaseConverter() {
               type="button"
               onClick={handleCopy}
               disabled={!outputText}
-              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               Copy
             </button>

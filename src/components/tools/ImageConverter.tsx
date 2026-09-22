@@ -348,7 +348,7 @@ export default function ImageConverterComponent() {
       eyebrow="Images"
       title="Image Converter"
       description="Convert, resize, and compress images to JPEG, PNG, or WebP. Everything stays in your browser."
-      width="xwide"
+      width="wide"
     >
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
@@ -493,7 +493,7 @@ export default function ImageConverterComponent() {
             onClick={convert}
             disabled={!imageFile || processing}
             aria-busy={processing}
-            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
           >
             {processing ? 'Converting…' : 'Convert Image'}
           </button>

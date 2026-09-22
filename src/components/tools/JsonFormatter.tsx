@@ -79,7 +79,7 @@ export default function JsonFormatterComponent() {
       toolId="json-formatter"
       title="JSON Formatter"
       description="Beautify, minify, and validate your JSON. Paste it in, and errors are caught instantly."
-      width="full"
+      width="wide"
     >
       <div className="json-tool-workspace flex flex-col">
 
@@ -103,7 +103,7 @@ export default function JsonFormatterComponent() {
           type="button"
           onClick={handleCopy}
           disabled={!output}
-          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:w-auto fine-pointer:h-9"
+          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:w-auto fine-pointer:h-9"
         >
           Copy output
         </button>

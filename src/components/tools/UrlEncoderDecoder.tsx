@@ -37,7 +37,7 @@ export default function UrlEncoderDecoder() {
       toolId="url-encoder"
       title="URL Encoder / Decoder"
       description="Encode special characters for safe URLs, or decode them back to readable text."
-      width="xwide"
+      width="wide"
     >
 
       <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -59,7 +59,7 @@ export default function UrlEncoderDecoder() {
         <button
           type="button"
           onClick={swap} disabled={!result.output}
-          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
@@ -103,7 +103,7 @@ export default function UrlEncoderDecoder() {
               type="button"
               onClick={() => { void copyText(result.output); }}
               disabled={!result.output}
-              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:opacity-35 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               Copy
             </button>
@@ -125,7 +125,6 @@ export default function UrlEncoderDecoder() {
           setInput(example.value);
           setMode('encode');
         }}
-        mono
       />
     </ToolPage>
   );

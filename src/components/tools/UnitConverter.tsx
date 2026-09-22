@@ -137,7 +137,7 @@ export default function UnitConverter() {
       toolId="unit-converter"
       title="Unit Converter"
       description="Convert between units instantly across 7 categories."
-      width="medium"
+      width="narrow"
     >
 
       {/* Category tabs */}

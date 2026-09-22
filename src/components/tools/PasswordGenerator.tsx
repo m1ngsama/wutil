@@ -56,7 +56,7 @@ export default function PasswordGenerator() {
       toolId="password-generator"
       title="Password Generator"
       description="Cryptographically random passwords, generated entirely in your browser."
-      width="compact"
+      width="narrow"
     >
 
       {/* Output */}
@@ -74,7 +74,7 @@ export default function PasswordGenerator() {
             type="button"
             onClick={() => { if (!password) return; void copyText(password); }}
             disabled={!password}
-            className="shrink-0 h-11 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+            className="shrink-0 h-11 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
           >
             Copy
           </button>

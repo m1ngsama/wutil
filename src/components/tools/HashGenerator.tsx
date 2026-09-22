@@ -129,7 +129,7 @@ export default function HashGeneratorComponent() {
       toolId="hash-generator"
       title="Hash Generator"
       description="Generate and verify SHA checksums for text or files. Everything stays on this device."
-      width="wide"
+      width="narrow"
     >
       <div className="mb-6 inline-flex overflow-hidden rounded-md border border-edge" role="group" aria-label="Hash input type">
         {(['text', 'file'] as const).map((nextMode) => (
@@ -213,7 +213,7 @@ export default function HashGeneratorComponent() {
                   aria-label={`Remove ${file.name}`}
                   onClick={clearFile}
                   disabled={processing}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
                 >
                   <X aria-hidden="true" className="h-4 w-4" />
                 </button>
@@ -270,7 +270,7 @@ export default function HashGeneratorComponent() {
                 onClick={hashFile}
                 disabled={processing}
                 aria-busy={processing}
-                className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:col-span-2"
+                className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:col-span-2"
               >
                 {processing ? `Calculating ${fileAlgorithm}…` : `Calculate ${fileAlgorithm}`}
               </button>

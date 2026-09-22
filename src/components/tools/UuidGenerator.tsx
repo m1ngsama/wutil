@@ -91,7 +91,7 @@ export default function UuidGenerator() {
       toolId="uuid-generator"
       title="UUID Generator"
       description="Create RFC 9562 UUID v4 or v7 identifiers in batches, without sending anything to a server."
-      width="medium"
+      width="narrow"
     >
       <div className="space-y-5">
         <form

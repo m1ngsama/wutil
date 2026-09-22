@@ -15,7 +15,7 @@ export default function WordCounterComponent() {
       toolId="word-counter"
       title="Word Counter"
       description="Paste or type. Words, characters, reading time, and more update instantly."
-      width="full"
+      width="wide"
     >
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -36,7 +36,7 @@ export default function WordCounterComponent() {
               type="button"
               onClick={() => setText('')}
               disabled={!text}
-              className="h-11 px-4 text-sm font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+              className="h-11 px-4 text-sm font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
             >
               Clear
             </button>
@@ -44,7 +44,7 @@ export default function WordCounterComponent() {
               type="button"
               onClick={() => { void copyText(text); }}
               disabled={!text}
-              className="h-11 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:opacity-35 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+              className="h-11 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
             >
               Copy text
             </button>

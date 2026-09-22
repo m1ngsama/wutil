@@ -9,15 +9,11 @@ import { cn } from '@/lib/utils';
 import { recordRecentTool } from '@/lib/recent-tools';
 import { getRelatedTools, TOOL_CATEGORY_NAMES, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
 
-type ToolPageWidth = 'compact' | 'narrow' | 'medium' | 'wide' | 'xwide' | 'full';
+type ToolPageWidth = 'narrow' | 'wide';
 
 const WIDTH_CLASSES: Record<ToolPageWidth, string> = {
-  compact: 'max-w-xl',
-  narrow: 'max-w-2xl',
-  medium: 'max-w-3xl',
-  wide: 'max-w-4xl',
-  xwide: 'max-w-5xl',
-  full: 'max-w-7xl',
+  narrow: 'max-w-3xl',
+  wide: 'max-w-6xl',
 };
 
 interface ToolPageProps {
@@ -34,7 +30,7 @@ export function ToolPage({
   title,
   description,
   eyebrow,
-  width = 'wide',
+  width = 'narrow',
   children,
 }: ToolPageProps) {
   const tool = TOOL_REGISTRY_BY_ID.get(toolId);

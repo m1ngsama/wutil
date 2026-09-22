@@ -13,7 +13,7 @@ import {
 } from '@/lib/color-utils';
 
 const PRESETS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#1e293b','#64748b'];
-const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
+const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
 
 export default function ColorConverter() {
   const [hexInput, setHexInput] = useState('#3b82f6');
@@ -54,7 +54,7 @@ export default function ColorConverter() {
       toolId="color-converter"
       title="Color Converter"
       description="Convert between HEX, RGB, and HSL. Edit any field, and the others update with it."
-      width="compact"
+      width="narrow"
     >
 
       {/* Preview */}

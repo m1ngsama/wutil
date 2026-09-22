@@ -146,6 +146,18 @@ body {
   transition-property: background-color, border-color, color;
 }
 
+#main-content ::placeholder {
+  color: color-mix(in oklab, var(--w-ink-3) 60%, transparent);
+}
+
+#main-content button:disabled {
+  opacity: 1;
+  background-color: var(--w-muted);
+  color: color-mix(in oklab, var(--w-ink-3) 75%, transparent);
+  border-color: var(--w-edge);
+  box-shadow: none;
+}
+
 @media (max-width: 639px), (pointer: coarse) {
   #main-content :where(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, select) {
     font-size: 1rem;

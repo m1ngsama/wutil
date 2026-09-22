@@ -103,7 +103,7 @@ export default function RegexTester() {
       toolId="regex-tester"
       title="Regex Tester"
       description="Test regular expressions with real-time match highlighting and capture group details."
-      width="wide"
+      width="narrow"
     >
 
       <ExamplePicker

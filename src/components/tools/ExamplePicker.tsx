@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils';
-
 export interface ToolExample {
   id: string;
   label: string;
@@ -9,7 +7,6 @@ interface ExamplePickerProps<T extends ToolExample> {
   examples: readonly T[];
   onSelect: (example: T) => void;
   label?: string;
-  mono?: boolean;
   className?: string;
 }
 
@@ -17,7 +14,6 @@ export function ExamplePicker<T extends ToolExample>({
   examples,
   onSelect,
   label = 'Try an example',
-  mono = false,
   className,
 }: ExamplePickerProps<T>) {
   return (
@@ -31,10 +27,7 @@ export function ExamplePicker<T extends ToolExample>({
             type="button"
             key={example.id}
             onClick={() => onSelect(example)}
-            className={cn(
-              'min-h-11 rounded-md border border-edge bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9',
-              mono && 'font-mono',
-            )}
+            className="min-h-11 rounded-md border border-edge bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
           >
             {example.label}
           </button>

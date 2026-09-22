@@ -192,7 +192,7 @@ export default function PdfMergeComponent() {
       eyebrow="Documents"
       title="PDF Merger"
       description="Combine multiple PDF files in your browser. Nothing is uploaded."
-      width="medium"
+      width="narrow"
     >
 
       {/* Drop zone */}
@@ -234,7 +234,7 @@ export default function PdfMergeComponent() {
               type="button"
               onClick={clearFiles}
               disabled={processing}
-              className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
+              className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >
               Clear all
             </button>
@@ -253,7 +253,7 @@ export default function PdfMergeComponent() {
                   onClick={() => removeFile(i)}
                   disabled={processing}
                   aria-label={`Remove ${file.name}`}
-                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-muted hover:text-ink disabled:opacity-40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                  className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 hover:bg-muted hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
                 >
                   <X aria-hidden="true" className="w-3.5 h-3.5" />
                 </button>
@@ -270,7 +270,7 @@ export default function PdfMergeComponent() {
           onClick={mergePdfs}
           disabled={processing || files.length < 2}
           aria-busy={processing}
-          className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+          className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
         >
           {processing ? 'Merging…' : files.length < 2 ? 'Add at least 2 PDFs' : `Merge ${files.length} PDFs`}
         </button>
