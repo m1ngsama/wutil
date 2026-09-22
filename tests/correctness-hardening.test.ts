@@ -6,14 +6,14 @@ import {
   normalizeHexColor,
   rgbToHex,
   rgbToHsl,
-} from '../src/lib/color-utils';
+} from '../src/lib/color-utils.ts';
 import {
   MAX_PDF_FILES,
   MAX_PDF_TOTAL_SIZE,
   validatePdfCollection,
-} from '../src/lib/pdf-utils';
-import { parseTimestampInput } from '../src/lib/timestamp-utils';
-import { calculateWordStats } from '../src/lib/word-stats';
+} from '../src/lib/pdf-utils.ts';
+import { parseTimestampInput } from '../src/lib/timestamp-utils.ts';
+import { calculateWordStats } from '../src/lib/word-stats.ts';
 
 test('timestamp auto mode handles common values and rejects ambiguous lengths', () => {
   const seconds = parseTimestampInput('1700000000', 'auto');

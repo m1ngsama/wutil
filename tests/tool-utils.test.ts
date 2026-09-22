@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
-import { decodeBase64, encodeBase64 } from '../src/lib/base64-utils';
-import { addCalendarDays, daysBetween, toDateInputValue } from '../src/lib/date-utils';
+import { decodeBase64, encodeBase64 } from '../src/lib/base64-utils.ts';
+import { addCalendarDays, daysBetween, toDateInputValue } from '../src/lib/date-utils.ts';
 import {
   fitImageWithinOutputLimits,
   MAX_IMAGE_DIMENSION,
@@ -11,15 +11,15 @@ import {
   MAX_IMAGE_OUTPUT_PIXELS,
   validateImageDimensions,
   validateImageFile,
-} from '../src/lib/image-utils';
-import { generatePassword, randomIndex } from '../src/lib/password-utils';
-import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils';
-import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes';
-import { addRecentToolId, MAX_RECENT_TOOLS, parseRecentToolIds } from '../src/lib/recent-tools';
-import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils';
-import { createPageMetadata } from '../src/lib/seo';
-import { SITE_URL } from '../src/lib/site-config';
-import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data';
+} from '../src/lib/image-utils.ts';
+import { generatePassword, randomIndex } from '../src/lib/password-utils.ts';
+import { MAX_PDF_SIZE, validatePdfFile } from '../src/lib/pdf-utils.ts';
+import { getPrivacyToolNames, PRIVACY_NOTES } from '../src/lib/privacy-notes.ts';
+import { addRecentToolId, MAX_RECENT_TOOLS, parseRecentToolIds } from '../src/lib/recent-tools.ts';
+import { evaluateRegex, MAX_REGEX_MATCH_DETAILS, MAX_REGEX_TEST_CHARS } from '../src/lib/regex-utils.ts';
+import { createPageMetadata } from '../src/lib/seo.ts';
+import { SITE_URL } from '../src/lib/site-config.ts';
+import { getHomeStructuredData, getToolStructuredData } from '../src/lib/structured-data.ts';
 import {
   getRelatedTools,
   SITEMAP_ROUTES,
@@ -27,8 +27,8 @@ import {
   TOOL_REGISTRY,
   TOOL_REGISTRY_BY_ID,
   TOOL_ROUTES,
-} from '../src/lib/tool-registry';
-import { parseUnitInput } from '../src/lib/unit-utils';
+} from '../src/lib/tool-registry.ts';
+import { parseUnitInput } from '../src/lib/unit-utils.ts';
 
 test('Base64 round-trips Unicode and URL-safe values', () => {
   const input = 'hello 世界 👋';

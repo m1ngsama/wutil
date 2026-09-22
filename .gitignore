@@ -43,7 +43,6 @@ yarn-error.log*
 next-env.d.ts
 
 # local test output
-/.tmp/
 /.playwright-cli/
 /.playwright-mcp/
 /playwright-report/

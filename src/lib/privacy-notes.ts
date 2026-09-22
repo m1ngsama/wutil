@@ -1,4 +1,4 @@
-import { TOOL_REGISTRY } from './tool-registry';
+import { TOOL_REGISTRY } from './tool-registry.ts';
 
 export interface PrivacyNote {
   title: string;

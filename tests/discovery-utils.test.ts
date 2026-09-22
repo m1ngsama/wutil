@@ -3,13 +3,13 @@ import test from 'node:test';
 import {
   parseFavoriteToolIds,
   toggleFavoriteToolId,
-} from '../src/lib/favorite-tools';
+} from '../src/lib/favorite-tools.ts';
 import {
   matchesToolSearch,
   searchTools,
   TOOL_REGISTRY,
   TOOL_REGISTRY_BY_ID,
-} from '../src/lib/tool-registry';
+} from '../src/lib/tool-registry.ts';
 
 test('tool discovery matches task language, synonyms, and reordered tokens', () => {
   assert.equal(searchTools('merge files')[0]?.id, 'pdf-merge');
