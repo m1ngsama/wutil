@@ -32,6 +32,7 @@ export const TOOL_REGISTRY: ToolRegistryItem[] = [
   { id: 'base64-converter', name: 'Base64 Converter', description: 'Encode and decode Base64 strings.', href: '/tools/base64-converter', category: 'text', keywords: ['base64', 'b64', 'encode', 'decode', 'unicode', 'binary'], aliases: ['base 64 encoder', 'base 64 decoder'], relatedIds: ['url-encoder', 'json-formatter', 'hash-generator'] },
   { id: 'unit-converter', name: 'Unit Converter', description: 'Convert common units of measurement.', href: '/tools/unit-converter', category: 'calc', keywords: ['units', 'measurement', 'length', 'weight', 'mass', 'temperature', 'metric', 'imperial'], aliases: ['measurement converter', 'metric converter'], relatedIds: ['date-calculator', 'timestamp'] },
   { id: 'hash-generator', name: 'Hash Generator', description: 'Generate SHA-1, SHA-256, SHA-384, and SHA-512 hashes.', href: '/tools/hash-generator', category: 'security', keywords: ['hash', 'checksum', 'digest', 'sha1', 'sha256', 'sha384', 'sha512'], aliases: ['sha generator', 'checksum generator'], relatedIds: ['password-generator', 'base64-converter'] },
+  { id: 'uuid-generator', name: 'UUID Generator', description: 'Generate UUID v4 and time-sortable UUID v7 identifiers.', href: '/tools/uuid-generator', category: 'data', keywords: ['uuid', 'guid', 'identifier', 'unique id', 'v4', 'v7', 'random'], aliases: ['guid generator', 'random uuid', 'unique id generator'], relatedIds: ['hash-generator', 'password-generator', 'timestamp'] },
   { id: 'date-calculator', name: 'Date Calculator', description: 'Calculate duration between dates.', href: '/tools/date-calculator', category: 'calc', keywords: ['date', 'days', 'duration', 'difference', 'add', 'subtract', 'calendar'], aliases: ['days between dates', 'add days', 'subtract days'], relatedIds: ['timestamp', 'unit-converter'] },
   { id: 'image-converter', name: 'Image Converter', description: 'Convert, resize, and compress images.', href: '/tools/image-converter', category: 'media', keywords: ['image', 'picture', 'photo', 'resize', 'compress', 'jpeg', 'jpg', 'png', 'webp'], aliases: ['picture converter', 'photo converter', 'image compressor'], relatedIds: ['color-converter', 'pdf-merge'] },
   { id: 'pdf-merge', name: 'PDF Merger', description: 'Combine multiple PDF files into one.', href: '/tools/pdf-merge', category: 'media', keywords: ['pdf', 'merge', 'combine', 'join', 'files', 'documents'], aliases: ['merge files', 'combine pdfs', 'join pdf files', 'pdf combiner'], relatedIds: ['image-converter'] },
@@ -49,6 +50,7 @@ const SEARCH_SYNONYM_GROUPS: readonly (readonly string[])[] = [
   ['hash', 'checksum', 'digest'],
   ['characters', 'character', 'chars', 'letters'],
   ['url', 'uri'],
+  ['uuid', 'guid'],
 ];
 
 function normalizeToolSearch(value: string): string {

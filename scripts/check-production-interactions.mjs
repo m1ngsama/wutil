@@ -24,6 +24,7 @@ const routes = [
   '/tools/unit-converter',
   '/tools/color-converter',
   '/tools/hash-generator',
+  '/tools/uuid-generator',
   '/tools/password-generator',
   '/tools/text-case',
   '/tools/word-counter',

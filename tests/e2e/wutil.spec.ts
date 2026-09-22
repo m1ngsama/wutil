@@ -18,6 +18,7 @@ const ACCESSIBILITY_ROUTES = [
   '/tools/base64-converter',
   '/tools/unit-converter',
   '/tools/hash-generator',
+  '/tools/uuid-generator',
   '/tools/date-calculator',
   '/tools/image-converter',
   '/tools/pdf-merge',

@@ -14,7 +14,7 @@ export const PRIVACY_NOTES: PrivacyNote[] = [
   },
   {
     title: 'Sensitive text',
-    toolIds: ['password-generator', 'hash-generator', 'regex-tester', 'json-formatter', 'base64-converter', 'url-encoder', 'text-case', 'word-counter'],
+    toolIds: ['password-generator', 'uuid-generator', 'hash-generator', 'regex-tester', 'json-formatter', 'base64-converter', 'url-encoder', 'text-case', 'word-counter'],
     note: 'Text entered into these tools is processed in the page session. wutil does not intentionally store it or send it to backend processing endpoints.',
   },
   {
