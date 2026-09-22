@@ -157,7 +157,6 @@ test('page metadata includes canonical and social URLs', () => {
   const metadata = createPageMetadata({
     title: 'JSON Formatter',
     description: 'Format, validate, and inspect JSON in your browser.',
-    keywords: ['json formatter', 'json validator'],
     path: '/tools/json-formatter',
   });
 

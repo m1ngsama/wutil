@@ -1,12 +1,8 @@
-import { SITE_NAME, SITE_URL } from './site-config.ts';
+import { absoluteUrl, SITE_NAME, SITE_URL } from './site-config.ts';
 import { TOOL_REGISTRY } from './tool-registry.ts';
 
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
-
-function absoluteUrl(path: string) {
-  return new URL(path, SITE_URL).toString();
-}
 
 function publisher() {
   return {

@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "next-themes";
 import { AppToaster } from "@/components/AppToaster";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
+import { createPageMetadata } from "@/lib/seo";
 import { SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 const abrilFatface = Abril_Fatface({
@@ -30,41 +31,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  applicationName: "wutil",
-  category: "utilities",
+  ...createPageMetadata({
+    title: "wutil - Free Online Web Tools",
+    description: "A collection of free, lightweight, privacy-focused client-side web tools. PDF Merger, Image Converter, Word Counter, JSON Formatter, and more.",
+    path: "",
+  }),
   title: {
     default: "wutil - Free Online Web Tools",
     template: "%s | wutil",
   },
-  description: "A collection of free, lightweight, privacy-focused client-side web tools. PDF Merger, Image Converter, Word Counter, JSON Formatter, and more.",
-  keywords: ["web tools", "online tools", "pdf merger", "image converter", "word counter", "json formatter", "client-side", "privacy"],
-  authors: [{ name: "wutil" }],
-  creator: "wutil",
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    title: "wutil - Free Online Web Tools",
-    description: "Fast, free, and private web tools running entirely in your browser.",
-    images: [
-      {
-        url: "/og-image.svg",
-        width: 1200,
-        height: 630,
-        alt: "wutil - Web Utilities",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "wutil - Free Online Web Tools",
-    description: "Fast, free, and private web tools running entirely in your browser.",
-    creator: "@wutil",
-  },
+  applicationName: SITE_NAME,
+  category: "utilities",
   metadataBase: new URL(SITE_URL),
   manifest: "/manifest.json",
   icons: {
