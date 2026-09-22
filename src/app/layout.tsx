@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AppToaster } from "@/components/AppToaster";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 import { SITE_NAME, SITE_URL } from "@/lib/site-config";
 
 const abrilFatface = Abril_Fatface({
@@ -29,6 +30,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  applicationName: "wutil",
+  category: "utilities",
   title: {
     default: "wutil - Free Online Web Tools",
     template: "%s | wutil",
@@ -65,8 +68,17 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/icon-192.png", type: "image/png", sizes: "192x192" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: "wutil",
+    statusBarStyle: "default",
   },
 };
 
@@ -108,6 +120,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <AppToaster />
+          <ServiceWorkerRegistration />
         </ThemeProvider>
       </body>
     </html>

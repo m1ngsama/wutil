@@ -1,17 +1,76 @@
 {
-  "name": "wutil",
+  "id": "/",
+  "name": "wutil: Private Web Utilities",
   "short_name": "wutil",
-  "description": "A collection of lightweight, client-side web tools.",
+  "description": "Fast, private web utilities that process your text and files in the browser.",
+  "lang": "en",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#fafaf9",
+  "theme_color": "#9a3412",
+  "categories": ["utilities", "productivity", "developer tools"],
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Format JSON",
+      "short_name": "JSON",
+      "description": "Format, validate, and minify JSON locally.",
+      "url": "/tools/json-formatter",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Generate a password",
+      "short_name": "Password",
+      "description": "Create a cryptographically random password.",
+      "url": "/tools/password-generator",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Convert an image",
+      "short_name": "Image",
+      "description": "Convert, resize, and compress an image locally.",
+      "url": "/tools/image-converter",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Merge PDFs",
+      "short_name": "PDF",
+      "description": "Combine PDF files without uploading them.",
+      "url": "/tools/pdf-merge",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
