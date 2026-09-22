@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, type ReactNode } from 'react';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ShieldCheck, Star } from 'lucide-react';
 import { useFavoriteToolIds } from '@/hooks/useFavoriteTools';
 import { toggleFavoriteTool } from '@/lib/favorite-tools';
 import { cn } from '@/lib/utils';
@@ -48,35 +48,49 @@ export function ToolPage({
   }, [toolId]);
 
   return (
-    <div className={cn('tool-page-shell mx-auto px-4 py-10 sm:px-6 lg:px-8', WIDTH_CLASSES[width])}>
-      <header className="tool-page-header mb-8">
-        <div className="mb-2 flex min-h-11 items-center justify-between gap-4 fine-pointer:min-h-9">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
-            {categoryLabel}
-          </p>
-          {tool ? (
-            <button
-              type="button"
-              aria-pressed={isFavorite}
-              aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
-              title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
-              onClick={() => toggleFavoriteTool(toolId)}
-              className={cn(
-                'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9',
-                isFavorite
-                  ? 'border-accent bg-accent-subtle text-accent'
-                  : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
-              )}
+    <div className={cn('tool-page-shell mx-auto px-4 py-6 sm:px-6 sm:py-10 lg:px-8', WIDTH_CLASSES[width])}>
+      <header className="tool-page-header mb-6 sm:mb-8">
+        <div className="mb-2 flex min-h-11 items-center justify-between gap-2 fine-pointer:min-h-9">
+          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
+            <Link
+              href="/"
+              className="-ml-2 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 normal-case tracking-normal text-sm text-ink-2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9"
             >
-              <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
-              {isFavorite ? 'Favorited' : 'Favorite'}
-            </button>
-          ) : null}
+              <ChevronLeft aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+              All tools
+            </Link>
+            <span aria-hidden="true" className="max-[359px]:hidden">·</span>
+            <span className="truncate max-[359px]:hidden">{categoryLabel}</span>
+          </nav>
+          <div className="flex shrink-0 items-center gap-1">
+            <span className="inline-flex min-h-11 items-center gap-1.5 px-2 text-xs font-medium text-ink-3 fine-pointer:min-h-9" title="Runs locally in your browser">
+              <ShieldCheck aria-hidden="true" className="h-4 w-4 text-accent" strokeWidth={1.75} />
+              <span className="sr-only sm:not-sr-only">Runs locally</span>
+            </span>
+            {tool ? (
+              <button
+                type="button"
+                aria-pressed={isFavorite}
+                aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+                title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
+                onClick={() => toggleFavoriteTool(toolId)}
+                className={cn(
+                  'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
+                  isFavorite
+                    ? 'border-accent bg-accent-subtle text-accent'
+                    : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
+                )}
+              >
+                <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
+                <span aria-hidden="true" className="hidden sm:inline">{isFavorite ? 'Favorited' : 'Favorite'}</span>
+              </button>
+            ) : null}
+          </div>
         </div>
-        <h1 className="tool-page-title mb-3 font-display text-4xl leading-none text-ink sm:text-5xl">
+        <h1 className="tool-page-title mb-2 font-display text-[2rem] leading-none text-ink sm:mb-3 sm:text-5xl">
           {title}
         </h1>
-        <p className="tool-page-description max-w-[52ch] text-base leading-relaxed text-ink-2">
+        <p className="tool-page-description max-w-[52ch] text-sm leading-relaxed text-ink-2 sm:text-base">
           {description}
         </p>
       </header>
