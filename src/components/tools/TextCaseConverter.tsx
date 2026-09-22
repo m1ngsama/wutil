@@ -43,10 +43,10 @@ const cases = [
 
 export default function TextCaseConverter() {
   const [input, setInput]       = useState('');
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selected, setSelected] = useState(0);
 
-  const activeCase  = selected !== null ? cases[selected] : null;
-  const outputText  = activeCase && input ? activeCase.fn(input) : '';
+  const activeCase  = cases[selected];
+  const outputText  = input ? activeCase.fn(input) : '';
 
   return (
     <ToolPage
@@ -63,7 +63,7 @@ export default function TextCaseConverter() {
               {input && (
                 <button
                   type="button"
-                  onClick={() => { setInput(''); setSelected(null); }}
+                  onClick={() => setInput('')}
                   className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-8"
                 >
                   Clear
@@ -112,7 +112,7 @@ export default function TextCaseConverter() {
         <div className="flex flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <div className="field-header">
             <label htmlFor="text-case-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
-              {activeCase ? activeCase.label : 'Output'}
+              {activeCase.label}
             </label>
             <CopyButton value={outputText} />
           </div>
@@ -120,7 +120,7 @@ export default function TextCaseConverter() {
             id="text-case-output"
             readOnly
             className="h-32 w-full flex-1 p-4 rounded-lg border border-edge bg-muted lg:h-auto lg:min-h-[20rem] text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
-            placeholder={activeCase ? 'Enter text to see the result…' : 'Pick a format to see the result…'}
+            placeholder="Enter text to see the result…"
             value={outputText}
             spellCheck={false}
           />
