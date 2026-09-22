@@ -43,8 +43,7 @@ function readRandomBytes(randomBytes: UuidRandomSource): Uint8Array {
 }
 
 function bytesToUuid(bytes: Uint8Array): string {
-  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-
+  const hex = bytes.toHex();
   return [
     hex.slice(0, 8),
     hex.slice(8, 12),

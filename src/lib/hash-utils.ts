@@ -8,17 +8,13 @@ export const HASH_ALGORITHMS = [
 export type HashAlgorithmName = (typeof HASH_ALGORITHMS)[number]['name'];
 export const MAX_HASH_FILE_SIZE = 50 * 1024 * 1024;
 
-export function bytesToHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer), (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
 export async function digestData(
   data: BufferSource,
   algorithmName: HashAlgorithmName,
 ): Promise<string> {
   const config = HASH_ALGORITHMS.find((item) => item.name === algorithmName);
   if (!config) throw new Error(`Unsupported hash algorithm: ${algorithmName}`);
-  return bytesToHex(await crypto.subtle.digest(config.algorithm, data));
+  return new Uint8Array(await crypto.subtle.digest(config.algorithm, data)).toHex();
 }
 
 export function normalizeExpectedHash(value: string): string {
