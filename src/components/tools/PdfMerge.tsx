@@ -12,6 +12,7 @@ import {
   validatePdfCollection,
   validatePdfFile,
 } from '@/lib/pdf-utils';
+import { formatBytes } from '@/lib/utils';
 
 type PdfMergeProgress = {
   label: string;
@@ -23,8 +24,8 @@ type PdfWorkerResponse =
   | { status: 'done'; blob: Blob }
   | { status: 'error'; error: string };
 
-const PDF_FILE_SIZE_LABEL = `${MAX_PDF_SIZE / 1024 / 1024} MB`;
-const PDF_TOTAL_SIZE_LABEL = `${MAX_PDF_TOTAL_SIZE / 1024 / 1024} MB`;
+const PDF_FILE_SIZE_LABEL = formatBytes(MAX_PDF_SIZE);
+const PDF_TOTAL_SIZE_LABEL = formatBytes(MAX_PDF_TOTAL_SIZE);
 
 function collectionError(files: readonly File[]): string | null {
   const validation = validatePdfCollection(files);
@@ -184,18 +185,15 @@ export default function PdfMergeComponent() {
   };
 
   const totalSources = files.length;
-  const totalSize  = (files.reduce((s, f) => s + f.size, 0) / 1024 / 1024).toFixed(2);
+  const totalSize  = formatBytes(files.reduce((s, f) => s + f.size, 0));
 
   return (
     <ToolPage
       toolId="pdf-merge"
       eyebrow="Documents"
-      title="PDF Merger"
       description="Combine multiple PDF files in your browser. Nothing is uploaded."
-      width="narrow"
     >
 
-      {/* Drop zone */}
       <button
         type="button"
         className={[
@@ -223,12 +221,11 @@ export default function PdfMergeComponent() {
           e.target.value = '';
         }} />
 
-      {/* File list */}
       {files.length > 0 && (
         <div className="rounded-xl border border-edge bg-surface overflow-hidden mb-4">
           <div className="flex items-center justify-between px-4 py-2.5 border-b border-edge bg-muted">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
-              {files.length} file{files.length !== 1 ? 's' : ''} · {totalSize} MB total
+              {files.length} file{files.length !== 1 ? 's' : ''} · {totalSize} total
             </span>
             <button
               type="button"
@@ -247,7 +244,7 @@ export default function PdfMergeComponent() {
                 </span>
                 <FileText aria-hidden="true" className="shrink-0 w-4 h-4 text-ink-3" strokeWidth={1.5} />
                 <span className="flex-1 text-sm text-ink truncate">{file.name}</span>
-                <span className="shrink-0 text-xs text-ink-3">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                <span className="shrink-0 text-xs text-ink-3">{formatBytes(file.size)}</span>
                 <button
                   type="button"
                   onClick={() => removeFile(i)}
@@ -286,7 +283,6 @@ export default function PdfMergeComponent() {
         </div>
       ) : null}
 
-      {/* Download */}
       {mergedUrl && (
         <div className="mt-6 rounded-xl border border-edge bg-surface p-5 flex items-center gap-4">
           <div className="flex-1">

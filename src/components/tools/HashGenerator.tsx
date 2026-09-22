@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { FileCheck2, FileUp, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ToolPage } from '@/components/tools/ToolPage';
@@ -15,14 +15,10 @@ import {
   validateHashFile,
   type HashAlgorithmName,
 } from '@/lib/hash-utils';
+import { formatBytes } from '@/lib/utils';
 
 type HashResult = { name: HashAlgorithmName; value: string };
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
 
 async function generateTextHashes(input: string): Promise<HashResult[]> {
   const data = new TextEncoder().encode(input);
@@ -47,10 +43,7 @@ export default function HashGeneratorComponent() {
   const requestId = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const expectedError = useMemo(
-    () => validateExpectedHash(expectedHash, fileAlgorithm),
-    [expectedHash, fileAlgorithm],
-  );
+  const expectedError = validateExpectedHash(expectedHash, fileAlgorithm);
   const comparison = fileHash && expectedHash.trim() && !expectedError
     ? hashesMatch(fileHash, expectedHash)
     : null;
@@ -82,7 +75,7 @@ export default function HashGeneratorComponent() {
     if (!nextFile) return;
     const validation = validateHashFile(nextFile);
     if (validation === 'too-large') {
-      toast.error(`Choose a file no larger than ${MAX_HASH_FILE_SIZE / 1024 / 1024} MB`);
+      toast.error(`Choose a file no larger than ${formatBytes(MAX_HASH_FILE_SIZE)}`);
       return;
     }
     if (validation === 'empty') {
@@ -127,9 +120,7 @@ export default function HashGeneratorComponent() {
   return (
     <ToolPage
       toolId="hash-generator"
-      title="Hash Generator"
       description="Generate and verify SHA checksums for text or files. Everything stays on this device."
-      width="narrow"
     >
       <div className="mb-6 inline-flex overflow-hidden rounded-md border border-edge" role="group" aria-label="Hash input type">
         {(['text', 'file'] as const).map((nextMode) => (
@@ -190,7 +181,7 @@ export default function HashGeneratorComponent() {
               <FileUp aria-hidden="true" className="h-8 w-8 text-ink-3" strokeWidth={1.5} />
               <span>
                 <span className="block text-sm font-semibold text-ink">Choose a file</span>
-                <span className="mt-1 block text-xs text-ink-3">or drop it here, up to {MAX_HASH_FILE_SIZE / 1024 / 1024} MB</span>
+                <span className="mt-1 block text-xs text-ink-3">or drop it here, up to {formatBytes(MAX_HASH_FILE_SIZE)}</span>
               </span>
             </button>
           ) : (

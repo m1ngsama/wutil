@@ -1,10 +1,10 @@
-export interface RgbColor {
+interface RgbColor {
   r: number;
   g: number;
   b: number;
 }
 
-export interface HslColor {
+interface HslColor {
   h: number;
   s: number;
   l: number;

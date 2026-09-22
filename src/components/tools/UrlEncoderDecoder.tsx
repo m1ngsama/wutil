@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { CopyButton } from '@/components/ui/CopyButton';
@@ -11,21 +11,20 @@ const URL_EXAMPLES = [
   { id: 'price', label: 'Price text', value: 'price: $50 & discount 20%' },
 ] as const;
 
+function convert(input: string, mode: 'encode' | 'decode') {
+  if (!input.trim()) return { output: '', error: null };
+  try {
+    return { output: mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input), error: null };
+  } catch {
+    return { output: '', error: 'Invalid encoded string' };
+  }
+}
+
 export default function UrlEncoderDecoder() {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
 
-  const result = useMemo(() => {
-    if (!input.trim()) return { output: '', error: null as string | null };
-    try {
-      return {
-        output: mode === 'encode' ? encodeURIComponent(input) : decodeURIComponent(input),
-        error: null,
-      };
-    } catch {
-      return { output: '', error: 'Invalid encoded string' };
-    }
-  }, [input, mode]);
+  const result = convert(input, mode);
 
   const swap = () => {
     setInput(result.output);
@@ -35,7 +34,6 @@ export default function UrlEncoderDecoder() {
   return (
     <ToolPage
       toolId="url-encoder"
-      title="URL Encoder / Decoder"
       description="Encode special characters for safe URLs, or decode them back to readable text."
       width="wide"
     >

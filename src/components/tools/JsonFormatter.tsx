@@ -72,7 +72,6 @@ export default function JsonFormatterComponent() {
   return (
     <ToolPage
       toolId="json-formatter"
-      title="JSON Formatter"
       description="Beautify, minify, and validate your JSON. Paste it in, and errors are caught instantly."
       width="wide"
     >
@@ -108,10 +107,8 @@ export default function JsonFormatterComponent() {
         className="json-tool-examples mb-5"
       />
 
-      {/* Editor panes */}
       <div className="json-tool-editors grid grid-cols-1 gap-4 lg:h-[calc(100dvh-25rem)] lg:min-h-[380px] lg:grid-cols-2">
 
-        {/* Input */}
         <div className="flex flex-col">
           <div className="field-header">
             <label htmlFor="json-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
@@ -141,7 +138,6 @@ export default function JsonFormatterComponent() {
           )}
         </div>
 
-        {/* Output */}
         <div className="flex flex-col">
           <div className="field-header">
             <label htmlFor="json-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">

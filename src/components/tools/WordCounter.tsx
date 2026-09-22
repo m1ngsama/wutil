@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
@@ -9,12 +9,11 @@ import { calculateWordStats } from '@/lib/word-stats';
 export default function WordCounterComponent() {
   const [text, setText] = useState('');
 
-  const stats = useMemo(() => calculateWordStats(text), [text]);
+  const stats = calculateWordStats(text);
 
   return (
     <ToolPage
       toolId="word-counter"
-      title="Word Counter"
       description="Paste or type. Words, characters, reading time, and more update instantly."
       width="wide"
     >

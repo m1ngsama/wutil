@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
@@ -39,10 +39,7 @@ export default function UuidGenerator() {
   const [uuids, setUuids] = useState<string[]>([]);
   const [quantityError, setQuantityError] = useState('');
 
-  const displayedUuids = useMemo(
-    () => uuids.map((uuid) => formatUuid(uuid, { uppercase, hyphens })),
-    [hyphens, uppercase, uuids],
-  );
+  const displayedUuids = uuids.map((uuid) => formatUuid(uuid, { uppercase, hyphens }));
 
   const handleGenerate = (nextVersion = version) => {
     const count = Number(quantity);
@@ -87,9 +84,7 @@ export default function UuidGenerator() {
   return (
     <ToolPage
       toolId="uuid-generator"
-      title="UUID Generator"
       description="Create RFC 9562 UUID v4 or v7 identifiers in batches, without sending anything to a server."
-      width="narrow"
     >
       <div className="space-y-5">
         <form

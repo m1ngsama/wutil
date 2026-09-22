@@ -2,12 +2,12 @@ export const REGEX_TEST_TIMEOUT_MS = 1500;
 export const MAX_REGEX_TEST_CHARS = 50_000;
 export const MAX_REGEX_MATCH_DETAILS = 20;
 
-export interface RegexPart {
+interface RegexPart {
   text: string;
   isMatch: boolean;
 }
 
-export interface RegexMatchDetail {
+interface RegexMatchDetail {
   text: string;
   index: number;
   groups: (string | null)[];

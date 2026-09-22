@@ -17,7 +17,7 @@ export function pick(chars: string): string {
   return chars[randomIndex(chars.length)];
 }
 
-export function shuffle(chars: string[]) {
+function shuffle(chars: string[]) {
   for (let i = chars.length - 1; i > 0; i--) {
     const j = randomIndex(i + 1);
     [chars[i], chars[j]] = [chars[j], chars[i]];

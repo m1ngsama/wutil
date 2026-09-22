@@ -9,8 +9,8 @@ interface ImageFileLike {
   size: number;
 }
 
-export type ImageFileValidation = 'ok' | 'not-image' | 'too-large';
-export type ImageDimensionValidation = 'ok' | 'invalid' | 'too-large';
+type ImageFileValidation = 'ok' | 'not-image' | 'too-large';
+type ImageDimensionValidation = 'ok' | 'invalid' | 'too-large';
 
 export function validateImageFile(file: ImageFileLike): ImageFileValidation {
   const hasImageType = file.type.startsWith('image/');

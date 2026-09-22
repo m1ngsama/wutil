@@ -101,9 +101,7 @@ export default function RegexTester() {
   return (
     <ToolPage
       toolId="regex-tester"
-      title="Regex Tester"
       description="Test regular expressions with real-time match highlighting and capture group details."
-      width="narrow"
     >
 
       <ExamplePicker
@@ -116,7 +114,6 @@ export default function RegexTester() {
         className="mb-6"
       />
 
-      {/* Pattern */}
       <div className="rounded-xl border border-edge bg-surface p-4 mb-4 focus-within:ring-2 focus-within:ring-[var(--w-ring)] focus-within:ring-offset-2 focus-within:ring-offset-canvas">
         <label htmlFor="regex-pattern" className="block text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Pattern</label>
         <div className="flex items-center gap-2">
@@ -145,7 +142,6 @@ export default function RegexTester() {
         )}
       </div>
 
-      {/* Flags */}
       <div className="mb-4 grid grid-cols-2 gap-x-4 sm:flex sm:flex-wrap">
         {FLAG_OPTIONS.map(({ flag, label }) => (
           <label key={flag} className="flex min-h-11 cursor-pointer items-center gap-2 fine-pointer:min-h-9">
@@ -163,7 +159,6 @@ export default function RegexTester() {
         ))}
       </div>
 
-      {/* Test string */}
       <div className="flex flex-col gap-1.5 mb-4">
         <label htmlFor="regex-test-string" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Test string</label>
         <textarea
@@ -179,7 +174,6 @@ export default function RegexTester() {
         )}
       </div>
 
-      {/* Highlighted matches */}
       {result?.valid && testString && (
         <div className="rounded-xl border border-edge bg-surface p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
@@ -202,7 +196,6 @@ export default function RegexTester() {
         </div>
       )}
 
-      {/* Match list */}
       {result?.valid && result.matches.length > 0 && (
         <div className="rounded-xl border border-edge bg-surface p-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-3">

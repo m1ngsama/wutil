@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Button } from '@/components/ui/Button';
@@ -35,13 +35,13 @@ export default function PasswordGenerator() {
   const [options, setOptions] = useState({ uppercase: true, lowercase: true, numbers: true, symbols: false });
   const [password, setPassword] = useState('');
 
-  const generate = useCallback(() => {
+  const generate = () => {
     const selectedCharsets = Object.entries(options)
       .filter(([, on]) => on)
       .map(([k]) => CHARS[k as keyof typeof CHARS]);
     if (selectedCharsets.length === 0) { toast.error('Select at least one character type'); return; }
     setPassword(generatePassword(length, selectedCharsets));
-  }, [length, options]);
+  };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => generate(), []);
@@ -58,9 +58,7 @@ export default function PasswordGenerator() {
   return (
     <ToolPage
       toolId="password-generator"
-      title="Password Generator"
       description="Cryptographically random passwords, generated entirely in your browser."
-      width="narrow"
     >
 
       <div className="rounded-xl border border-edge bg-surface p-5 space-y-5 mb-5">

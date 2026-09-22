@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { CopyButton } from '@/components/ui/CopyButton';
@@ -12,25 +12,21 @@ const BASE64_EXAMPLES = [
   { id: 'json', label: 'JSON snippet', value: '{"private":true,"tool":"base64"}' },
 ] as const;
 
+function convert(input: string, mode: 'encode' | 'decode', urlSafe: boolean) {
+  if (!input) return { output: '', error: null };
+  try {
+    return { output: mode === 'encode' ? encodeBase64(input, urlSafe) : decodeBase64(input), error: null };
+  } catch {
+    return { output: '', error: mode === 'decode' ? 'Invalid Base64. Check your input.' : 'Encoding failed.' };
+  }
+}
+
 export default function Base64ConverterComponent() {
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
   const [urlSafe, setUrlSafe] = useState(false);
 
-  const result = useMemo(() => {
-    if (!input) return { output: '', error: null as string | null };
-    try {
-      return {
-        output: mode === 'encode' ? encodeBase64(input, urlSafe) : decodeBase64(input),
-        error: null,
-      };
-    } catch {
-      return {
-        output: '',
-        error: mode === 'decode' ? 'Invalid Base64. Check your input.' : 'Encoding failed.',
-      };
-    }
-  }, [input, mode, urlSafe]);
+  const result = convert(input, mode, urlSafe);
 
   const swap = () => {
     setInput(result.output);
@@ -40,12 +36,10 @@ export default function Base64ConverterComponent() {
   return (
     <ToolPage
       toolId="base64-converter"
-      title="Base64 Converter"
       description="Encode or decode Base64. Supports Unicode, emoji, and URL-safe format."
       width="wide"
     >
 
-      {/* Controls */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-5">
         <div className="flex rounded-md border border-edge overflow-hidden">
           {(['encode', 'decode'] as const).map((m) => (
@@ -104,7 +98,6 @@ export default function Base64ConverterComponent() {
         className="mb-5"
       />
 
-      {/* Panes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <div className="field-header">

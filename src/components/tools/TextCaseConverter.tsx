@@ -51,7 +51,6 @@ export default function TextCaseConverter() {
   return (
     <ToolPage
       toolId="text-case"
-      title="Text Case Converter"
       description="Paste text, pick a format, and preview the result before copying."
       width="wide"
     >

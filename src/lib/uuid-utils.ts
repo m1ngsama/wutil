@@ -3,33 +3,29 @@ export const MAX_UUID_BATCH_SIZE = 100;
 export const MAX_UUID_V7_TIMESTAMP = 0xffffffffffff;
 
 export type UuidVersion = 'v4' | 'v7';
-export type UuidRandomSource = (length: number) => Uint8Array;
-export type UuidTimeSource = () => number;
+type UuidRandomSource = (length: number) => Uint8Array;
+type UuidTimeSource = () => number;
 
-export interface UuidFormatOptions {
+interface UuidFormatOptions {
   uppercase?: boolean;
   hyphens?: boolean;
 }
 
-export interface UuidV4Options {
+interface UuidV4Options {
   randomBytes?: UuidRandomSource;
 }
 
-export interface UuidV7Options extends UuidV4Options {
+interface UuidV7Options extends UuidV4Options {
   now?: UuidTimeSource;
 }
 
-export interface UuidBatchOptions extends UuidFormatOptions, UuidV7Options {
+interface UuidBatchOptions extends UuidFormatOptions, UuidV7Options {
   version: UuidVersion;
   count: number;
 }
 
 function secureRandomBytes(length: number): Uint8Array {
-  if (typeof globalThis.crypto?.getRandomValues !== 'function') {
-    throw new Error('Secure random number generation is unavailable in this browser.');
-  }
-
-  return globalThis.crypto.getRandomValues(new Uint8Array(length));
+  return crypto.getRandomValues(new Uint8Array(length));
 }
 
 function readRandomBytes(randomBytes: UuidRandomSource): Uint8Array {
@@ -86,14 +82,12 @@ export function generateUuidV7(options: UuidV7Options = {}): string {
   assertV7Timestamp(unixMilliseconds);
   const bytes = readRandomBytes(options.randomBytes ?? secureRandomBytes);
 
-  // RFC 9562 UUIDv7 begins with a 48-bit, big-endian Unix millisecond timestamp.
   let remainingTimestamp = unixMilliseconds;
   for (let index = 5; index >= 0; index -= 1) {
     bytes[index] = remainingTimestamp % 0x100;
     remainingTimestamp = Math.floor(remainingTimestamp / 0x100);
   }
 
-  // Preserve the random payload while setting the required version and variant bits.
   bytes[6] = (bytes[6] & 0x0f) | 0x70;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
