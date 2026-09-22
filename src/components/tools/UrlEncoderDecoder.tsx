@@ -89,7 +89,7 @@ export default function UrlEncoderDecoder() {
             aria-describedby={result.error ? 'url-input-error' : undefined}
             aria-invalid={result.error ? true : undefined}
             className={[
-              'h-48 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
+              'h-32 lg:h-48 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink placeholder:text-ink-3',
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
               result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
@@ -115,7 +115,7 @@ export default function UrlEncoderDecoder() {
           <textarea
             id="url-output"
             readOnly
-            className="h-48 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-32 lg:h-48 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder="Result appears here…"
             value={result.output}
             spellCheck={false}

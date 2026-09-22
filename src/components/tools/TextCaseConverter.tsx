@@ -56,10 +56,8 @@ export default function TextCaseConverter() {
       width="wide"
     >
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: input + format picker */}
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-x-6">
+          <div className="flex flex-col lg:col-start-1">
             <div className="field-header">
               <label htmlFor="text-case-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
               {input && (
@@ -82,8 +80,7 @@ export default function TextCaseConverter() {
             />
           </div>
 
-          {/* Case selector grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="order-last grid grid-cols-1 gap-2 sm:grid-cols-2 lg:order-none lg:col-start-1">
             {cases.map(({ label, fn, example }, i) => {
               const preview = input ? fn(input) : example;
               const active = selected === i;
@@ -111,10 +108,8 @@ export default function TextCaseConverter() {
               );
             })}
           </div>
-        </div>
 
-        {/* Right: output */}
-        <div className="flex flex-col">
+        <div className="flex flex-col lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <div className="field-header">
             <label htmlFor="text-case-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
               {activeCase ? activeCase.label : 'Output'}
@@ -124,7 +119,7 @@ export default function TextCaseConverter() {
           <textarea
             id="text-case-output"
             readOnly
-            className="flex-1 min-h-[20rem] w-full p-4 rounded-lg border border-edge bg-muted text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-32 w-full flex-1 p-4 rounded-lg border border-edge bg-muted lg:h-auto lg:min-h-[20rem] text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder={activeCase ? 'Enter text to see the result…' : 'Pick a format to see the result…'}
             value={outputText}
             spellCheck={false}

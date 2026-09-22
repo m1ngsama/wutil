@@ -109,7 +109,7 @@ export default function JsonFormatterComponent() {
       />
 
       {/* Editor panes */}
-      <div className="json-tool-editors grid h-[calc(100dvh-25rem)] min-h-[380px] grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="json-tool-editors grid grid-cols-1 gap-4 lg:h-[calc(100dvh-25rem)] lg:min-h-[380px] lg:grid-cols-2">
 
         {/* Input */}
         <div className="flex flex-col">
@@ -123,7 +123,7 @@ export default function JsonFormatterComponent() {
             aria-describedby={error ? 'json-error' : undefined}
             aria-invalid={error ? true : undefined}
             className={[
-              'flex-1 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink',
+              'h-40 lg:h-auto lg:flex-1 w-full p-4 rounded-lg border font-mono text-sm resize-none bg-surface text-ink',
               'placeholder:text-ink-3 transition-colors',
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1',
               error ? 'border-red-500/70 dark:border-red-500/50' : 'border-edge',
@@ -153,7 +153,7 @@ export default function JsonFormatterComponent() {
           <textarea
             id="json-output"
             readOnly
-            className="flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className="h-40 lg:h-auto lg:flex-1 w-full p-4 rounded-lg border border-edge font-mono text-sm resize-none bg-muted text-ink placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
             placeholder="Result will appear here…"
             value={output}
             spellCheck={false}
