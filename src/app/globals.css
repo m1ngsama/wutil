@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 
 @variant dark (&:where(.dark, .dark *));
 @custom-variant fine-pointer (@media (hover: hover) and (pointer: fine));
