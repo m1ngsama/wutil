@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { CopyButton } from '@/components/ui/CopyButton';
 
 function toTitleCase(str: string): string {
   return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
@@ -48,15 +48,6 @@ export default function TextCaseConverter() {
   const activeCase  = selected !== null ? cases[selected] : null;
   const outputText  = activeCase && input ? activeCase.fn(input) : '';
 
-  const handleSelect = (i: number) => {
-    setSelected(i);
-  };
-
-  const handleCopy = () => {
-    if (!outputText) return;
-    void copyText(outputText);
-  };
-
   return (
     <ToolPage
       toolId="text-case"
@@ -68,8 +59,19 @@ export default function TextCaseConverter() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: input + format picker */}
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="text-case-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
+          <div className="flex flex-col">
+            <div className="field-header">
+              <label htmlFor="text-case-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Input</label>
+              {input && (
+                <button
+                  type="button"
+                  onClick={() => { setInput(''); setSelected(null); }}
+                  className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-8"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
             <textarea
               id="text-case-input"
               className="h-40 w-full p-4 rounded-lg border border-edge bg-surface text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
@@ -78,15 +80,6 @@ export default function TextCaseConverter() {
               onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
             />
-            {input && (
-              <button
-                type="button"
-                onClick={() => { setInput(''); setSelected(null); }}
-                className="min-h-11 self-start rounded-sm px-2 text-xs font-semibold text-ink-3 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
-              >
-                Clear
-              </button>
-            )}
           </div>
 
           {/* Case selector grid */}
@@ -98,12 +91,11 @@ export default function TextCaseConverter() {
                 <button
                   type="button"
                   key={label}
-                  onClick={() => handleSelect(i)}
-                  disabled={!input}
+                  onClick={() => setSelected(i)}
                   aria-pressed={active}
                   className={[
                     'flex flex-col text-left px-4 py-3 rounded-lg border transition-colors',
-                    'disabled:pointer-events-none',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]',
                     active
                       ? 'border-accent bg-accent-subtle'
                       : 'border-edge bg-surface hover:border-edge-strong hover:bg-muted',
@@ -122,25 +114,18 @@ export default function TextCaseConverter() {
         </div>
 
         {/* Right: output */}
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <div className="field-header">
             <label htmlFor="text-case-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
               {activeCase ? activeCase.label : 'Output'}
             </label>
-            <button
-              type="button"
-              onClick={handleCopy}
-              disabled={!outputText}
-              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
-            >
-              Copy
-            </button>
+            <CopyButton value={outputText} />
           </div>
           <textarea
             id="text-case-output"
             readOnly
             className="flex-1 min-h-[20rem] w-full p-4 rounded-lg border border-edge bg-muted text-ink text-sm font-mono resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
-            placeholder={activeCase ? 'Select text and a format to see output…' : 'Pick a format on the left…'}
+            placeholder={activeCase ? 'Enter text to see the result…' : 'Pick a format to see the result…'}
             value={outputText}
             spellCheck={false}
           />

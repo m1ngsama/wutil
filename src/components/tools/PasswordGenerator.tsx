@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { Button } from '@/components/ui/Button';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { generatePassword } from '@/lib/password-utils';
 
 const CHARS = {
@@ -42,6 +43,9 @@ export default function PasswordGenerator() {
     setPassword(generatePassword(length, selectedCharsets));
   }, [length, options]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => generate(), []);
+
   const strength = getStrength(password);
 
   const OPTION_LABELS: Record<string, string> = {
@@ -59,44 +63,7 @@ export default function PasswordGenerator() {
       width="narrow"
     >
 
-      {/* Output */}
-      <div className="rounded-xl border border-edge bg-surface p-5 mb-5">
-        <div className="flex items-center gap-3 mb-3">
-          <span
-            aria-label="Generated password"
-            aria-live="polite"
-            data-testid="generated-password"
-            className="flex-1 font-mono text-lg tracking-widest text-ink break-all min-h-[1.75rem]"
-          >
-            {password || <span className="text-ink-3 font-sans text-sm tracking-normal">Click Generate…</span>}
-          </span>
-          <button
-            type="button"
-            onClick={() => { if (!password) return; void copyText(password); }}
-            disabled={!password}
-            className="shrink-0 h-11 px-3 text-sm font-medium rounded-md border border-edge bg-muted text-ink hover:bg-[var(--w-edge)] disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-          >
-            Copy
-          </button>
-        </div>
-        {password && (
-          <div>
-            <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-ink-3 font-semibold uppercase tracking-wider">Strength</span>
-              <span className="font-semibold text-ink-2">{strength.label}</span>
-            </div>
-            <div className="w-full h-1 rounded-full bg-muted overflow-hidden">
-              <div
-                className={`h-full w-full origin-left rounded-full transition-transform duration-300 ${strength.color}`}
-                style={{ transform: `scaleX(${strength.pct / 100})` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Controls */}
-      <div className="rounded-xl border border-edge bg-surface p-5 space-y-5 mb-4">
+      <div className="rounded-xl border border-edge bg-surface p-5 space-y-5 mb-5">
         <div>
           <div className="flex justify-between mb-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-ink-3">Length</label>
@@ -128,15 +95,36 @@ export default function PasswordGenerator() {
             </button>
           ))}
         </div>
+
+        <Button size="lg" className="w-full" onClick={generate}>
+          Generate Password
+        </Button>
       </div>
 
-      <button
-        type="button"
-        onClick={generate}
-        className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-      >
-        Generate Password
-      </button>
+      <div className="rounded-xl border border-edge bg-surface p-5">
+        <div className="field-header">
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">Password</span>
+          <CopyButton value={password} />
+        </div>
+        <span
+          aria-label="Generated password"
+          aria-live="polite"
+          data-testid="generated-password"
+          className="mb-4 block min-h-7 break-all font-mono text-lg tracking-widest text-ink"
+        >
+          {password}
+        </span>
+        <div className="flex justify-between text-xs mb-1.5">
+          <span className="text-ink-3 font-semibold uppercase tracking-wider">Strength</span>
+          <span className="font-semibold text-ink-2">{strength.label}</span>
+        </div>
+        <div className="w-full h-1 rounded-full bg-muted overflow-hidden">
+          <div
+            className={`h-full w-full origin-left rounded-full transition-transform duration-300 ${strength.color}`}
+            style={{ transform: `scaleX(${strength.pct / 100})` }}
+          />
+        </div>
+      </div>
     </ToolPage>
   );
 }

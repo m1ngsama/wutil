@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { FileCheck2, FileUp, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { CopyButton } from '@/components/ui/CopyButton';
 import {
   HASH_ALGORITHMS,
   MAX_HASH_FILE_SIZE,
@@ -159,25 +159,18 @@ export default function HashGeneratorComponent() {
             />
           </div>
 
-          {hashes.length > 0 ? (
-            <div className="overflow-hidden rounded-xl border border-edge bg-surface">
-              {hashes.map(({ name, value }, index) => (
-                <button
-                  type="button"
-                  key={name}
-                  className={`flex w-full items-center gap-4 px-5 py-4 text-left transition-colors hover:bg-muted ${index < hashes.length - 1 ? 'border-b border-edge' : ''}`}
-                  onClick={() => { void copyText(value, `${name} copied`); }}
-                  aria-label={`Copy ${name} hash`}
-                >
+          <div className="overflow-hidden rounded-xl border border-edge bg-surface">
+            {HASH_ALGORITHMS.map(({ name }) => {
+              const value = hashes.find((hash) => hash.name === name)?.value ?? '';
+              return (
+                <div key={name} className="flex min-h-14 items-center gap-4 border-b border-edge px-4 py-2 last:border-b-0 sm:px-5">
                   <span className="w-16 shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3">{name}</span>
-                  <code className="flex-1 truncate font-mono text-xs text-ink-2">{value}</code>
-                  <span className="shrink-0 text-xs font-semibold text-accent">Copy</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-ink-3">Hashes update as you type.</p>
-          )}
+                  <code className="min-w-0 flex-1 truncate font-mono text-xs text-ink-2">{value || '—'}</code>
+                  <CopyButton value={value} aria-label={`Copy ${name} hash`} successMessage={`${name} copied`} />
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : (
         <div className="space-y-5">
@@ -288,7 +281,7 @@ export default function HashGeneratorComponent() {
 
           {fileHash && file ? (
             <div className="rounded-xl border border-edge bg-surface p-5">
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <div className="field-header flex-wrap">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">{fileAlgorithm} checksum</p>
                   <p role="status" className={`text-sm font-semibold empty:hidden ${comparison ? 'mt-1 text-green-700 dark:text-green-400' : 'mt-1 text-red-600 dark:text-red-400'}`}>
@@ -296,20 +289,14 @@ export default function HashGeneratorComponent() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { void copyText(fileHash, `${fileAlgorithm} copied`); }}
-                    className="h-11 rounded-md border border-edge px-3 text-xs font-semibold text-ink hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:h-9"
-                  >
-                    Copy
-                  </button>
                   <a
                     href={checksumDownload}
                     download={`${file.name}.${fileAlgorithm.toLowerCase().replace('-', '')}`}
-                    className="inline-flex h-11 items-center rounded-md bg-accent px-3 text-xs font-semibold text-accent-fg hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:h-9"
+                    className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 text-xs font-semibold text-accent-fg hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-8"
                   >
                     Download
                   </a>
+                  <CopyButton value={fileHash} />
                 </div>
               </div>
               <code className="block break-all rounded-md bg-muted p-3 font-mono text-xs leading-relaxed text-ink">{fileHash}</code>

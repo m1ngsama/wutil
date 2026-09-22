@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { parseTimestampInput, type TimestampUnit } from '@/lib/timestamp-utils';
@@ -70,33 +71,31 @@ export default function TimestampConverter() {
       width="narrow"
     >
 
-      {/* Live clock */}
-      <div
-        className="mb-6 flex min-h-[104px] items-center justify-between rounded-xl border border-edge bg-surface px-5 py-4"
-        aria-busy={now === null}
-      >
-        <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-3">Current Unix timestamp</p>
-          <p className="font-mono text-2xl font-bold text-ink">{now ?? '—'}</p>
-          <p className="mt-0.5 text-xs text-ink-3">
-            {now !== null ? new Date(now * 1000).toUTCString() : 'Loading current time…'}
+      {/* Input */}
+      <div className="flex flex-col gap-1.5 mb-4">
+        <label htmlFor="timestamp-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Timestamp or date string</label>
+        <input
+          id="timestamp-input"
+          type="text"
+          value={input}
+          aria-describedby={error ? 'timestamp-error' : undefined}
+          aria-invalid={error ? true : undefined}
+          onChange={(e) => handleInput(e.target.value)}
+          placeholder="1700000000 or 2024-01-15"
+          className={[
+            'h-11 w-full px-4 rounded-lg border font-mono text-sm text-ink bg-surface',
+            'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors',
+            error ? 'border-red-500/70' : 'border-edge',
+          ].join(' ')}
+        />
+        {error && (
+          <p id="timestamp-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            {error}
           </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            if (now === null) return;
-            setTimestampUnit('seconds');
-            handleInput(String(now), 'seconds');
-          }}
-          disabled={now === null}
-          className="h-11 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-        >
-          Use now
-        </button>
+        )}
       </div>
 
-      <div className="mb-5">
+      <div className="mb-6">
         <p id="timestamp-unit-label" className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
           Numeric input unit
         </p>
@@ -129,33 +128,9 @@ export default function TimestampConverter() {
         </p>
       </div>
 
-      {/* Input */}
-      <div className="flex flex-col gap-1.5 mb-6">
-        <label htmlFor="timestamp-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Timestamp or date string</label>
-        <input
-          id="timestamp-input"
-          type="text"
-          value={input}
-          aria-describedby={error ? 'timestamp-error' : undefined}
-          aria-invalid={error ? true : undefined}
-          onChange={(e) => handleInput(e.target.value)}
-          placeholder="e.g. 1700000000 or 2024-01-15T12:00:00Z"
-          className={[
-            'h-11 w-full px-4 rounded-lg border font-mono text-sm text-ink bg-surface placeholder:text-ink-3',
-            'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas transition-colors',
-            error ? 'border-red-500/70' : 'border-edge',
-          ].join(' ')}
-        />
-        {error && (
-          <p id="timestamp-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
-            {error}
-          </p>
-        )}
-      </div>
-
       {/* Outputs */}
       {date && (
-        <>
+        <div className="mb-6">
           <div className="rounded-xl border border-edge bg-surface overflow-hidden mb-4">
             {FORMATS.map(({ label, fn }, i) => {
               const value = fn(date);
@@ -170,7 +145,10 @@ export default function TimestampConverter() {
                 >
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3 w-24">{label}</span>
                   <code className="flex-1 font-mono text-sm text-ink truncate">{value}</code>
-                  <span className="shrink-0 text-xs font-semibold text-accent">Copy</span>
+                  <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-accent">
+                    <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                    Copy
+                  </span>
                 </button>
               );
             })}
@@ -185,11 +163,37 @@ export default function TimestampConverter() {
             </div>
             <p className="text-xs text-ink-3">Local TZ: {tz}</p>
           </div>
-        </>
+        </div>
       )}
 
+      {/* Live clock */}
+      <div
+        className="flex min-h-[88px] items-center justify-between gap-4 rounded-xl border border-edge bg-surface px-4 py-3 sm:px-5"
+        aria-busy={now === null}
+      >
+        <div className="min-w-0">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-3">Current Unix timestamp</p>
+          <p className="font-mono text-xl font-bold text-ink">{now ?? '—'}</p>
+          <p className="mt-0.5 text-xs text-ink-3">
+            {now !== null ? new Date(now * 1000).toUTCString() : 'Loading current time…'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            if (now === null) return;
+            setTimestampUnit('seconds');
+            handleInput(String(now), 'seconds');
+          }}
+          disabled={now === null}
+          className="h-11 shrink-0 whitespace-nowrap px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+        >
+          Use now
+        </button>
+      </div>
+
       {/* Examples */}
-      <div className="mt-8">
+      <div className="mt-6">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Examples</p>
         <div className="flex flex-wrap gap-2">
           {[

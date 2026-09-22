@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { Button } from '@/components/ui/Button';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { calculateWordStats } from '@/lib/word-stats';
 
 export default function WordCounterComponent() {
@@ -18,12 +19,27 @@ export default function WordCounterComponent() {
       width="wide"
     >
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Textarea */}
-        <div className="lg:col-span-2 flex flex-col gap-3">
-          <label htmlFor="word-counter-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
-            Text to analyze
-          </label>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="flex flex-col gap-3 md:col-span-2">
+          <p
+            aria-hidden="true"
+            className="sticky top-14 z-10 -mx-4 bg-canvas/95 px-4 py-2 sm:-mx-6 sm:px-6 text-sm text-ink-2 backdrop-blur md:hidden"
+          >
+            <span className="font-semibold tabular-nums text-ink">{(stats?.words ?? 0).toLocaleString()}</span> words ·{' '}
+            <span className="font-semibold tabular-nums text-ink">{(stats?.chars ?? 0).toLocaleString()}</span> characters ·{' '}
+            <span className="font-semibold tabular-nums text-ink">{(stats?.sentences ?? 0).toLocaleString()}</span> sentences
+          </p>
+          <div className="field-header">
+            <label htmlFor="word-counter-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+              Text to analyze
+            </label>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled={!text} onClick={() => setText('')}>
+                Clear
+              </Button>
+              <CopyButton value={text} />
+            </div>
+          </div>
           <textarea
             id="word-counter-input"
             className="h-[28rem] w-full p-4 rounded-xl border border-edge bg-surface text-ink text-sm resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
@@ -31,28 +47,12 @@ export default function WordCounterComponent() {
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setText('')}
-              disabled={!text}
-              className="h-11 px-4 text-sm font-medium border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-            >
-              Clear
-            </button>
-            <button
-              type="button"
-              onClick={() => { void copyText(text); }}
-              disabled={!text}
-              className="h-11 px-4 text-sm font-medium bg-accent text-accent-fg rounded-md hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-            >
-              Copy text
-            </button>
-          </div>
         </div>
 
-        {/* Stats panel */}
-        <div className="lg:col-span-1">
+        <div className="flex flex-col gap-3">
+          <h2 className="flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 fine-pointer:min-h-8">
+            Statistics
+          </h2>
           {stats ? (
             <div className="rounded-xl border border-edge bg-surface overflow-hidden">
               {[

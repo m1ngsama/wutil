@@ -146,6 +146,19 @@ body {
   transition-property: background-color, border-color, color;
 }
 
+@utility field-header {
+  margin-bottom: 0.5rem;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+
+  @media (hover: hover) and (pointer: fine) {
+    min-height: 2rem;
+  }
+}
+
 #main-content ::placeholder {
   color: color-mix(in oklab, var(--w-ink-3) 60%, transparent);
 }

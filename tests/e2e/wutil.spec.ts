@@ -133,9 +133,9 @@ test('touch layouts preserve comfortable controls and reveal work in short lands
 
     await touchPage.setViewportSize({ width: 320, height: 568 });
     await touchPage.goto('/tools/json-formatter');
-    const copyBox = await touchPage.getByRole('button', { name: 'Copy output' }).boundingBox();
+    const minifyBox = await touchPage.getByRole('button', { name: 'Minify' }).boundingBox();
     const clearBox = await touchPage.getByRole('button', { name: 'Clear' }).boundingBox();
-    expect(Math.abs((copyBox?.y ?? 0) - (clearBox?.y ?? 0))).toBeLessThan(2);
+    expect(Math.abs((minifyBox?.y ?? 0) - (clearBox?.y ?? 0))).toBeLessThan(2);
 
     const widths = await touchPage.evaluate(() => ({
       viewport: document.documentElement.clientWidth,
@@ -215,7 +215,7 @@ test('Color converter keeps HEX, RGB, and HSL values in sync', async ({ page }) 
 
   await page.getByRole('spinbutton', { name: 'RGB R' }).fill('12.5');
   await expect(page.getByRole('spinbutton', { name: 'RGB R' })).toHaveValue('13');
-  await expect(page.getByText('#0D00AA')).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'HEX' })).toHaveValue('#0d00aa');
 });
 
 test('URL encoder decodes invalid input errors and successful round trips', async ({ page }) => {
@@ -335,9 +335,7 @@ test('Hash generator computes SHA hashes in the browser', async ({ page }) => {
 
   await page.locator('textarea').fill('hello');
 
-  await expect(page.getByRole('button', { name: 'Copy SHA-256 hash' })).toContainText(
-    '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
-  );
+  await expect(page.getByText('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')).toBeVisible();
 });
 
 test('Date calculator computes differences and added days', async ({ page }) => {
@@ -396,9 +394,10 @@ test('PDF merger uploads PDFs and exposes accessible removal controls', async ({
 
   await expect(page.getByText('2 files')).toBeVisible();
   await expect(page.getByText('minimal-a.pdf')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Remove minimal-a.pdf' })).toBeVisible();
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Remove minimal-a.pdf' }).click();
   await expect(page.getByRole('button', { name: 'Add at least 2 PDFs' })).toBeVisible();
+  await page.getByRole('button', { name: 'Clear all' }).click();
+  await expect(page.getByRole('button', { name: 'Add at least 2 PDFs' })).toBeHidden();
 
   await page.locator('#pdf-upload').setInputFiles([
     path.resolve('tests/e2e/fixtures/minimal-a.pdf'),

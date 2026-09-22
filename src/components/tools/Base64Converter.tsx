@@ -3,8 +3,8 @@
 import { useMemo, useState } from 'react';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { CopyButton } from '@/components/ui/CopyButton';
 import { decodeBase64, encodeBase64 } from '@/lib/base64-utils';
-import { copyText } from '@/lib/clipboard';
 
 const BASE64_EXAMPLES = [
   { id: 'unicode', label: 'Unicode + emoji', value: '你好，世界 👋' },
@@ -46,7 +46,7 @@ export default function Base64ConverterComponent() {
     >
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3 mb-5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-5">
         <div className="flex rounded-md border border-edge overflow-hidden">
           {(['encode', 'decode'] as const).map((m) => (
             <button
@@ -78,21 +78,19 @@ export default function Base64ConverterComponent() {
         </button>
 
         {mode === 'encode' && (
-          <div className="flex items-center gap-2 ml-auto">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={urlSafe}
-              aria-label="URL-safe Base64"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-              onClick={() => setUrlSafe((v) => !v)}
-            >
-              <span className={`relative h-5 w-9 rounded-full transition-colors ${urlSafe ? 'bg-accent' : 'bg-edge-strong'}`}>
-                <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform ${urlSafe ? 'translate-x-4' : 'translate-x-0.5'}`} />
-              </span>
-            </button>
-            <span className="text-sm text-ink-2">URL-safe</span>
-          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={urlSafe}
+            aria-label="URL-safe Base64"
+            className="flex min-h-11 shrink-0 items-center gap-2 rounded-md px-1 text-sm text-ink-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9"
+            onClick={() => setUrlSafe((v) => !v)}
+          >
+            <span className={`relative h-5 w-9 rounded-full transition-colors ${urlSafe ? 'bg-accent' : 'bg-edge-strong'}`}>
+              <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-surface shadow transition-transform ${urlSafe ? 'translate-x-4' : 'translate-x-0.5'}`} />
+            </span>
+            URL-safe
+          </button>
         )}
       </div>
 
@@ -108,10 +106,12 @@ export default function Base64ConverterComponent() {
 
       {/* Panes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
-          <label htmlFor="base64-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
-            {mode === 'encode' ? 'Plain text' : 'Base64 input'}
-          </label>
+        <div className="flex flex-col">
+          <div className="field-header">
+            <label htmlFor="base64-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+              {mode === 'encode' ? 'Plain text' : 'Base64 input'}
+            </label>
+          </div>
           <textarea
             id="base64-input"
             aria-describedby={result.error ? 'base64-error' : undefined}
@@ -121,31 +121,24 @@ export default function Base64ConverterComponent() {
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
               result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
-            placeholder={mode === 'encode' ? 'Type anything, including Unicode and emoji…' : 'Paste Base64 here…'}
+            placeholder={mode === 'encode' ? 'Type or paste text…' : 'Paste Base64…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             spellCheck={false}
           />
           {result.error && (
-            <p id="base64-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            <p id="base64-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
               {result.error}
             </p>
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <div className="field-header">
             <label htmlFor="base64-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
               {mode === 'encode' ? 'Base64 output' : 'Decoded text'}
             </label>
-            <button
-              type="button"
-              onClick={() => { void copyText(result.output); }}
-              disabled={!result.output}
-              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
-            >
-              Copy
-            </button>
+            <CopyButton value={result.output} />
           </div>
           <textarea
             id="base64-output"

@@ -225,17 +225,18 @@ async function runAuditOnce() {
       await page.getByRole('spinbutton', { name: 'RGB R' }).fill('999');
       await page.getByRole('spinbutton', { name: 'RGB G' }).fill('-5');
       await page.getByRole('spinbutton', { name: 'RGB B' }).fill('12.5');
-      await expect((await visibleText(page)).includes('#FF000D'), 'RGB clamp output mismatch');
+      const hex = page.getByRole('textbox', { name: 'HEX' });
+      await expect((await hex.inputValue()) === '#ff000d', 'RGB clamp output mismatch');
       await page.getByRole('button', { name: 'Use color #22c55e' }).click();
-      await waitForText(page, '#22C55E');
+      await expect((await hex.inputValue()) === '#22c55e', 'preset color mismatch');
     });
 
     await runStep(failures, 'hash generator computes and clears', async () => {
       await gotoInteractive(page, '/tools/hash-generator');
       await page.locator('textarea').fill('hello');
-      await page.getByRole('button', { name: 'Copy SHA-512 hash' }).waitFor();
+      await page.getByRole('button', { name: 'Copy SHA-512 hash', disabled: false }).waitFor();
       await page.locator('textarea').fill('');
-      await waitForText(page, 'Hashes update as you type.');
+      await page.getByRole('button', { name: 'Copy SHA-512 hash', disabled: true }).waitFor();
     });
 
     await runStep(failures, 'password generator options and length', async () => {
@@ -293,8 +294,9 @@ async function runAuditOnce() {
       await waitForText(page, '2 files');
       await page.getByRole('button', { name: 'Remove minimal-a.pdf' }).click();
       await waitForText(page, '1 file');
-      await page.getByRole('button', { name: 'Clear all' }).click();
       await page.getByRole('button', { name: 'Add at least 2 PDFs' }).waitFor();
+      await page.getByRole('button', { name: 'Clear all' }).click();
+      await page.getByRole('button', { name: 'Add at least 2 PDFs' }).waitFor({ state: 'detached' });
       await page.locator('#pdf-upload').setInputFiles(files);
       await waitForText(page, '2 files');
       await page.getByRole('button', { name: 'Merge 2 PDFs' }).click();

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { CopyButton } from '@/components/ui/CopyButton';
 import {
   clampRgbChannel,
   hexToRgb,
@@ -13,7 +13,7 @@ import {
 } from '@/lib/color-utils';
 
 const PRESETS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#1e293b','#64748b'];
-const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
+const LABEL_CLASS = 'text-xs font-semibold uppercase tracking-wider text-ink-3';
 
 export default function ColorConverter() {
   const [hexInput, setHexInput] = useState('#3b82f6');
@@ -44,10 +44,6 @@ export default function ColorConverter() {
 
   const hexIsValid = normalizeHexColor(hexInput) !== null;
   const hexError = hexIsValid ? null : 'Enter a valid HEX color such as #fff or #3b82f6.';
-  const copy = (text: string) => {
-    if (!hexIsValid) return;
-    void copyText(text);
-  };
 
   return (
     <ToolPage
@@ -57,37 +53,50 @@ export default function ColorConverter() {
       width="narrow"
     >
 
-      {/* Preview */}
-      <div className="rounded-xl overflow-hidden border border-edge mb-6">
-        <div className="h-24 w-full transition-colors duration-150" style={{ backgroundColor: validHex }} />
-        <div className="bg-surface p-4 flex items-center gap-3">
-          <input
-            type="color" value={validHex}
-            aria-label="Choose color"
-            onChange={(e) => fromHex(e.target.value)}
-            className="h-11 w-11 cursor-pointer rounded-md border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9 fine-pointer:w-9"
-          />
-          <span className="font-mono font-semibold text-ink">{validHex.toUpperCase()}</span>
-          <button type="button" disabled={!hexIsValid} onClick={() => copy(validHex.toUpperCase())} className={`${COPY_BUTTON_CLASS} ml-auto`}>Copy</button>
+      <div className="mb-6 overflow-hidden rounded-xl border border-edge bg-surface">
+        <div className="h-16 w-full transition-colors duration-150 sm:h-24" style={{ backgroundColor: validHex }} />
+        <div className="p-4">
+          <p className={`${LABEL_CLASS} mb-3`}>Quick colors</p>
+          <div className="flex flex-wrap gap-2">
+            {PRESETS.map((color) => (
+              <button
+                type="button"
+                key={color}
+                onClick={() => fromHex(color)}
+                aria-label={`Use color ${color}`}
+                aria-pressed={hexIsValid && color.toLowerCase() === validHex}
+                className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${hexIsValid && color.toLowerCase() === validHex ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
+                style={{ backgroundColor: color }}
+                title={color}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Fields */}
-      <div className="space-y-3 mb-6">
-        {/* HEX */}
-        <div className="rounded-xl border border-edge bg-surface p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HEX</span>
-            <button type="button" disabled={!hexIsValid} onClick={() => copy(validHex.toUpperCase())} className={COPY_BUTTON_CLASS}>Copy</button>
+      <div className="space-y-3">
+        <div role="group" aria-labelledby="hex-color-label" className="rounded-xl border border-edge bg-surface p-4">
+          <div className="field-header">
+            <label id="hex-color-label" htmlFor="hex-color" className={LABEL_CLASS}>HEX</label>
+            <CopyButton value={hexIsValid ? validHex.toUpperCase() : ''} />
           </div>
-          <input
-            type="text" value={hexInput}
-            aria-invalid={!hexIsValid}
-            aria-describedby={hexError ? 'hex-color-error' : undefined}
-            onChange={(e) => fromHex(e.target.value)}
-            className={`h-11 w-full rounded-md border bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas ${hexError ? 'border-red-500/70' : 'border-edge'}`}
-            placeholder="#000000"
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="color" value={validHex}
+              aria-label="Choose color"
+              onChange={(e) => fromHex(e.target.value)}
+              className="h-11 w-11 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            />
+            <input
+              id="hex-color"
+              type="text" value={hexInput}
+              aria-invalid={!hexIsValid}
+              aria-describedby={hexError ? 'hex-color-error' : undefined}
+              onChange={(e) => fromHex(e.target.value)}
+              className={`h-11 min-w-0 flex-1 rounded-md border bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas ${hexError ? 'border-red-500/70' : 'border-edge'}`}
+              placeholder="#000000"
+            />
+          </div>
           {hexError && (
             <p id="hex-color-error" role="alert" className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:bg-red-950/40 dark:text-red-400">
               {hexError}
@@ -95,11 +104,10 @@ export default function ColorConverter() {
           )}
         </div>
 
-        {/* RGB */}
-        <div className="rounded-xl border border-edge bg-surface p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">RGB</span>
-            <button type="button" disabled={!hexIsValid} onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className={COPY_BUTTON_CLASS}>Copy</button>
+        <div role="group" aria-labelledby="rgb-color-label" className="rounded-xl border border-edge bg-surface p-4">
+          <div className="field-header">
+            <span id="rgb-color-label" className={LABEL_CLASS}>RGB</span>
+            <CopyButton value={hexIsValid ? `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})` : ''} />
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {(['r','g','b'] as const).map((ch) => (
@@ -120,11 +128,10 @@ export default function ColorConverter() {
           <p className="font-mono text-xs text-ink-3">rgb({rgb.r}, {rgb.g}, {rgb.b})</p>
         </div>
 
-        {/* HSL */}
-        <div className="rounded-xl border border-edge bg-surface p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HSL</span>
-            <button type="button" disabled={!hexIsValid} onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className={COPY_BUTTON_CLASS}>Copy</button>
+        <div role="group" aria-labelledby="hsl-color-label" className="rounded-xl border border-edge bg-surface p-4">
+          <div className="field-header">
+            <span id="hsl-color-label" className={LABEL_CLASS}>HSL</span>
+            <CopyButton value={hexIsValid ? `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)` : ''} />
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {[
@@ -147,25 +154,6 @@ export default function ColorConverter() {
             ))}
           </div>
           <p className="font-mono text-xs text-ink-3">hsl({hsl.h}, {hsl.s}%, {hsl.l}%)</p>
-        </div>
-      </div>
-
-      {/* Presets */}
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-3">Quick colors</p>
-        <div className="flex flex-wrap gap-2">
-          {PRESETS.map((color) => (
-            <button
-              type="button"
-              key={color}
-              onClick={() => fromHex(color)}
-              aria-label={`Use color ${color}`}
-              aria-pressed={hexIsValid && color.toLowerCase() === validHex}
-              className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${hexIsValid && color.toLowerCase() === validHex ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
-              style={{ backgroundColor: color }}
-              title={color}
-            />
-          ))}
         </div>
       </div>
     </ToolPage>

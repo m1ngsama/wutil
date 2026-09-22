@@ -199,8 +199,8 @@ export default function PdfMergeComponent() {
       <button
         type="button"
         className={[
-          'w-full rounded-xl border-2 border-dashed p-10 flex flex-col items-center gap-3 text-center transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
-          isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
+          'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:p-10',
+          isDragging ? 'border-accent bg-accent/5' : 'border-edge-strong hover:border-accent/60',
         ].join(' ')}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
@@ -209,12 +209,12 @@ export default function PdfMergeComponent() {
         aria-label="Choose PDF files"
       >
         <FilePlus2 aria-hidden="true" className="w-8 h-8 text-ink-3" strokeWidth={1.5} />
-        <span className="block">
-          <span className="block text-sm font-semibold text-ink">Choose PDF files</span>
-          <span className="block text-xs text-ink-3 mt-0.5">
-            <span className="hidden fine-pointer:inline">or drop them here. </span>
-            Up to {MAX_PDF_FILES} files, {PDF_FILE_SIZE_LABEL} each, {PDF_TOTAL_SIZE_LABEL} in total
-          </span>
+        <span className="inline-flex min-h-11 items-center rounded-md border border-edge-strong bg-surface px-4 text-sm font-semibold text-ink transition-colors group-hover:bg-muted fine-pointer:min-h-9">
+          Choose PDF files
+        </span>
+        <span className="block text-balance text-xs text-ink-3">
+          <span className="hidden fine-pointer:inline">or drop them here. </span>
+          Up to {MAX_PDF_FILES} files, {PDF_FILE_SIZE_LABEL} each and {PDF_TOTAL_SIZE_LABEL} in total.
         </span>
       </button>
       <input ref={fileInputRef} id="pdf-upload" name="pdf-files" type="file" multiple accept=".pdf" aria-label="Choose PDF files" tabIndex={-1} className="sr-only"
@@ -263,18 +263,17 @@ export default function PdfMergeComponent() {
         </div>
       )}
 
-      {/* Actions */}
-      <div className="flex gap-3">
+      {files.length > 0 && (
         <button
           type="button"
           onClick={mergePdfs}
           disabled={processing || files.length < 2}
           aria-busy={processing}
-          className="flex-1 h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+          className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
         >
           {processing ? 'Merging…' : files.length < 2 ? 'Add at least 2 PDFs' : `Merge ${files.length} PDFs`}
         </button>
-      </div>
+      )}
 
       {processing && mergeProgress ? (
         <div className="mt-3">

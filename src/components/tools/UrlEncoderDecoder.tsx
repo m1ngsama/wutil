@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
-import { copyText } from '@/lib/clipboard';
+import { CopyButton } from '@/components/ui/CopyButton';
 
 const URL_EXAMPLES = [
   { id: 'search-url', label: 'Search URL', value: 'https://example.com/search?q=hello world&lang=en' },
@@ -68,11 +68,22 @@ export default function UrlEncoderDecoder() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="url-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
-            {mode === 'encode' ? 'Plain text / URL' : 'Encoded URL'}
-          </label>
+      <ExamplePicker
+        examples={URL_EXAMPLES}
+        onSelect={(example) => {
+          setInput(example.value);
+          setMode('encode');
+        }}
+        className="mb-6"
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="flex flex-col">
+          <div className="field-header">
+            <label htmlFor="url-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+              {mode === 'encode' ? 'Plain text / URL' : 'Encoded URL'}
+            </label>
+          </div>
           <textarea
             id="url-input"
             aria-describedby={result.error ? 'url-input-error' : undefined}
@@ -82,31 +93,24 @@ export default function UrlEncoderDecoder() {
               'focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors',
               result.error ? 'border-red-500/70' : 'border-edge',
             ].join(' ')}
-            placeholder={mode === 'encode' ? 'https://example.com/path?q=hello world' : 'https%3A%2F%2Fexample.com%2F…'}
+            placeholder={mode === 'encode' ? 'Type or paste text…' : 'Paste encoded text…'}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             spellCheck={false}
           />
           {result.error && (
-            <p id="url-input-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            <p id="url-input-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
               {result.error}
             </p>
           )}
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <div className="field-header">
             <label htmlFor="url-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
               {mode === 'encode' ? 'Encoded URL' : 'Decoded text'}
             </label>
-            <button
-              type="button"
-              onClick={() => { void copyText(result.output); }}
-              disabled={!result.output}
-              className="min-h-11 px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
-            >
-              Copy
-            </button>
+            <CopyButton value={result.output} />
           </div>
           <textarea
             id="url-output"
@@ -118,14 +122,6 @@ export default function UrlEncoderDecoder() {
           />
         </div>
       </div>
-
-      <ExamplePicker
-        examples={URL_EXAMPLES}
-        onSelect={(example) => {
-          setInput(example.value);
-          setMode('encode');
-        }}
-      />
     </ToolPage>
   );
 }

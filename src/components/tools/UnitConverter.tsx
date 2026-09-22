@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { parseUnitInput } from '@/lib/unit-utils';
@@ -208,14 +209,13 @@ export default function UnitConverter() {
             <button
               type="button"
               disabled={!output}
-              className="min-w-0 w-full h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base text-left hover:border-edge-strong disabled:cursor-default disabled:hover:border-edge transition-colors"
+              className="min-w-0 w-full min-h-11 px-4 py-1.5 flex items-center gap-3 rounded-md bg-accent-subtle text-ink font-mono text-xl font-semibold text-left hover:ring-1 hover:ring-inset hover:ring-accent/40 disabled:cursor-default disabled:text-base disabled:font-normal transition-colors"
               onClick={() => { if (output) void copyText(output); }}
               title={output ? 'Copy' : undefined}
               aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
             >
-              <span className={output ? 'text-ink' : 'text-ink-3'}>
-                {output || 'No result'}
-              </span>
+              <span className="min-w-0 flex-1 truncate">{output || 'No result'}</span>
+              {output && <Copy aria-hidden="true" className="h-4 w-4 shrink-0 text-accent" />}
             </button>
             <select
               value={toId}

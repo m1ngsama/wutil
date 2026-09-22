@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Clock3, Copy, Download, RefreshCw, ShieldCheck } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
-import { copyText } from '@/lib/clipboard';
+import { CopyButton } from '@/components/ui/CopyButton';
 import {
   formatUuid,
   generateUuidBatch,
@@ -44,12 +44,7 @@ export default function UuidGenerator() {
     [hyphens, uppercase, uuids],
   );
 
-  const handleVersionChange = (nextVersion: UuidVersion) => {
-    setVersion(nextVersion);
-    setUuids([]);
-  };
-
-  const handleGenerate = () => {
+  const handleGenerate = (nextVersion = version) => {
     const count = Number(quantity);
 
     if (!Number.isInteger(count) || count < MIN_UUID_BATCH_SIZE || count > MAX_UUID_BATCH_SIZE) {
@@ -60,15 +55,18 @@ export default function UuidGenerator() {
     setQuantityError('');
 
     try {
-      setUuids(generateUuidBatch({ version, count }));
+      setUuids(generateUuidBatch({ version: nextVersion, count }));
     } catch {
       toast.error('UUID generation is unavailable in this browser');
     }
   };
 
-  const handleCopyAll = () => {
-    if (displayedUuids.length === 0) return;
-    void copyText(displayedUuids.join('\n'), `${displayedUuids.length} UUID${displayedUuids.length === 1 ? '' : 's'} copied`);
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+  useEffect(() => handleGenerate(), []);
+
+  const handleVersionChange = (nextVersion: UuidVersion) => {
+    setVersion(nextVersion);
+    handleGenerate(nextVersion);
   };
 
   const handleDownload = () => {
@@ -96,16 +94,12 @@ export default function UuidGenerator() {
       <div className="space-y-5">
         <form
           className="rounded-xl border border-edge bg-surface p-5 sm:p-6"
-          aria-labelledby="uuid-settings-heading"
+          aria-label="Generation settings"
           onSubmit={(event) => {
             event.preventDefault();
             handleGenerate();
           }}
         >
-          <h2 id="uuid-settings-heading" className="mb-5 text-base font-semibold text-ink">
-            Generation settings
-          </h2>
-
           <fieldset>
             <legend className="text-xs font-semibold uppercase tracking-wider text-ink-3">
               UUID version
@@ -198,39 +192,34 @@ export default function UuidGenerator() {
 
           <Button type="submit" size="lg" className="mt-6 w-full">
             <RefreshCw aria-hidden="true" className="mr-2 h-4 w-4" />
-            Generate {version.toUpperCase()} UUID{Number(quantity) === 1 ? '' : 's'}
+            Generate {version} UUID{Number(quantity) === 1 ? '' : 's'}
           </Button>
         </form>
 
         <section className="rounded-xl border border-edge bg-surface p-5 sm:p-6" aria-labelledby="uuid-results-heading">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 id="uuid-results-heading" className="text-base font-semibold text-ink">
-                Generated UUIDs
-              </h2>
-              <p role="status" aria-live="polite" className="mt-0.5 text-xs text-ink-3">
-                {displayedUuids.length > 0
-                  ? `${displayedUuids.length} ${version.toUpperCase()} UUID${displayedUuids.length === 1 ? '' : 's'} ready`
-                  : 'Choose your settings, then generate.'}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:flex">
-              <Button variant="outline" size="sm" disabled={displayedUuids.length === 0} onClick={handleCopyAll}>
-                <Copy aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
-                Copy all
-              </Button>
+          <div className="field-header flex-wrap">
+            <h2 id="uuid-results-heading" className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+              Generated UUIDs
+            </h2>
+            <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={displayedUuids.length === 0} onClick={handleDownload}>
                 <Download aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
                 Download .txt
               </Button>
+              <CopyButton value={displayedUuids.join('\n')} label="Copy all" />
             </div>
           </div>
+          <p role="status" aria-live="polite" className="sr-only">
+            {displayedUuids.length > 0
+              ? `${displayedUuids.length} ${version} UUID${displayedUuids.length === 1 ? '' : 's'} ready`
+              : ''}
+          </p>
 
           {displayedUuids.length > 0 ? (
             <ol
               aria-label="Generated UUIDs"
               tabIndex={0}
-              className="mt-4 max-h-[28rem] overflow-y-auto rounded-lg border border-edge bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+              className="max-h-[28rem] overflow-y-auto rounded-lg border border-edge bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
             >
               {displayedUuids.map((uuid, index) => (
                 <li
@@ -243,58 +232,17 @@ export default function UuidGenerator() {
                   <code className="min-w-0 break-all font-mono text-xs leading-relaxed text-ink sm:text-sm">
                     {uuid}
                   </code>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    aria-label={`Copy UUID ${index + 1}`}
-                    onClick={() => void copyText(uuid, 'UUID copied')}
-                  >
-                    <Copy aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
-                    Copy
-                  </Button>
+                  <CopyButton value={uuid} aria-label={`Copy UUID ${index + 1}`} successMessage="UUID copied" />
                 </li>
               ))}
             </ol>
           ) : (
-            <div className="mt-4 flex min-h-32 items-center justify-center rounded-lg border border-dashed border-edge bg-canvas px-6 text-center">
-              <p className="max-w-sm text-sm leading-relaxed text-ink-3">
-                Your UUIDs will appear here. Change case or hyphens afterward without generating again.
-              </p>
-            </div>
+            <div aria-hidden="true" className="min-h-14 rounded-lg border border-edge bg-canvas" />
           )}
         </section>
 
-        <aside className="grid gap-3 sm:grid-cols-2" aria-label="UUID privacy and format notes">
-          <div className="rounded-xl border border-edge bg-muted p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
-              <div>
-                <h2 className="text-sm font-semibold text-ink">Private by design</h2>
-                <p className="mt-1 text-xs leading-relaxed text-ink-2">
-                  Your browser supplies the random bytes. Generated UUIDs are not uploaded or saved, and no personal data is used to create them.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-xl border border-edge bg-muted p-4">
-            <div className="flex items-start gap-3">
-              <Clock3 aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
-              <div>
-                <h2 className="text-sm font-semibold text-ink">
-                  {version === 'v7' ? 'Why v7 sorts by time' : 'How v4 is built'}
-                </h2>
-                <p className="mt-1 text-xs leading-relaxed text-ink-2">
-                  {version === 'v7'
-                    ? 'UUID v7 starts with a 48-bit Unix millisecond timestamp, so values from different milliseconds sort by creation time. Its remaining variable bits are random.'
-                    : 'UUID v4 uses random bits plus fixed version and variant markers, making it useful when creation time should not be embedded.'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </aside>
-
         <p className="text-center text-xs leading-relaxed text-ink-3">
-          A UUID is an identifier—not encryption, a password, or a secret key.
+          A UUID is an identifier, not a secret. v7 values also reveal when they were created.
         </p>
       </div>
     </ToolPage>

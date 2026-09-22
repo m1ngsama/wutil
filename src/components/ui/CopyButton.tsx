@@ -1,17 +1,17 @@
 'use client';
 
 import { Check, Copy } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ButtonHTMLAttributes } from 'react';
 import { copyText } from '@/lib/clipboard';
 import { cn } from '@/lib/utils';
 
-interface CopyButtonProps {
+interface CopyButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClick'> {
   value: string;
   label?: string;
-  className?: string;
+  successMessage?: string;
 }
 
-export function CopyButton({ value, label = 'Copy', className }: CopyButtonProps) {
+export function CopyButton({ value, label = 'Copy', successMessage, className, ...props }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -24,8 +24,9 @@ export function CopyButton({ value, label = 'Copy', className }: CopyButtonProps
     <button
       type="button"
       disabled={!value}
+      {...props}
       onClick={async () => {
-        if (await copyText(value)) setCopied(true);
+        if (await copyText(value, successMessage)) setCopied(true);
       }}
       className={cn(
         'inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md border border-edge bg-surface px-3 text-xs font-semibold text-ink-2 transition-colors hover:border-edge-strong hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-8',

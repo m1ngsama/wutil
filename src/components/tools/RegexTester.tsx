@@ -146,7 +146,7 @@ export default function RegexTester() {
       </div>
 
       {/* Flags */}
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-2 gap-x-4 sm:flex sm:flex-wrap">
         {FLAG_OPTIONS.map(({ flag, label }) => (
           <label key={flag} className="flex min-h-11 cursor-pointer items-center gap-2 fine-pointer:min-h-9">
             <input
@@ -174,6 +174,9 @@ export default function RegexTester() {
           onChange={(e) => setTestString(e.target.value)}
           spellCheck={false}
         />
+        {pattern && !testString && (
+          <p className="text-xs text-ink-3">No matches yet</p>
+        )}
       </div>
 
       {/* Highlighted matches */}

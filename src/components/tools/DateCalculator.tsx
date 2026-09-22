@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { addCalendarDays, daysBetween, toDateInputValue } from '@/lib/date-utils';
 
 const todayStr = () => toDateInputValue(new Date());
+const inThirtyDaysStr = () => toDateInputValue(addCalendarDays(new Date(), 30));
 
 export default function DateCalculator() {
   const [tab, setTab] = useState<'diff' | 'add'>('diff');
 
   // Diff tab
   const [start, setStart] = useState(todayStr);
-  const [end, setEnd]     = useState(todayStr);
+  const [end, setEnd]     = useState(inThirtyDaysStr);
 
   // Add tab
   const [base, setBase]     = useState(todayStr);
@@ -52,14 +54,14 @@ export default function DateCalculator() {
     >
 
       {/* Tab switcher */}
-      <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit">
+      <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit max-w-full">
         {([['diff', 'Date difference'], ['add', 'Add / subtract days']] as const).map(([id, label]) => (
           <button
             type="button"
             key={id}
             onClick={() => setTab(id)}
             aria-pressed={tab === id}
-            className={`min-h-11 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
+            className={`min-h-11 whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
               tab === id ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
             }`}
           >
@@ -104,12 +106,22 @@ export default function DateCalculator() {
                 <p className="text-ink-2 text-sm">Same day.</p>
               ) : (
                 <>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">
                     End is {diff.label} start
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <button
+                    type="button"
+                    className="flex w-full items-baseline gap-2 rounded-lg py-1 text-left transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)]"
+                    onClick={() => { void copyText(String(diff.absDays), 'Days copied'); }}
+                    title="Copy"
+                    aria-label={`Copy days value ${diff.absDays}`}
+                  >
+                    <span className="font-display text-5xl leading-none text-ink">{diff.absDays}</span>
+                    <span className="text-sm font-semibold text-ink-2">{diff.absDays === 1 ? 'day' : 'days'}</span>
+                    <Copy aria-hidden="true" className="ml-auto h-4 w-4 self-center text-ink-3" />
+                  </button>
+                  <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                     {[
-                      { label: 'Days',   value: diff.absDays.toString() },
                       { label: 'Weeks',  value: diff.weeks  },
                       { label: 'Months', value: `~${diff.months}` },
                       { label: 'Years',  value: `~${diff.years}` },
@@ -117,12 +129,13 @@ export default function DateCalculator() {
                       <button
                         type="button"
                         key={label}
-                        className="flex flex-col items-center justify-center rounded-lg bg-muted border border-edge p-4 hover:border-edge-strong transition-colors"
+                        className="relative flex flex-col items-center justify-center rounded-lg bg-muted border border-edge px-2 py-4 hover:border-edge-strong transition-colors"
                         onClick={() => { void copyText(value.replace('~', ''), `${label} copied`); }}
                         title="Copy"
                         aria-label={`Copy ${label.toLowerCase()} value ${value.replace('~', '')}`}
                       >
-                        <span className="font-display text-2xl text-ink leading-none mb-1">{value}</span>
+                        <Copy aria-hidden="true" className="absolute right-2 top-2 h-3 w-3 text-ink-3" />
+                        <span className="font-display text-xl text-ink leading-none mb-1 sm:text-2xl">{value}</span>
                         <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-3">{label}</span>
                       </button>
                     ))}
@@ -191,11 +204,12 @@ export default function DateCalculator() {
           {addResult && (
             <button
               type="button"
-              className="w-full rounded-xl border border-edge bg-surface p-5 text-left hover:border-edge-strong transition-colors"
+              className="relative w-full rounded-xl border border-edge bg-surface p-5 text-left hover:border-edge-strong transition-colors"
               onClick={() => { void copyText(addResult, 'Date copied'); }}
               title="Copy"
               aria-label={`Copy result date ${addResult}`}
             >
+              <Copy aria-hidden="true" className="absolute right-5 top-5 h-4 w-4 text-ink-3" />
               <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</span>
               <span className="block font-display text-3xl text-ink">{addResult}</span>
               <span className="block text-xs text-ink-3 mt-1">

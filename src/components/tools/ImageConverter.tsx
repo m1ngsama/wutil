@@ -351,15 +351,15 @@ export default function ImageConverterComponent() {
       width="wide"
     >
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
+      <div className={previewUrl ? 'grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6' : 'max-w-xl'}>
         {/* Controls */}
         <div className="space-y-4">
           {/* Upload */}
           <button
             type="button"
             className={[
-              'w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
-              isDragging ? 'border-accent bg-accent/5' : 'border-edge hover:border-accent/60',
+              'group w-full rounded-xl border-2 border-dashed p-8 flex flex-col items-center gap-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
+              isDragging ? 'border-accent bg-accent/5' : 'border-edge-strong hover:border-accent/60',
             ].join(' ')}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
@@ -372,10 +372,10 @@ export default function ImageConverterComponent() {
             aria-label="Choose an image file"
           >
             <ImageIcon aria-hidden="true" className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
-            <span className="block">
-              <span className="block text-sm font-semibold text-ink">Choose an image</span>
-              <span className="block text-xs text-ink-3 mt-0.5"><span className="hidden fine-pointer:inline">or drop one here. </span>Up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
+            <span className="inline-flex min-h-11 items-center rounded-md border border-edge-strong bg-surface px-4 text-sm font-semibold text-ink transition-colors group-hover:bg-muted fine-pointer:min-h-9">
+              Choose an image
             </span>
+            <span className="block text-xs text-ink-3"><span className="hidden fine-pointer:inline">or drop one here. </span>Up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
             {imageFile && (
               <span className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
                 {imageFile.name} · {fmtBytes(imageFile.size)} · {ratio}
@@ -450,7 +450,7 @@ export default function ImageConverterComponent() {
                   <label htmlFor="image-output-width" className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">W</label>
                   <input
                     id="image-output-width"
-                    type="number" min={1} value={width}
+                    type="number" min={1} value={width} placeholder="Auto"
                     aria-label="Output width"
                     aria-describedby="image-dimension-limit"
                     onChange={(e) => onWidthChange(parseDimensionInput(e.target.value))}
@@ -461,7 +461,7 @@ export default function ImageConverterComponent() {
                   <label htmlFor="image-output-height" className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">H</label>
                   <input
                     id="image-output-height"
-                    type="number" min={1} value={height}
+                    type="number" min={1} value={height} placeholder="Auto"
                     aria-label="Output height"
                     aria-describedby="image-dimension-limit"
                     onChange={(e) => onHeightChange(parseDimensionInput(e.target.value))}
@@ -488,15 +488,17 @@ export default function ImageConverterComponent() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={convert}
-            disabled={!imageFile || processing}
-            aria-busy={processing}
-            className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
-          >
-            {processing ? 'Converting…' : 'Convert Image'}
-          </button>
+          {imageFile && (
+            <button
+              type="button"
+              onClick={convert}
+              disabled={processing}
+              aria-busy={processing}
+              className="w-full h-11 bg-accent text-accent-fg font-semibold rounded-xl hover:bg-accent-hover disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+            >
+              {processing ? 'Converting…' : 'Convert Image'}
+            </button>
+          )}
 
           {processing ? (
             <ToolProgress
@@ -508,50 +510,46 @@ export default function ImageConverterComponent() {
           ) : null}
         </div>
 
-        {/* Preview */}
-        <div className="rounded-xl border border-edge bg-surface overflow-hidden flex flex-col">
-          <div className="border-b border-edge px-4 py-2.5 flex items-center justify-between bg-muted">
-            <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
-              {resultUrl ? 'Result' : 'Preview'}
-            </span>
-            {resultUrl && (
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-ink-3">{fmtBytes(resultSize)}</span>
-                <a
-                  href={resultUrl}
-                  download={`converted.${ext}`}
-                  className="h-11 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
-                >
-                  Download
-                </a>
-              </div>
-            )}
+        {previewUrl && (
+          <div className="rounded-xl border border-edge bg-surface overflow-hidden flex flex-col">
+            <div className="border-b border-edge px-4 py-2.5 flex items-center justify-between bg-muted">
+              <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+                {resultUrl ? 'Result' : 'Preview'}
+              </span>
+              {resultUrl && (
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-ink-3">{fmtBytes(resultSize)}</span>
+                  <a
+                    href={resultUrl}
+                    download={`converted.${ext}`}
+                    className="h-11 px-3 inline-flex items-center text-xs font-semibold bg-accent text-accent-fg rounded-md hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
+                  >
+                    Download
+                  </a>
+                </div>
+              )}
+            </div>
+            <div className="flex-1 flex items-center justify-center p-4 min-h-[360px]">
+              {resultUrl ? (
+                <img
+                  src={resultUrl}
+                  alt="Converted"
+                  width={Number(width) || origW}
+                  height={Number(height) || origH}
+                  className="max-w-full max-h-[500px] rounded object-contain"
+                />
+              ) : (
+                <img
+                  src={previewUrl}
+                  alt="Original"
+                  width={origW}
+                  height={origH}
+                  className="max-w-full max-h-[500px] rounded object-contain opacity-70"
+                />
+              )}
+            </div>
           </div>
-          <div className="flex-1 flex items-center justify-center p-4 min-h-[360px]">
-            {resultUrl ? (
-              <img
-                src={resultUrl}
-                alt="Converted"
-                width={Number(width) || origW}
-                height={Number(height) || origH}
-                className="max-w-full max-h-[500px] rounded object-contain"
-              />
-            ) : previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Original"
-                width={origW}
-                height={origH}
-                className="max-w-full max-h-[500px] rounded object-contain opacity-70"
-              />
-            ) : (
-              <div className="text-center text-ink-3">
-                <ImageIcon className="mx-auto w-10 h-10 mb-2" strokeWidth={1} />
-                <p className="text-sm">No image loaded</p>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
       <canvas ref={canvasRef} className="hidden" />
