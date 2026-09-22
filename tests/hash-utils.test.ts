@@ -6,7 +6,7 @@ import {
   normalizeExpectedHash,
   validateExpectedHash,
   validateHashFile,
-} from '../src/lib/hash-utils';
+} from '../src/lib/hash-utils.ts';
 
 test('checksum normalization accepts common pasted formats', () => {
   const value = 'a'.repeat(64);

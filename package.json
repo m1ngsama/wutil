@@ -8,7 +8,7 @@
     "postbuild": "node -e \"const fs=require('fs');const f='out/sw.js';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace('__BUILD_ID__',fs.readFileSync('.next/BUILD_ID','utf8').trim()))\"",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsc -p tsconfig.test.json && node --test .tmp/test-dist/tests/*.test.js",
+    "test": "node --test tests/*.test.ts",
     "test:e2e": "npm run build && playwright test",
     "check": "npm run lint && npm run typecheck && npm run test",
     "audit:prod": "npm audit --omit=dev --audit-level=high",

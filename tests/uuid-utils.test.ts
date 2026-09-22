@@ -6,7 +6,7 @@ import {
   generateUuidV4,
   generateUuidV7,
   MAX_UUID_V7_TIMESTAMP,
-} from '../src/lib/uuid-utils';
+} from '../src/lib/uuid-utils.ts';
 
 function filledRandomBytes(value: number) {
   return (length: number) => new Uint8Array(length).fill(value);

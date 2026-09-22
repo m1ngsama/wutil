@@ -1,4 +1,4 @@
-import { TOOL_REGISTRY_BY_ID } from './tool-registry';
+import { TOOL_REGISTRY_BY_ID } from './tool-registry.ts';
 
 export const RECENT_TOOLS_STORAGE_KEY = 'wutil:recent-tools:v1';
 export const RECENT_TOOLS_EVENT = 'wutil:recent-tools-change';

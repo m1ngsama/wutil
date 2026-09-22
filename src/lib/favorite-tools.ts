@@ -1,4 +1,4 @@
-import { TOOL_REGISTRY_BY_ID } from './tool-registry';
+import { TOOL_REGISTRY_BY_ID } from './tool-registry.ts';
 
 export const FAVORITE_TOOLS_STORAGE_KEY = 'wutil:favorite-tools:v1';
 export const FAVORITE_TOOLS_EVENT = 'wutil:favorite-tools-change';

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_NAME, SITE_URL } from './site-config';
+import { SITE_NAME, SITE_URL } from './site-config.ts';
 
 const DEFAULT_IMAGE = {
   url: '/og-image.svg',
