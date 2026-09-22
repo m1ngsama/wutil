@@ -1,3 +1,5 @@
+import { toHex } from './utils.ts';
+
 export const MIN_UUID_BATCH_SIZE = 1;
 export const MAX_UUID_BATCH_SIZE = 100;
 export const MAX_UUID_V7_TIMESTAMP = 0xffffffffffff;
@@ -39,7 +41,7 @@ function readRandomBytes(randomBytes: UuidRandomSource): Uint8Array {
 }
 
 function bytesToUuid(bytes: Uint8Array): string {
-  const hex = bytes.toHex();
+  const hex = toHex(bytes);
   return [
     hex.slice(0, 8),
     hex.slice(8, 12),
