@@ -210,7 +210,7 @@ export default function UnitConverter() {
               disabled={!output}
               className="min-w-0 w-full h-11 px-4 flex items-center rounded-md border border-edge bg-muted text-ink font-mono text-base text-left hover:border-edge-strong disabled:cursor-default disabled:hover:border-edge transition-colors"
               onClick={() => { if (output) void copyText(output); }}
-              title={output ? 'Click to copy' : undefined}
+              title={output ? 'Copy' : undefined}
               aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
             >
               <span className={output ? 'text-ink' : 'text-ink-3'}>
@@ -226,7 +226,7 @@ export default function UnitConverter() {
               {units.map((u) => <option key={u.id} value={u.id}>{u.label}</option>)}
             </select>
           </div>
-          {output && <p className="text-xs text-ink-3">Click result to copy</p>}
+          {output && <p className="text-xs text-ink-3"><span className="fine-pointer:hidden">Tap</span><span className="hidden fine-pointer:inline">Click</span> the result to copy it</p>}
         </div>
       </div>
     </ToolPage>

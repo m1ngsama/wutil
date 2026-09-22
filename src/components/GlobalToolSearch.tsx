@@ -133,7 +133,7 @@ export function GlobalToolSearch() {
               <p className="mt-0.5 text-xs text-ink-3">Search by name or describe the task.</p>
             </div>
             <div className="flex items-center gap-2">
-              <kbd aria-hidden="true" className="hidden rounded border border-edge bg-muted px-2 py-1 font-mono text-[10px] text-ink-3 sm:block">
+              <kbd aria-hidden="true" className="hidden rounded border border-edge bg-muted px-2 py-1 font-mono text-[10px] text-ink-3 fine-pointer:block">
                 Esc
               </kbd>
               <button
@@ -172,7 +172,7 @@ export function GlobalToolSearch() {
                 className="h-11 w-full rounded-md border border-edge bg-surface pl-10 pr-3 text-base text-ink placeholder:text-ink-3 transition-colors hover:border-edge-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
               />
             </div>
-            <p id="global-tool-search-help" className="mt-2 text-xs text-ink-3">
+            <p id="global-tool-search-help" className="mt-2 hidden text-xs text-ink-3 fine-pointer:block">
               Use ↑ and ↓ to choose, Enter to open, or Tab through results.
             </p>
           </div>
@@ -197,7 +197,7 @@ export function GlobalToolSearch() {
                         onClick={closeDialog}
                         onFocus={() => setActiveIndex(index)}
                         onMouseEnter={() => setActiveIndex(index)}
-                        className={`group grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-4 rounded-md px-3 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${active ? 'bg-accent-subtle' : 'hover:bg-muted'}`}
+                        className={`group grid min-h-16 items-center gap-x-4 gap-y-1 rounded-md sm:grid-cols-[minmax(0,1fr)_auto] px-3 py-3 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${active ? 'bg-accent-subtle' : 'hover:bg-muted'}`}
                       >
                         <span className="min-w-0">
                           <span className={`block text-sm font-semibold ${active ? 'text-accent' : 'text-ink'}`}>
@@ -207,7 +207,7 @@ export function GlobalToolSearch() {
                             {tool.description}
                           </span>
                         </span>
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3">
+                        <span className="-order-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3 sm:order-none">
                           {TOOL_CATEGORY_NAMES[tool.category]}
                         </span>
                       </Link>

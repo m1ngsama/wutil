@@ -259,7 +259,7 @@ export default function HomeClient() {
             className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-3"
           >
             <span>Find a tool</span>
-            <span aria-hidden="true" className="hidden items-center gap-1 normal-case tracking-normal text-ink-3 sm:inline-flex">
+            <span aria-hidden="true" className="hidden items-center gap-1 normal-case tracking-normal text-ink-3 fine-pointer:inline-flex">
               Press <kbd className="rounded border border-edge bg-muted px-1.5 py-0.5 font-mono text-[10px]">/</kbd>
             </span>
           </label>

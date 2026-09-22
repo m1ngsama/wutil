@@ -374,7 +374,7 @@ export default function ImageConverterComponent() {
             <ImageIcon aria-hidden="true" className="w-7 h-7 text-ink-3" strokeWidth={1.5} />
             <span className="block">
               <span className="block text-sm font-semibold text-ink">Choose an image</span>
-              <span className="block text-xs text-ink-3 mt-0.5">or drop one here, up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
+              <span className="block text-xs text-ink-3 mt-0.5"><span className="hidden fine-pointer:inline">or drop one here. </span>Up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
             </span>
             {imageFile && (
               <span className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">

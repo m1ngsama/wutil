@@ -165,7 +165,7 @@ export default function TimestampConverter() {
                   key={label}
                   className={`w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted transition-colors ${i < FORMATS.length - 1 ? 'border-b border-edge' : ''}`}
                   onClick={() => copy(value, label)}
-                  title="Click to copy"
+                  title="Copy"
                   aria-label={`Copy ${label} value`}
                 >
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3 w-24">{label}</span>

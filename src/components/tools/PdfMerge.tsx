@@ -212,7 +212,8 @@ export default function PdfMergeComponent() {
         <span className="block">
           <span className="block text-sm font-semibold text-ink">Choose PDF files</span>
           <span className="block text-xs text-ink-3 mt-0.5">
-            or drop them here, up to {PDF_FILE_SIZE_LABEL} each · {MAX_PDF_FILES} files · {PDF_TOTAL_SIZE_LABEL} total
+            <span className="hidden fine-pointer:inline">or drop them here. </span>
+            Up to {MAX_PDF_FILES} files, {PDF_FILE_SIZE_LABEL} each, {PDF_TOTAL_SIZE_LABEL} in total
           </span>
         </span>
       </button>

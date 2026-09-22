@@ -119,7 +119,7 @@ export default function DateCalculator() {
                         key={label}
                         className="flex flex-col items-center justify-center rounded-lg bg-muted border border-edge p-4 hover:border-edge-strong transition-colors"
                         onClick={() => { void copyText(value.replace('~', ''), `${label} copied`); }}
-                        title="Click to copy"
+                        title="Copy"
                         aria-label={`Copy ${label.toLowerCase()} value ${value.replace('~', '')}`}
                       >
                         <span className="font-display text-2xl text-ink leading-none mb-1">{value}</span>
@@ -193,7 +193,7 @@ export default function DateCalculator() {
               type="button"
               className="w-full rounded-xl border border-edge bg-surface p-5 text-left hover:border-edge-strong transition-colors"
               onClick={() => { void copyText(addResult, 'Date copied'); }}
-              title="Click to copy"
+              title="Copy"
               aria-label={`Copy result date ${addResult}`}
             >
               <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</span>
