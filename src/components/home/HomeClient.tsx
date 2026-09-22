@@ -71,31 +71,23 @@ function FeaturedTool({ tool }: { tool: ToolRegistryItem }) {
   return (
     <Link
       href={tool.href}
-      className="group flex min-h-40 flex-col justify-between rounded-xl border border-edge bg-surface p-5 transition-colors hover:border-edge-strong hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas"
+      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-edge bg-surface p-4 transition-colors hover:border-edge-strong hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:p-5"
     >
-      <div className="flex items-start justify-between gap-4">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-subtle text-accent">
-          <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
-        </span>
-        <span className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-accent">
-          {tool.badge}
-          <ArrowRight
-            aria-hidden="true"
-            className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-          />
-        </span>
-      </div>
-      <div>
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-3">
-          {TOOL_CATEGORY_NAMES[tool.category]}
-        </p>
+      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-subtle text-accent">
+        <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
+      </span>
+      <span className="min-w-0">
         <h3 className="text-base font-semibold text-ink transition-colors group-hover:text-accent">
           {tool.name}
         </h3>
-        <p className="mt-1 max-w-[44ch] text-sm leading-relaxed text-ink-2">
+        <span className="mt-0.5 block text-sm leading-relaxed text-ink-2">
           {tool.description}
-        </p>
-      </div>
+        </span>
+      </span>
+      <ArrowRight
+        aria-hidden="true"
+        className="h-4 w-4 text-accent transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+      />
     </Link>
   );
 }
@@ -239,21 +231,21 @@ export default function HomeClient() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <header className="mb-10 grid gap-8 lg:mb-14 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)] lg:items-end">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-14 lg:px-8">
+      <header className="mb-6 grid gap-5 sm:mb-10 sm:gap-8 lg:mb-12">
         <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
+          <p className="mb-3 hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 sm:block">
             {TOOL_REGISTRY.length} tools. Free to use. Private by design.
           </p>
-          <h1 className="font-display text-5xl leading-none text-ink sm:text-6xl md:text-7xl">
+          <h1 className="font-display text-[2.5rem] leading-none text-ink sm:text-6xl md:text-7xl">
             Web Utilities
           </h1>
-          <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink-2">
+          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-ink-2 sm:mt-4 sm:text-base">
             Fast tools that run entirely in your browser. Your tool content is not uploaded or stored.
           </p>
         </div>
 
-        <div role="search">
+        <div role="search" className="max-w-xl">
           <label
             htmlFor="tool-search"
             className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-3"
@@ -275,7 +267,7 @@ export default function HomeClient() {
               type="search"
               autoComplete="off"
               aria-controls="tool-results"
-              aria-keyshortcuts="/"
+              aria-keyshortcuts="/ Meta+K Control+K"
               className="pl-10"
               placeholder="Search by name or task…"
               value={search}
@@ -295,7 +287,7 @@ export default function HomeClient() {
 
       <div
         aria-label="Filter tools by category"
-        className="mb-10 flex flex-wrap gap-2"
+        className="-mx-4 mb-8 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:mb-10 sm:flex-wrap sm:overflow-visible sm:px-0"
         role="group"
       >
         {categories.map((category) => (
@@ -306,6 +298,7 @@ export default function HomeClient() {
             aria-controls="tool-results"
             aria-pressed={activeCategory === category.id}
             onClick={() => setActiveCategory(category.id)}
+            className="shrink-0"
           >
             {category.name}
           </Button>
@@ -355,12 +348,9 @@ export default function HomeClient() {
 
         {featuredTools.length > 0 ? (
           <section aria-labelledby="popular-tools-heading">
-            <div className="mb-4 flex items-baseline justify-between gap-4">
-              <h2 id="popular-tools-heading" className="text-lg font-semibold text-ink">
-                Popular now
-              </h2>
-              <span className="text-xs text-ink-3">A quick place to start</span>
-            </div>
+            <h2 id="popular-tools-heading" className="mb-4 text-lg font-semibold text-ink">
+              Popular now
+            </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {featuredTools.map((tool) => (
                 <FeaturedTool key={tool.id} tool={tool} />

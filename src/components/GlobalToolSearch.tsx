@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import {
   useCallback,
@@ -18,6 +18,7 @@ export function GlobalToolSearch() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const onHome = usePathname() === '/';
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const results = useMemo(() => searchTools(query), [query]);
@@ -47,12 +48,14 @@ export function GlobalToolSearch() {
         event.key.toLowerCase() === 'k';
       if (!usesCommandShortcut) return;
       event.preventDefault();
-      openDialog();
+      const homeSearch = onHome ? document.getElementById('tool-search') : null;
+      if (homeSearch) homeSearch.focus();
+      else openDialog();
     };
 
     window.addEventListener('keydown', handleShortcut);
     return () => window.removeEventListener('keydown', handleShortcut);
-  }, [openDialog]);
+  }, [onHome, openDialog]);
 
   const moveActiveResult = (direction: 1 | -1) => {
     if (results.length === 0) return;
@@ -102,6 +105,7 @@ export function GlobalToolSearch() {
 
   return (
     <>
+      {onHome ? null : (
       <button
         type="button"
         onClick={openDialog}
@@ -113,6 +117,7 @@ export function GlobalToolSearch() {
         <span className="hidden text-xs font-semibold md:inline">Find a tool</span>
         <span className="sr-only">Open tool search</span>
       </button>
+      )}
 
       <dialog
         ref={dialogRef}
