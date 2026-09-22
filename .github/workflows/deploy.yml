@@ -49,11 +49,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: End-to-end tests
-        run: npm run test:e2e
-
       - name: Build
         run: npm run build
+
+      - name: End-to-end tests
+        run: npx playwright test
 
       - name: Deploy to Cloudflare Pages
         id: deploy

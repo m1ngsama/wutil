@@ -73,8 +73,8 @@ Production deploys run through GitHub Actions on pushes to `main`:
 3. `npm run lint`
 4. `npm run typecheck`
 5. `npm run test`
-6. `npm run test:e2e`
-7. `npm run build`
+6. `npm run build`
+7. `npx playwright test` against the built `out` directory
 8. `wrangler pages deploy out --project-name=wutil --branch=main`
 9. `npm run purge:cf`
 10. Warm every sitemap route on the exact Pages deployment URL returned by Wrangler.
