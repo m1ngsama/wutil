@@ -1,40 +1,14 @@
 'use client';
 
-import { useMemo } from 'react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
-
-// Sentence splitting that handles common abbreviations and decimals
-function countSentences(text: string): number {
-  const trimmed = text.trim();
-  if (!trimmed) return 0;
-  // Split on . ! ? followed by whitespace or end, filter fragments < 2 chars
-  const raw = trimmed.split(/(?<=[.!?])\s+(?=[A-Z"'])/);
-  return raw.filter((s) => s.trim().length > 1).length || 1;
-}
-
-const READING_WPM = 238; // average adult silent reading speed
+import { calculateWordStats } from '@/lib/word-stats';
 
 export default function WordCounterComponent() {
   const [text, setText] = useState('');
 
-  const stats = useMemo(() => {
-    if (!text.trim()) return null;
-    const words      = text.trim().split(/\s+/).filter(Boolean).length;
-    const chars      = text.length;
-    const charsNoSp  = text.replace(/\s/g, '').length;
-    const sentences  = countSentences(text);
-    const paragraphs = text.split(/\n{2,}/).filter((p) => p.trim()).length || 1;
-    const readSec    = Math.round((words / READING_WPM) * 60);
-    const readMin    = Math.floor(readSec / 60);
-    const readLabel  = readMin > 0
-      ? `${readMin}m ${readSec % 60}s`
-      : `${readSec}s`;
-    const uniqueWords = new Set(text.toLowerCase().match(/\b[a-z']+\b/g) ?? []).size;
-
-    return { words, chars, charsNoSp, sentences, paragraphs, readLabel, uniqueWords };
-  }, [text]);
+  const stats = useMemo(() => calculateWordStats(text), [text]);
 
   return (
     <ToolPage
@@ -47,7 +21,11 @@ export default function WordCounterComponent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Textarea */}
         <div className="lg:col-span-2 flex flex-col gap-3">
+          <label htmlFor="word-counter-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            Text to analyze
+          </label>
           <textarea
+            id="word-counter-input"
             className="h-[28rem] w-full p-4 rounded-xl border border-edge bg-surface text-ink text-sm resize-none placeholder:text-ink-3 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-1 transition-colors"
             placeholder="Type or paste your text here…"
             value={text}
@@ -80,7 +58,7 @@ export default function WordCounterComponent() {
               {[
                 { label: 'Words',            value: stats.words.toLocaleString()      },
                 { label: 'Characters',       value: stats.chars.toLocaleString()      },
-                { label: 'No spaces',        value: stats.charsNoSp.toLocaleString()  },
+                { label: 'No spaces',        value: stats.charsNoSpaces.toLocaleString()  },
                 { label: 'Sentences',        value: stats.sentences.toLocaleString()  },
                 { label: 'Paragraphs',       value: stats.paragraphs.toLocaleString() },
                 { label: 'Unique words',     value: stats.uniqueWords.toLocaleString()},

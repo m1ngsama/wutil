@@ -84,18 +84,18 @@ export default function JsonFormatterComponent() {
       <div className="json-tool-workspace flex flex-col">
 
       {/* Action bar */}
-      <div className="json-tool-actions mb-5 grid grid-cols-2 gap-2 min-[360px]:flex min-[360px]:flex-wrap min-[360px]:items-center">
+      <div className="json-tool-actions mb-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
         <button
           type="button"
           onClick={formatJson}
-          className="h-11 w-full rounded-md bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
+          className="h-11 w-full rounded-md bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:w-auto fine-pointer:h-9"
         >
           Format
         </button>
         <button
           type="button"
           onClick={minifyJson}
-          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
+          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:w-auto fine-pointer:h-9"
         >
           Minify
         </button>
@@ -103,14 +103,14 @@ export default function JsonFormatterComponent() {
           type="button"
           onClick={handleCopy}
           disabled={!output}
-          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:w-auto fine-pointer:h-9"
+          className="h-11 w-full rounded-md border border-edge bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:w-auto fine-pointer:h-9"
         >
           Copy output
         </button>
         <button
           type="button"
           onClick={handleClear}
-          className="h-11 w-full rounded-md px-4 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas min-[360px]:ml-auto min-[360px]:w-auto fine-pointer:h-9"
+          className="h-11 w-full rounded-md px-4 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas sm:ml-auto sm:w-auto fine-pointer:h-9"
         >
           Clear
         </button>

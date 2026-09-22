@@ -3,79 +3,51 @@
 import { useState, useCallback } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
-
-function hexToRgb(hex: string) {
-  const r = /^#?([a-f\d]{1,2})([a-f\d]{1,2})([a-f\d]{1,2})$/i.exec(hex.trim());
-  if (!r) return null;
-  const expand = (s: string) => parseInt(s.length === 1 ? s + s : s, 16);
-  return { r: expand(r[1]), g: expand(r[2]), b: expand(r[3]) };
-}
-function clampRgbChannel(value: number) {
-  const channel = Number.isFinite(value) ? value : 0;
-  return Math.max(0, Math.min(255, Math.round(channel)));
-}
-function rgbToHex(r: number, g: number, b: number) {
-  return '#' + [r, g, b].map((v) => clampRgbChannel(v).toString(16).padStart(2, '0')).join('');
-}
-function rgbToHsl(r: number, g: number, b: number) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0;
-  const l = (max + min) / 2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-      case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
-    }
-  }
-  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
-}
-function hslToRgb(h: number, s: number, l: number) {
-  h /= 360; s /= 100; l /= 100;
-  if (s === 0) { const v = Math.round(l * 255); return { r: v, g: v, b: v }; }
-  const hue2rgb = (p: number, q: number, t: number) => {
-    if (t < 0) t += 1; if (t > 1) t -= 1;
-    if (t < 1/6) return p + (q - p) * 6 * t;
-    if (t < 1/2) return q;
-    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-    return p;
-  };
-  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-  const p = 2 * l - q;
-  return {
-    r: Math.round(hue2rgb(p, q, h + 1/3) * 255),
-    g: Math.round(hue2rgb(p, q, h)       * 255),
-    b: Math.round(hue2rgb(p, q, h - 1/3) * 255),
-  };
-}
+import {
+  clampRgbChannel,
+  hexToRgb,
+  hslToRgb,
+  normalizeHexColor,
+  rgbToHex,
+  rgbToHsl,
+} from '@/lib/color-utils';
 
 const PRESETS = ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#1e293b','#64748b'];
-const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
+const COPY_BUTTON_CLASS = 'min-h-11 min-w-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9';
 
 export default function ColorConverter() {
-  const [hex, setHex] = useState('#3b82f6');
+  const [hexInput, setHexInput] = useState('#3b82f6');
+  const [validHex, setValidHex] = useState('#3b82f6');
   const [rgb, setRgb] = useState({ r: 59,  g: 130, b: 246 });
   const [hsl, setHsl] = useState({ h: 217, s: 91,  l: 60  });
 
   const fromHex = useCallback((v: string) => {
-    setHex(v);
-    const r = hexToRgb(v);
-    if (r) { setRgb(r); setHsl(rgbToHsl(r.r, r.g, r.b)); }
+    setHexInput(v);
+    const normalized = normalizeHexColor(v);
+    const nextRgb = normalized ? hexToRgb(normalized) : null;
+    if (normalized && nextRgb) {
+      setValidHex(normalized);
+      setRgb(nextRgb);
+      setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
+    }
   }, []);
   const fromRgb = useCallback((r: number, g: number, b: number) => {
     const nextRgb = { r: clampRgbChannel(r), g: clampRgbChannel(g), b: clampRgbChannel(b) };
-    setRgb(nextRgb); setHex(rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b)); setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
+    const nextHex = rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b);
+    setRgb(nextRgb); setHexInput(nextHex); setValidHex(nextHex); setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
   }, []);
   const fromHsl = useCallback((h: number, s: number, l: number) => {
-    setHsl({ h, s, l }); const r = hslToRgb(h, s, l); setRgb(r); setHex(rgbToHex(r.r, r.g, r.b));
+    const nextRgb = hslToRgb(h, s, l);
+    const nextHex = rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b);
+    setHsl({ h, s, l }); setRgb(nextRgb); setHexInput(nextHex); setValidHex(nextHex);
   }, []);
 
-  const copy = (text: string) => { void copyText(text); };
-  const full  = hex.startsWith('#') ? hex : '#' + hex;
-  const safe  = full.length === 7 ? full : '#3b82f6';
+  const hexIsValid = normalizeHexColor(hexInput) !== null;
+  const hexError = hexIsValid ? null : 'Enter a valid HEX color such as #fff or #3b82f6.';
+  const copy = (text: string) => {
+    if (!hexIsValid) return;
+    void copyText(text);
+  };
 
   return (
     <ToolPage
@@ -87,16 +59,16 @@ export default function ColorConverter() {
 
       {/* Preview */}
       <div className="rounded-xl overflow-hidden border border-edge mb-6">
-        <div className="h-24 w-full transition-colors duration-150" style={{ backgroundColor: safe }} />
+        <div className="h-24 w-full transition-colors duration-150" style={{ backgroundColor: validHex }} />
         <div className="bg-surface p-4 flex items-center gap-3">
           <input
-            type="color" value={safe}
+            type="color" value={validHex}
             aria-label="Choose color"
             onChange={(e) => fromHex(e.target.value)}
             className="h-11 w-11 cursor-pointer rounded-md border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9 fine-pointer:w-9"
           />
-          <span className="font-mono font-semibold text-ink">{full.toUpperCase()}</span>
-          <button type="button" onClick={() => copy(full.toUpperCase())} className={`${COPY_BUTTON_CLASS} ml-auto`}>Copy</button>
+          <span className="font-mono font-semibold text-ink">{validHex.toUpperCase()}</span>
+          <button type="button" disabled={!hexIsValid} onClick={() => copy(validHex.toUpperCase())} className={`${COPY_BUTTON_CLASS} ml-auto`}>Copy</button>
         </div>
       </div>
 
@@ -106,21 +78,28 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HEX</span>
-            <button type="button" onClick={() => copy(full.toUpperCase())} className={COPY_BUTTON_CLASS}>Copy</button>
+            <button type="button" disabled={!hexIsValid} onClick={() => copy(validHex.toUpperCase())} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <input
-            type="text" value={hex}
+            type="text" value={hexInput}
+            aria-invalid={!hexIsValid}
+            aria-describedby={hexError ? 'hex-color-error' : undefined}
             onChange={(e) => fromHex(e.target.value)}
-            className="h-11 w-full rounded-md border border-edge bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+            className={`h-11 w-full rounded-md border bg-muted px-3 font-mono text-base text-ink focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas ${hexError ? 'border-red-500/70' : 'border-edge'}`}
             placeholder="#000000"
           />
+          {hexError && (
+            <p id="hex-color-error" role="alert" className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:bg-red-950/40 dark:text-red-400">
+              {hexError}
+            </p>
+          )}
         </div>
 
         {/* RGB */}
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">RGB</span>
-            <button type="button" onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className={COPY_BUTTON_CLASS}>Copy</button>
+            <button type="button" disabled={!hexIsValid} onClick={() => copy(`rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`)} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {(['r','g','b'] as const).map((ch) => (
@@ -145,7 +124,7 @@ export default function ColorConverter() {
         <div className="rounded-xl border border-edge bg-surface p-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">HSL</span>
-            <button type="button" onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className={COPY_BUTTON_CLASS}>Copy</button>
+            <button type="button" disabled={!hexIsValid} onClick={() => copy(`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`)} className={COPY_BUTTON_CLASS}>Copy</button>
           </div>
           <div className="grid grid-cols-3 gap-3 mb-2">
             {[
@@ -181,8 +160,8 @@ export default function ColorConverter() {
               key={color}
               onClick={() => fromHex(color)}
               aria-label={`Use color ${color}`}
-              aria-pressed={color.toLowerCase() === full.toLowerCase()}
-              className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${color.toLowerCase() === full.toLowerCase() ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
+              aria-pressed={hexIsValid && color.toLowerCase() === validHex}
+              className={`h-11 w-11 rounded-md ring-offset-2 ring-offset-canvas transition-shadow focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] fine-pointer:h-8 fine-pointer:w-8 ${hexIsValid && color.toLowerCase() === validHex ? 'ring-2 ring-accent' : 'hover:ring-2 hover:ring-edge-strong'}`}
               style={{ backgroundColor: color }}
               title={color}
             />

@@ -5,7 +5,13 @@ import { toast } from 'sonner';
 import { FilePlus2, X, FileText } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { ToolProgress } from '@/components/tools/ToolProgress';
-import { validatePdfFile } from '@/lib/pdf-utils';
+import {
+  MAX_PDF_FILES,
+  MAX_PDF_SIZE,
+  MAX_PDF_TOTAL_SIZE,
+  validatePdfCollection,
+  validatePdfFile,
+} from '@/lib/pdf-utils';
 
 type PdfMergeProgress = {
   label: string;
@@ -16,6 +22,16 @@ type PdfWorkerResponse =
   | { status: 'progress'; label: string; progress: number }
   | { status: 'done'; blob: Blob }
   | { status: 'error'; error: string };
+
+const PDF_FILE_SIZE_LABEL = `${MAX_PDF_SIZE / 1024 / 1024} MB`;
+const PDF_TOTAL_SIZE_LABEL = `${MAX_PDF_TOTAL_SIZE / 1024 / 1024} MB`;
+
+function collectionError(files: readonly File[]): string | null {
+  const validation = validatePdfCollection(files);
+  if (validation === 'too-many') return `Choose no more than ${MAX_PDF_FILES} PDF files`;
+  if (validation === 'total-too-large') return `Keep the total PDF size at ${PDF_TOTAL_SIZE_LABEL} or less`;
+  return null;
+}
 
 export default function PdfMergeComponent() {
   const [files, setFiles]             = useState<File[]>([]);
@@ -56,9 +72,15 @@ export default function PdfMergeComponent() {
     const oversized = incomingFiles.filter((file) => validatePdfFile(file) === 'too-large');
     const pdfs = incomingFiles.filter((file) => validatePdfFile(file) === 'ok');
     if (nonPdfs.length > 0) toast.error('PDF files only');
-    if (oversized.length > 0) toast.error('Each PDF must be 10 MB or smaller');
+    if (oversized.length > 0) toast.error(`Each PDF must be ${PDF_FILE_SIZE_LABEL} or smaller`);
     if (pdfs.length === 0) return;
-    setFiles((prev) => [...prev, ...pdfs]);
+    const nextFiles = [...files, ...pdfs];
+    const limitError = collectionError(nextFiles);
+    if (limitError) {
+      toast.error(limitError);
+      return;
+    }
+    setFiles(nextFiles);
     setMergedUrl(null);
   };
 
@@ -109,6 +131,15 @@ export default function PdfMergeComponent() {
 
   const mergePdfs = async () => {
     if (files.length < 2) return;
+    if (files.some((file) => validatePdfFile(file) !== 'ok')) {
+      toast.error(`Every PDF must be valid and ${PDF_FILE_SIZE_LABEL} or smaller`);
+      return;
+    }
+    const limitError = collectionError(files);
+    if (limitError) {
+      toast.error(limitError);
+      return;
+    }
     setProcessing(true);
     setMergedUrl(null);
     setMergeProgress({ label: 'Preparing PDFs', progress: 5 });
@@ -180,10 +211,12 @@ export default function PdfMergeComponent() {
         <FilePlus2 aria-hidden="true" className="w-8 h-8 text-ink-3" strokeWidth={1.5} />
         <span className="block">
           <span className="block text-sm font-semibold text-ink">Choose PDF files</span>
-          <span className="block text-xs text-ink-3 mt-0.5">or drop them here, up to 10 MB each</span>
+          <span className="block text-xs text-ink-3 mt-0.5">
+            or drop them here, up to {PDF_FILE_SIZE_LABEL} each · {MAX_PDF_FILES} files · {PDF_TOTAL_SIZE_LABEL} total
+          </span>
         </span>
       </button>
-      <input ref={fileInputRef} id="pdf-upload" name="pdf-files" type="file" multiple accept=".pdf" aria-label="Choose PDF files" className="sr-only"
+      <input ref={fileInputRef} id="pdf-upload" name="pdf-files" type="file" multiple accept=".pdf" aria-label="Choose PDF files" tabIndex={-1} className="sr-only"
         onChange={(e) => {
           if (e.target.files) addFiles(e.target.files);
           e.target.value = '';

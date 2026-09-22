@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
+import { parseTimestampInput, type TimestampUnit } from '@/lib/timestamp-utils';
 
 const FORMATS = [
   { label: 'Unix (s)',     fn: (d: Date) => String(Math.floor(d.getTime() / 1000))   },
@@ -27,23 +28,18 @@ function relativeTime(d: Date, nowMs: number): string {
   return fmt(Math.round(abs / 31_536_000_000), 'year');
 }
 
-function parse(value: string): Date | null {
-  if (!value.trim()) return null;
-  const num = Number(value);
-  if (!isNaN(num)) {
-    const ms = num < 1e12 ? num * 1000 : num;
-    const d = new Date(ms);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d;
-}
+const TIMESTAMP_UNITS: ReadonlyArray<{ value: TimestampUnit; label: string }> = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'seconds', label: 'Seconds' },
+  { value: 'milliseconds', label: 'Milliseconds' },
+];
 
 export default function TimestampConverter() {
   const [input, setInput] = useState('');
   const [date,  setDate]  = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now,   setNow]   = useState<number | null>(null);
+  const [timestampUnit, setTimestampUnit] = useState<TimestampUnit>('auto');
 
   useEffect(() => {
     const updateNow = () => setNow(Math.floor(Date.now() / 1000));
@@ -52,12 +48,12 @@ export default function TimestampConverter() {
     return () => clearInterval(id);
   }, []);
 
-  const handleInput = (value: string) => {
+  const handleInput = (value: string, unit = timestampUnit) => {
     setInput(value);
     if (!value.trim()) { setDate(null); setError(null); return; }
-    const d = parse(value);
-    if (d) { setDate(d); setError(null); }
-    else   { setDate(null); setError('Cannot parse this value. Try a Unix timestamp or ISO date string.'); }
+    const result = parseTimestampInput(value, unit);
+    setDate(result.date);
+    setError(result.error);
   };
 
   const copy = (text: string, label: string) => {
@@ -88,12 +84,49 @@ export default function TimestampConverter() {
         </div>
         <button
           type="button"
-          onClick={() => { if (now !== null) handleInput(String(now)); }}
+          onClick={() => {
+            if (now === null) return;
+            setTimestampUnit('seconds');
+            handleInput(String(now), 'seconds');
+          }}
           disabled={now === null}
           className="h-11 px-4 text-sm font-semibold bg-accent text-accent-fg rounded-lg hover:bg-accent-hover disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:h-9"
         >
           Use now
         </button>
+      </div>
+
+      <div className="mb-5">
+        <p id="timestamp-unit-label" className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+          Numeric input unit
+        </p>
+        <div
+          role="group"
+          aria-labelledby="timestamp-unit-label"
+          className="flex flex-wrap rounded-md border border-edge overflow-hidden w-fit"
+        >
+          {TIMESTAMP_UNITS.map(({ value, label }) => (
+            <button
+              type="button"
+              key={value}
+              aria-pressed={timestampUnit === value}
+              onClick={() => {
+                setTimestampUnit(value);
+                handleInput(input, value);
+              }}
+              className={`min-h-11 px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9 ${
+                timestampUnit === value
+                  ? 'bg-accent text-accent-fg'
+                  : 'bg-surface text-ink hover:bg-muted'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-ink-3">
+          Auto detects common 10-digit seconds and 13-digit milliseconds. Choose a unit for ambiguous values.
+        </p>
       </div>
 
       {/* Input */}
@@ -160,12 +193,15 @@ export default function TimestampConverter() {
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Examples</p>
         <div className="flex flex-wrap gap-2">
           {[
-            { label: 'now',             value: now !== null ? String(now) : '' },
+            { label: 'now',             value: now !== null ? String(now) : '', unit: 'seconds' as const },
             { label: '2024-01-01 UTC',  value: '2024-01-01T00:00:00Z' },
-            { label: '1700000000',      value: '1700000000' },
-            { label: 'Unix epoch',      value: '0' },
-          ].map(({ label, value }) => (
-            <button key={label} type="button" onClick={() => handleInput(value)}
+            { label: '1700000000',      value: '1700000000', unit: 'seconds' as const },
+            { label: 'Unix epoch',      value: '0', unit: 'seconds' as const },
+          ].map(({ label, value, unit }) => (
+            <button key={label} type="button" onClick={() => {
+              if (unit) setTimestampUnit(unit);
+              handleInput(value, unit ?? timestampUnit);
+            }}
               disabled={!value}
               className="min-h-11 px-3 py-1.5 text-xs font-mono border border-edge bg-surface text-ink-2 rounded-md hover:bg-muted disabled:cursor-wait transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
             >

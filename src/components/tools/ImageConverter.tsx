@@ -79,14 +79,27 @@ export default function ImageConverterComponent() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const workerRef = useRef<Worker | null>(null);
+  const fileLoadIdRef = useRef(0);
+  const conversionIdRef = useRef(0);
+
+  const clearResult = useCallback(() => {
+    setResultUrl(null);
+    setResultSize(0);
+  }, []);
 
   const stopActiveConversion = useCallback(() => {
+    conversionIdRef.current += 1;
     workerRef.current?.terminate();
     workerRef.current = null;
     setProcessing(false);
     setConversionStatus('');
     setConversionProgress(0);
   }, []);
+
+  const invalidateOutput = useCallback(() => {
+    stopActiveConversion();
+    clearResult();
+  }, [clearResult, stopActiveConversion]);
 
   useEffect(() => {
     return () => {
@@ -102,11 +115,14 @@ export default function ImageConverterComponent() {
 
   useEffect(() => {
     return () => {
+      fileLoadIdRef.current += 1;
+      conversionIdRef.current += 1;
       workerRef.current?.terminate();
     };
   }, []);
 
   const loadFile = useCallback((file: File) => {
+    const loadId = ++fileLoadIdRef.current;
     const fileValidation = validateImageFile(file);
     if (fileValidation === 'not-image') {
       toast.error('Choose an image file');
@@ -118,9 +134,15 @@ export default function ImageConverterComponent() {
     }
 
     stopActiveConversion();
+    clearResult();
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
+      if (fileLoadIdRef.current !== loadId) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+
       const sourceValidation = validateImageDimensions(
         img.naturalWidth,
         img.naturalHeight,
@@ -135,7 +157,6 @@ export default function ImageConverterComponent() {
       const safeOutput = fitImageWithinOutputLimits(img.naturalWidth, img.naturalHeight);
       setImageFile(file);
       setPreviewUrl(url);
-      setResultUrl(null);
       setOrigW(img.naturalWidth);
       setOrigH(img.naturalHeight);
       setWidth(safeOutput.width);
@@ -147,10 +168,11 @@ export default function ImageConverterComponent() {
     };
     img.onerror = () => {
       URL.revokeObjectURL(url);
+      if (fileLoadIdRef.current !== loadId) return;
       toast.error('Could not load that image');
     };
     img.src = url;
-  }, [stopActiveConversion]);
+  }, [clearResult, stopActiveConversion]);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) loadFile(e.target.files[0]);
@@ -158,19 +180,22 @@ export default function ImageConverterComponent() {
   };
 
   const onWidthChange = (v: number | '') => {
+    invalidateOutput();
     setWidth(v);
     if (lockAspect && origW && origH && v !== '') {
       setHeight(Math.round((Number(v) / origW) * origH));
     }
   };
   const onHeightChange = (v: number | '') => {
+    invalidateOutput();
     setHeight(v);
     if (lockAspect && origW && origH && v !== '') {
       setWidth(Math.round((Number(v) / origH) * origW));
     }
   };
 
-  const completeConversion = (blob: Blob) => {
+  const completeConversion = (blob: Blob, conversionId: number) => {
+    if (conversionIdRef.current !== conversionId) return;
     setResultUrl(URL.createObjectURL(blob));
     setResultSize(blob.size);
     setConversionProgress(100);
@@ -179,7 +204,8 @@ export default function ImageConverterComponent() {
     toast.success('Converted');
   };
 
-  const convertOnMainThread = (w: number, h: number) => {
+  const convertOnMainThread = (w: number, h: number, conversionId: number) => {
+    if (conversionIdRef.current !== conversionId) return;
     if (!previewUrl || !canvasRef.current) {
       toast.error('Conversion failed');
       setProcessing(false);
@@ -191,34 +217,48 @@ export default function ImageConverterComponent() {
 
     const img = new Image();
     img.onload = () => {
-      const canvas = canvasRef.current!;
-      const ctx    = canvas.getContext('2d')!;
+      if (conversionIdRef.current !== conversionId) return;
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!canvas || !ctx) {
+        toast.error('Conversion failed');
+        setProcessing(false);
+        return;
+      }
 
-      canvas.width  = w;
-      canvas.height = h;
-      // White background for JPEG transparency.
-      if (format === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
-      ctx.drawImage(img, 0, 0, w, h);
+      try {
+        canvas.width  = w;
+        canvas.height = h;
+        // White background for JPEG transparency.
+        if (format === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); }
+        ctx.drawImage(img, 0, 0, w, h);
+      } catch {
+        toast.error('Conversion failed');
+        setProcessing(false);
+        return;
+      }
 
       setConversionStatus('Encoding output');
       setConversionProgress(85);
       canvas.toBlob(
         (blob) => {
+          if (conversionIdRef.current !== conversionId) return;
           if (!blob) { toast.error('Conversion failed'); setProcessing(false); return; }
-          completeConversion(blob);
+          completeConversion(blob, conversionId);
         },
         format,
         format === 'image/png' ? undefined : quality,
       );
     };
     img.onerror = () => {
+      if (conversionIdRef.current !== conversionId) return;
       toast.error('Conversion failed');
       setProcessing(false);
     };
     img.src = previewUrl;
   };
 
-  const convertInWorker = (w: number, h: number) => {
+  const convertInWorker = (w: number, h: number, conversionId: number) => {
     if (!imageFile) return;
 
     workerRef.current?.terminate();
@@ -228,13 +268,19 @@ export default function ImageConverterComponent() {
     const fallBackToMainThread = () => {
       worker.terminate();
       if (workerRef.current === worker) workerRef.current = null;
+      if (conversionIdRef.current !== conversionId) return;
       setConversionStatus('Retrying in browser');
       setConversionProgress(25);
-      convertOnMainThread(w, h);
+      convertOnMainThread(w, h, conversionId);
     };
 
     worker.onmessage = (event: MessageEvent<ImageWorkerResponse>) => {
       const message = event.data;
+      if (conversionIdRef.current !== conversionId) {
+        worker.terminate();
+        if (workerRef.current === worker) workerRef.current = null;
+        return;
+      }
 
       if (message.status === 'progress') {
         setConversionStatus(STAGE_LABELS[message.stage]);
@@ -246,7 +292,7 @@ export default function ImageConverterComponent() {
       if (workerRef.current === worker) workerRef.current = null;
 
       if (message.status === 'done') {
-        completeConversion(message.blob);
+        completeConversion(message.blob, conversionId);
       } else {
         fallBackToMainThread();
       }
@@ -273,7 +319,10 @@ export default function ImageConverterComponent() {
     setProcessing(true);
     setConversionStatus('Preparing image');
     setConversionProgress(5);
-    setResultUrl(null);
+    clearResult();
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    const conversionId = ++conversionIdRef.current;
 
     const canUseWorker =
       !isSvgFile(imageFile) &&
@@ -282,9 +331,9 @@ export default function ImageConverterComponent() {
       typeof createImageBitmap !== 'undefined';
 
     if (canUseWorker) {
-      convertInWorker(w, h);
+      convertInWorker(w, h, conversionId);
     } else {
-      convertOnMainThread(w, h);
+      convertOnMainThread(w, h, conversionId);
     }
   };
 
@@ -333,7 +382,7 @@ export default function ImageConverterComponent() {
               </span>
             )}
           </button>
-          <input ref={fileInputRef} id="img-upload" name="image-file" type="file" accept="image/*" aria-label="Choose image file" className="sr-only" onChange={handleFileChange} />
+          <input ref={fileInputRef} id="img-upload" name="image-file" type="file" accept="image/*" aria-label="Choose image file" tabIndex={-1} className="sr-only" onChange={handleFileChange} />
 
           {/* Format */}
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
@@ -344,7 +393,11 @@ export default function ImageConverterComponent() {
                   <button
                     type="button"
                     key={f.value}
-                    onClick={() => setFormat(f.value)}
+                    onClick={() => {
+                      if (f.value === format) return;
+                      invalidateOutput();
+                      setFormat(f.value);
+                    }}
                     aria-pressed={format === f.value}
                     className={`min-h-11 flex-1 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--w-ring)] ${
                       format === f.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
@@ -365,7 +418,10 @@ export default function ImageConverterComponent() {
                 <input
                   type="range" min={0.1} max={1} step={0.05} value={quality}
                   aria-label="Image quality"
-                  onChange={(e) => setQuality(parseFloat(e.target.value))}
+                  onChange={(e) => {
+                    invalidateOutput();
+                    setQuality(parseFloat(e.target.value));
+                  }}
                   className="h-11 w-full accent-[var(--w-accent)]"
                 />
                 <div className="flex justify-between text-xs text-ink-3 mt-0.5"><span>Low</span><span>Max</span></div>
@@ -390,21 +446,28 @@ export default function ImageConverterComponent() {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'W', value: width,  onChange: onWidthChange  },
-                  { label: 'H', value: height, onChange: onHeightChange },
-                ].map(({ label, value, onChange }) => (
-                  <div key={label}>
-                    <label className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">{label}</label>
-                    <input
-                      type="number" min={1} value={value}
-                      aria-label={label === 'W' ? 'Output width' : 'Output height'}
-                      aria-describedby="image-dimension-limit"
-                      onChange={(e) => onChange(parseDimensionInput(e.target.value))}
-                      className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
-                    />
-                  </div>
-                ))}
+                <div>
+                  <label htmlFor="image-output-width" className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">W</label>
+                  <input
+                    id="image-output-width"
+                    type="number" min={1} value={width}
+                    aria-label="Output width"
+                    aria-describedby="image-dimension-limit"
+                    onChange={(e) => onWidthChange(parseDimensionInput(e.target.value))}
+                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="image-output-height" className="block text-[10px] font-semibold uppercase tracking-wider text-ink-3 mb-1">H</label>
+                  <input
+                    id="image-output-height"
+                    type="number" min={1} value={height}
+                    aria-label="Output height"
+                    aria-describedby="image-dimension-limit"
+                    onChange={(e) => onHeightChange(parseDimensionInput(e.target.value))}
+                    className="h-11 w-full font-mono text-sm text-ink bg-muted border border-edge rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--w-ring)] focus:ring-offset-2 focus:ring-offset-canvas"
+                  />
+                </div>
               </div>
               <p id="image-dimension-limit" className="mt-2 text-xs leading-relaxed text-ink-3">
                 Maximum output: {fmtInteger(MAX_IMAGE_DIMENSION)} px per side, {MAX_IMAGE_OUTPUT_PIXELS / 1_000_000} MP.
@@ -412,7 +475,11 @@ export default function ImageConverterComponent() {
               {origW > 0 && (
                 <button
                   type="button"
-                  onClick={() => { setWidth(resetDimensions.width); setHeight(resetDimensions.height); }}
+                  onClick={() => {
+                    invalidateOutput();
+                    setWidth(resetDimensions.width);
+                    setHeight(resetDimensions.height);
+                  }}
                   className="mt-2 min-h-11 rounded-sm px-2 text-xs font-semibold text-accent hover:underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] fine-pointer:min-h-9"
                 >
                   {needsSafeOutput ? 'Reset to safe size' : 'Reset to original'} ({resetDimensions.width} × {resetDimensions.height})
