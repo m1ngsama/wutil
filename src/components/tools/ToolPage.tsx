@@ -7,33 +7,24 @@ import { cn } from '@/lib/utils';
 import { addRecentToolId, favoriteToolStore, recentToolStore, toggleFavoriteToolId } from '@/lib/tool-store';
 import { getRelatedTools, TOOL_CATEGORY_NAMES, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
 
-type ToolPageWidth = 'narrow' | 'wide';
-
-const WIDTH_CLASSES: Record<ToolPageWidth, string> = {
-  narrow: 'max-w-3xl',
-  wide: 'max-w-6xl',
-};
-
 interface ToolPageProps {
   toolId: string;
-  title: string;
   description: string;
   eyebrow?: string;
-  width?: ToolPageWidth;
+  width?: 'narrow' | 'wide';
   children: ReactNode;
 }
 
 export function ToolPage({
   toolId,
-  title,
   description,
   eyebrow,
   width = 'narrow',
   children,
 }: ToolPageProps) {
-  const tool = TOOL_REGISTRY_BY_ID.get(toolId);
+  const tool = TOOL_REGISTRY_BY_ID.get(toolId)!;
   const relatedTools = getRelatedTools(toolId);
-  const categoryLabel = eyebrow ?? (tool ? TOOL_CATEGORY_NAMES[tool.category] : 'Tool');
+  const categoryLabel = eyebrow ?? TOOL_CATEGORY_NAMES[tool.category];
   const favoriteToolIds = favoriteToolStore.useIds();
   const isFavorite = favoriteToolIds.includes(toolId);
 
@@ -42,7 +33,7 @@ export function ToolPage({
   }, [toolId]);
 
   return (
-    <div className={cn('tool-page-shell mx-auto px-4 py-6 sm:px-6 sm:py-10 lg:px-8', WIDTH_CLASSES[width])}>
+    <div className={cn('tool-page-shell mx-auto px-4 py-6 sm:px-6 sm:py-10 lg:px-8', width === 'wide' ? 'max-w-6xl' : 'max-w-3xl')}>
       <header className="tool-page-header mb-6 sm:mb-8">
         <div className="mb-2 flex min-h-11 items-center justify-between gap-2 fine-pointer:min-h-9">
           <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
@@ -61,28 +52,26 @@ export function ToolPage({
               <ShieldCheck aria-hidden="true" className="h-4 w-4 text-accent" strokeWidth={1.75} />
               <span className="sr-only sm:not-sr-only">Runs locally</span>
             </span>
-            {tool ? (
-              <button
-                type="button"
-                aria-pressed={isFavorite}
-                aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
-                title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
-                onClick={() => favoriteToolStore.update((ids) => toggleFavoriteToolId(ids, toolId))}
-                className={cn(
-                  'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
-                  isFavorite
-                    ? 'border-accent bg-accent-subtle text-accent'
-                    : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
-                )}
-              >
-                <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
-                <span aria-hidden="true" className="hidden sm:inline">{isFavorite ? 'Favorited' : 'Favorite'}</span>
-              </button>
-            ) : null}
+            <button
+              type="button"
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? `Remove ${tool.name} from favorites` : `Add ${tool.name} to favorites`}
+              title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
+              onClick={() => favoriteToolStore.update((ids) => toggleFavoriteToolId(ids, toolId))}
+              className={cn(
+                'inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-md border text-xs font-semibold transition-colors sm:px-3 fine-pointer:min-h-9 fine-pointer:min-w-9',
+                isFavorite
+                  ? 'border-accent bg-accent-subtle text-accent'
+                  : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
+              )}
+            >
+              <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
+              <span aria-hidden="true" className="hidden sm:inline">{isFavorite ? 'Favorited' : 'Favorite'}</span>
+            </button>
           </div>
         </div>
         <h1 className="tool-page-title mb-2 font-display text-[2rem] leading-none text-ink sm:mb-3 sm:text-5xl">
-          {title}
+          {tool.name}
         </h1>
         <p className="tool-page-description max-w-[52ch] text-sm leading-relaxed text-ink-2 sm:text-base">
           {description}

@@ -1,4 +1,4 @@
-export interface ChangelogEntry {
+interface ChangelogEntry {
   date: string;
   title: string;
   summary: string;

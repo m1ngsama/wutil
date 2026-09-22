@@ -1,6 +1,6 @@
 export type TimestampUnit = 'auto' | 'seconds' | 'milliseconds';
 
-export type TimestampParseResult =
+type TimestampParseResult =
   | { date: Date; error: null }
   | { date: null; error: string | null };
 

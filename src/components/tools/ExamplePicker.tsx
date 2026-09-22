@@ -1,4 +1,4 @@
-export interface ToolExample {
+interface ToolExample {
   id: string;
   label: string;
 }

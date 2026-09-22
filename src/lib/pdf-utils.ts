@@ -2,9 +2,9 @@ export const MAX_PDF_SIZE = 10 * 1024 * 1024;
 export const MAX_PDF_FILES = 20;
 export const MAX_PDF_TOTAL_SIZE = 50 * 1024 * 1024;
 
-export type FileLike = Pick<File, 'name' | 'size' | 'type'>;
+type FileLike = Pick<File, 'name' | 'size' | 'type'>;
 
-export function isPdfFile(file: Pick<FileLike, 'name' | 'type'>): boolean {
+function isPdfFile(file: Pick<FileLike, 'name' | 'type'>): boolean {
   return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
 }
 

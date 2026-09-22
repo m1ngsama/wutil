@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { CopyButton } from '@/components/ui/CopyButton';
 import {
@@ -21,7 +21,7 @@ export default function ColorConverter() {
   const [rgb, setRgb] = useState({ r: 59,  g: 130, b: 246 });
   const [hsl, setHsl] = useState({ h: 217, s: 91,  l: 60  });
 
-  const fromHex = useCallback((v: string) => {
+  const fromHex = (v: string) => {
     setHexInput(v);
     const normalized = normalizeHexColor(v);
     const nextRgb = normalized ? hexToRgb(normalized) : null;
@@ -30,17 +30,17 @@ export default function ColorConverter() {
       setRgb(nextRgb);
       setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
     }
-  }, []);
-  const fromRgb = useCallback((r: number, g: number, b: number) => {
+  };
+  const fromRgb = (r: number, g: number, b: number) => {
     const nextRgb = { r: clampRgbChannel(r), g: clampRgbChannel(g), b: clampRgbChannel(b) };
     const nextHex = rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b);
     setRgb(nextRgb); setHexInput(nextHex); setValidHex(nextHex); setHsl(rgbToHsl(nextRgb.r, nextRgb.g, nextRgb.b));
-  }, []);
-  const fromHsl = useCallback((h: number, s: number, l: number) => {
+  };
+  const fromHsl = (h: number, s: number, l: number) => {
     const nextRgb = hslToRgb(h, s, l);
     const nextHex = rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b);
     setHsl({ h, s, l }); setRgb(nextRgb); setHexInput(nextHex); setValidHex(nextHex);
-  }, []);
+  };
 
   const hexIsValid = normalizeHexColor(hexInput) !== null;
   const hexError = hexIsValid ? null : 'Enter a valid HEX color such as #fff or #3b82f6.';
@@ -48,9 +48,7 @@ export default function ColorConverter() {
   return (
     <ToolPage
       toolId="color-converter"
-      title="Color Converter"
       description="Convert between HEX, RGB, and HSL. Edit any field, and the others update with it."
-      width="narrow"
     >
 
       <div className="mb-6 overflow-hidden rounded-xl border border-edge bg-surface">

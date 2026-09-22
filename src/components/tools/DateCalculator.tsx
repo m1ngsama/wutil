@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
@@ -9,51 +9,45 @@ import { addCalendarDays, daysBetween, toDateInputValue } from '@/lib/date-utils
 const todayStr = () => toDateInputValue(new Date());
 const inThirtyDaysStr = () => toDateInputValue(addCalendarDays(new Date(), 30));
 
+function dateDiff(start: string, end: string) {
+  if (!start || !end) return null;
+  const days = daysBetween(new Date(start + 'T00:00:00'), new Date(end + 'T00:00:00'));
+  const absDays = Math.abs(days);
+  return {
+    days,
+    absDays,
+    weeks: (absDays / 7).toFixed(1),
+    months: (absDays / 30.4375).toFixed(1),
+    years: (absDays / 365.25).toFixed(2),
+    label: days < 0 ? 'before' : days > 0 ? 'after' : 'same day',
+  };
+}
+
+function shiftDate(base: string, delta: string, direction: '+' | '-') {
+  if (!base || !delta || isNaN(Number(delta))) return null;
+  const n = direction === '+' ? Number(delta) : -Number(delta);
+  return toDateInputValue(addCalendarDays(new Date(base + 'T00:00:00'), n));
+}
+
 export default function DateCalculator() {
   const [tab, setTab] = useState<'diff' | 'add'>('diff');
 
-  // Diff tab
   const [start, setStart] = useState(todayStr);
   const [end, setEnd]     = useState(inThirtyDaysStr);
 
-  // Add tab
   const [base, setBase]     = useState(todayStr);
   const [delta, setDelta]   = useState<string>('7');
   const [direction, setDir] = useState<'+' | '-'>('+');
 
-  // --- Diff result ---
-  const diff = useMemo(() => {
-    if (!start || !end) return null;
-    const s = new Date(start + 'T00:00:00');
-    const e = new Date(end   + 'T00:00:00');
-    const days = daysBetween(s, e);
-    return {
-      days,
-      absDays: Math.abs(days),
-      weeks:   (Math.abs(days) / 7).toFixed(1),
-      months:  (Math.abs(days) / 30.4375).toFixed(1),
-      years:   (Math.abs(days) / 365.25).toFixed(2),
-      label:   days < 0 ? 'before' : days > 0 ? 'after' : 'same day',
-    };
-  }, [start, end]);
-
-  // --- Add result ---
-  const addResult = useMemo(() => {
-    if (!base || !delta || isNaN(Number(delta))) return null;
-    const d = new Date(base + 'T00:00:00');
-    const n = direction === '+' ? Number(delta) : -Number(delta);
-    return toDateInputValue(addCalendarDays(d, n));
-  }, [base, delta, direction]);
+  const diff = dateDiff(start, end);
+  const addResult = shiftDate(base, delta, direction);
 
   return (
     <ToolPage
       toolId="date-calculator"
-      title="Date Calculator"
       description="Find the difference between two dates, or add and subtract days."
-      width="narrow"
     >
 
-      {/* Tab switcher */}
       <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit max-w-full">
         {([['diff', 'Date difference'], ['add', 'Add / subtract days']] as const).map(([id, label]) => (
           <button
@@ -70,7 +64,6 @@ export default function DateCalculator() {
         ))}
       </div>
 
-      {/* ── Diff tab ── */}
       {tab === 'diff' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -147,7 +140,6 @@ export default function DateCalculator() {
         </div>
       )}
 
-      {/* ── Add tab ── */}
       {tab === 'add' && (
         <div className="space-y-6">
           <div className="flex flex-col gap-1.5">
@@ -218,7 +210,6 @@ export default function DateCalculator() {
             </button>
           )}
 
-          {/* Quick presets */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Quick presets</p>
             <div className="flex flex-wrap gap-2">

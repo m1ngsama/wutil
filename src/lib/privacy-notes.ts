@@ -1,6 +1,6 @@
 import { TOOL_REGISTRY } from './tool-registry.ts';
 
-export interface PrivacyNote {
+interface PrivacyNote {
   title: string;
   toolIds: string[];
   note: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
@@ -101,6 +101,16 @@ function formatNum(n: number): string {
   return s;
 }
 
+function convertUnit(input: string, category: Category, fromId: string, toId: string) {
+  const val = parseUnitInput(input);
+  if (val === null) return '';
+  const from = UNITS[category].find((u) => u.id === fromId);
+  const to = UNITS[category].find((u) => u.id === toId);
+  if (!from || !to) return '';
+  if (category === 'temperature') return formatNum(convertTemp(val, fromId, toId));
+  return formatNum((val * from.factor) / to.factor);
+}
+
 export default function UnitConverter() {
   const [category, setCategory] = useState<Category>('length');
   const [fromId,   setFromId]   = useState('m');
@@ -114,16 +124,7 @@ export default function UnitConverter() {
     setToId(units[1]?.id ?? units[0].id);
   };
 
-  const output = useMemo(() => {
-    const val = parseUnitInput(input);
-    if (val === null) return '';
-    const units = UNITS[category];
-    const from  = units.find((u) => u.id === fromId);
-    const to    = units.find((u) => u.id === toId);
-    if (!from || !to) return '';
-    if (category === 'temperature') return formatNum(convertTemp(val, fromId, toId));
-    return formatNum((val * from.factor) / to.factor);
-  }, [input, fromId, toId, category]);
+  const output = convertUnit(input, category, fromId, toId);
 
   const swap = () => {
     setFromId(toId);
@@ -136,12 +137,9 @@ export default function UnitConverter() {
   return (
     <ToolPage
       toolId="unit-converter"
-      title="Unit Converter"
       description="Convert between units instantly across 7 categories."
-      width="narrow"
     >
 
-      {/* Category tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
         {CATEGORIES.map(({ id, label }) => (
           <button
@@ -161,9 +159,7 @@ export default function UnitConverter() {
         ))}
       </div>
 
-      {/* Converter */}
       <div className="rounded-xl border border-edge bg-surface p-6 space-y-5">
-        {/* From row */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">From</label>
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2">
@@ -185,7 +181,6 @@ export default function UnitConverter() {
           </div>
         </div>
 
-        {/* Swap */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-edge" />
           <button
@@ -202,7 +197,6 @@ export default function UnitConverter() {
           <div className="flex-1 h-px bg-edge" />
         </div>
 
-        {/* To row */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">To</label>
           <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto] gap-2">

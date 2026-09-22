@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
 import {
-  useCallback,
   useEffect,
-  useMemo,
+  useEffectEvent,
   useRef,
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -21,14 +20,14 @@ export function GlobalToolSearch() {
   const onHome = usePathname() === '/';
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const results = useMemo(() => searchTools(query), [query]);
+  const results = searchTools(query);
   const activeTool = results[activeIndex] ?? null;
 
-  const closeDialog = useCallback(() => {
+  const closeDialog = () => {
     dialogRef.current?.close();
-  }, []);
+  };
 
-  const openDialog = useCallback(() => {
+  const openDialog = () => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     setQuery('');
@@ -38,24 +37,25 @@ export function GlobalToolSearch() {
       inputRef.current?.focus();
       inputRef.current?.select();
     });
-  }, []);
+  };
+
+  const handleShortcut = useEffectEvent((event: KeyboardEvent) => {
+    const usesCommandShortcut =
+      (event.metaKey || event.ctrlKey) &&
+      !event.altKey &&
+      event.key.toLowerCase() === 'k';
+    if (!usesCommandShortcut) return;
+    event.preventDefault();
+    const homeSearch = onHome ? document.getElementById('tool-search') : null;
+    if (homeSearch) homeSearch.focus();
+    else openDialog();
+  });
 
   useEffect(() => {
-    const handleShortcut = (event: KeyboardEvent) => {
-      const usesCommandShortcut =
-        (event.metaKey || event.ctrlKey) &&
-        !event.altKey &&
-        event.key.toLowerCase() === 'k';
-      if (!usesCommandShortcut) return;
-      event.preventDefault();
-      const homeSearch = onHome ? document.getElementById('tool-search') : null;
-      if (homeSearch) homeSearch.focus();
-      else openDialog();
-    };
-
-    window.addEventListener('keydown', handleShortcut);
-    return () => window.removeEventListener('keydown', handleShortcut);
-  }, [onHome, openDialog]);
+    const listener = (event: KeyboardEvent) => handleShortcut(event);
+    window.addEventListener('keydown', listener);
+    return () => window.removeEventListener('keydown', listener);
+  }, []);
 
   const moveActiveResult = (direction: 1 | -1) => {
     if (results.length === 0) return;

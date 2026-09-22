@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useState, useRef, useCallback, ChangeEvent } from 'react';
+import { useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import { ImageIcon, Lock, Unlock } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
@@ -16,6 +16,7 @@ import {
   validateImageDimensions,
   validateImageFile,
 } from '@/lib/image-utils';
+import { formatBytes } from '@/lib/utils';
 
 const FORMATS = [
   { value: 'image/jpeg', label: 'JPEG', ext: 'jpg' },
@@ -37,13 +38,8 @@ const STAGE_LABELS: Record<ImageConversionStage, string> = {
 };
 
 const INTEGER_FORMATTER = new Intl.NumberFormat('en-US');
-const MAX_IMAGE_FILE_SIZE_LABEL = `${MAX_IMAGE_FILE_SIZE / 1024 / 1024} MB`;
+const MAX_IMAGE_FILE_SIZE_LABEL = formatBytes(MAX_IMAGE_FILE_SIZE);
 
-function fmtBytes(n: number) {
-  if (n < 1024)       return n + ' B';
-  if (n < 1048576)    return (n / 1024).toFixed(1) + ' KB';
-  return (n / 1048576).toFixed(2) + ' MB';
-}
 
 function fmtInteger(n: number) {
   return INTEGER_FORMATTER.format(n);
@@ -82,24 +78,24 @@ export default function ImageConverterComponent() {
   const fileLoadIdRef = useRef(0);
   const conversionIdRef = useRef(0);
 
-  const clearResult = useCallback(() => {
+  const clearResult = () => {
     setResultUrl(null);
     setResultSize(0);
-  }, []);
+  };
 
-  const stopActiveConversion = useCallback(() => {
+  const stopActiveConversion = () => {
     conversionIdRef.current += 1;
     workerRef.current?.terminate();
     workerRef.current = null;
     setProcessing(false);
     setConversionStatus('');
     setConversionProgress(0);
-  }, []);
+  };
 
-  const invalidateOutput = useCallback(() => {
+  const invalidateOutput = () => {
     stopActiveConversion();
     clearResult();
-  }, [clearResult, stopActiveConversion]);
+  };
 
   useEffect(() => {
     return () => {
@@ -121,7 +117,7 @@ export default function ImageConverterComponent() {
     };
   }, []);
 
-  const loadFile = useCallback((file: File) => {
+  const loadFile = (file: File) => {
     const loadId = ++fileLoadIdRef.current;
     const fileValidation = validateImageFile(file);
     if (fileValidation === 'not-image') {
@@ -172,7 +168,7 @@ export default function ImageConverterComponent() {
       toast.error('Could not load that image');
     };
     img.src = url;
-  }, [clearResult, stopActiveConversion]);
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) loadFile(e.target.files[0]);
@@ -346,15 +342,12 @@ export default function ImageConverterComponent() {
     <ToolPage
       toolId="image-converter"
       eyebrow="Images"
-      title="Image Converter"
       description="Convert, resize, and compress images to JPEG, PNG, or WebP. Everything stays in your browser."
       width="wide"
     >
 
       <div className={previewUrl ? 'grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6' : 'max-w-xl'}>
-        {/* Controls */}
         <div className="space-y-4">
-          {/* Upload */}
           <button
             type="button"
             className={[
@@ -378,13 +371,12 @@ export default function ImageConverterComponent() {
             <span className="block text-xs text-ink-3"><span className="hidden fine-pointer:inline">or drop one here. </span>Up to {MAX_IMAGE_FILE_SIZE_LABEL}</span>
             {imageFile && (
               <span className="text-xs text-ink-2 bg-muted border border-edge rounded-md px-3 py-1.5">
-                {imageFile.name} · {fmtBytes(imageFile.size)} · {ratio}
+                {imageFile.name} · {formatBytes(imageFile.size)} · {ratio}
               </span>
             )}
           </button>
           <input ref={fileInputRef} id="img-upload" name="image-file" type="file" accept="image/*" aria-label="Choose image file" tabIndex={-1} className="sr-only" onChange={handleFileChange} />
 
-          {/* Format */}
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Output format</p>
@@ -428,7 +420,6 @@ export default function ImageConverterComponent() {
               </div>
             )}
 
-            {/* Dimensions */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Dimensions (px)</p>
@@ -518,7 +509,7 @@ export default function ImageConverterComponent() {
               </span>
               {resultUrl && (
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-ink-3">{fmtBytes(resultSize)}</span>
+                  <span className="text-xs text-ink-3">{formatBytes(resultSize)}</span>
                   <a
                     href={resultUrl}
                     download={`converted.${ext}`}

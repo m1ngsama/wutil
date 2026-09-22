@@ -16,17 +16,16 @@ const FORMATS = [
   { label: 'Time (UTC)', fn: (d: Date) => d.toISOString().split('T')[1].replace('Z','') + ' UTC' },
 ];
 
+const RELATIVE_TIME = new Intl.RelativeTimeFormat('en');
+const RELATIVE_STEPS = [[60, 'second'], [60, 'minute'], [24, 'hour'], [30, 'day'], [12, 'month']] as const;
+
 function relativeTime(d: Date, nowMs: number): string {
-  const diff = d.getTime() - nowMs;
-  const abs  = Math.abs(diff);
-  const past = diff < 0;
-  const fmt  = (n: number, u: string) => `${n} ${u}${n !== 1 ? 's' : ''} ${past ? 'ago' : 'from now'}`;
-  if (abs < 60_000)        return fmt(Math.round(abs / 1_000),         'second');
-  if (abs < 3_600_000)     return fmt(Math.round(abs / 60_000),        'minute');
-  if (abs < 86_400_000)    return fmt(Math.round(abs / 3_600_000),     'hour');
-  if (abs < 2_592_000_000) return fmt(Math.round(abs / 86_400_000),    'day');
-  if (abs < 31_536_000_000)return fmt(Math.round(abs / 2_592_000_000), 'month');
-  return fmt(Math.round(abs / 31_536_000_000), 'year');
+  let value = (d.getTime() - nowMs) / 1000;
+  for (const [size, unit] of RELATIVE_STEPS) {
+    if (Math.abs(value) < size) return RELATIVE_TIME.format(Math.round(value), unit);
+    value /= size;
+  }
+  return RELATIVE_TIME.format(Math.round(value), 'year');
 }
 
 const TIMESTAMP_UNITS: ReadonlyArray<{ value: TimestampUnit; label: string }> = [
@@ -66,12 +65,9 @@ export default function TimestampConverter() {
   return (
     <ToolPage
       toolId="timestamp"
-      title="Timestamp Converter"
       description="Convert Unix timestamps to readable dates, or turn any date string back into a timestamp."
-      width="narrow"
     >
 
-      {/* Input */}
       <div className="flex flex-col gap-1.5 mb-4">
         <label htmlFor="timestamp-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Timestamp or date string</label>
         <input
@@ -128,7 +124,6 @@ export default function TimestampConverter() {
         </p>
       </div>
 
-      {/* Outputs */}
       {date && (
         <div className="mb-6">
           <div className="rounded-xl border border-edge bg-surface overflow-hidden mb-4">
@@ -166,7 +161,6 @@ export default function TimestampConverter() {
         </div>
       )}
 
-      {/* Live clock */}
       <div
         className="flex min-h-[88px] items-center justify-between gap-4 rounded-xl border border-edge bg-surface px-4 py-3 sm:px-5"
         aria-busy={now === null}
@@ -192,7 +186,6 @@ export default function TimestampConverter() {
         </button>
       </div>
 
-      {/* Examples */}
       <div className="mt-6">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Examples</p>
         <div className="flex flex-wrap gap-2">

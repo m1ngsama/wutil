@@ -1,6 +1,6 @@
 const READING_WORDS_PER_MINUTE = 238;
 
-export interface WordStats {
+interface WordStats {
   words: number;
   chars: number;
   charsNoSpaces: number;
