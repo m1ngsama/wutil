@@ -6,6 +6,7 @@ import { useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { toast } from 'sonner';
 import { ImageIcon, Lock, Unlock } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { Segmented } from '@/components/ui/Segmented';
 import { ToolProgress } from '@/components/tools/ToolProgress';
 import {
   fitImageWithinOutputLimits,
@@ -380,25 +381,16 @@ export default function ImageConverterComponent() {
           <div className="rounded-xl border border-edge bg-surface p-4 space-y-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-ink-3 mb-2">Output format</p>
-              <div className="flex rounded-md border border-edge overflow-hidden">
-                {FORMATS.map((f) => (
-                  <button
-                    type="button"
-                    key={f.value}
-                    onClick={() => {
-                      if (f.value === format) return;
-                      invalidateOutput();
-                      setFormat(f.value);
-                    }}
-                    aria-pressed={format === f.value}
-                    className={`min-h-11 flex-1 py-2 text-sm font-medium transition-colors focus-visible:-outline-offset-2 ${
-                      format === f.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              <Segmented
+                options={FORMATS}
+                value={format}
+                onChange={(value) => {
+                  if (value === format) return;
+                  invalidateOutput();
+                  setFormat(value);
+                }}
+                buttonClassName="flex-1 text-sm"
+              />
             </div>
 
             {format !== 'image/png' && (

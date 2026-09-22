@@ -131,7 +131,7 @@ export default function RegexTester() {
           <span className="text-ink-3 text-lg font-mono">/{flags || ''}</span>
         </div>
         {result?.valid === false && (
-          <p id="regex-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+          <p id="regex-error" role="alert" className="mt-2 field-error">
             {result.error}
           </p>
         )}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { Segmented } from '@/components/ui/Segmented';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { decodeBase64, encodeBase64 } from '@/lib/base64-utils';
 
@@ -41,23 +42,12 @@ export default function Base64ConverterComponent() {
     >
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mb-5">
-        <div className="flex rounded-md border border-edge overflow-hidden">
-          {(['encode', 'decode'] as const).map((m) => (
-            <button
-              type="button"
-              key={m}
-              onClick={() => setMode(m)}
-              aria-pressed={mode === m}
-              className={`min-h-11 px-4 py-2 text-sm font-medium transition-colors capitalize focus-visible:-outline-offset-2 fine-pointer:min-h-9 ${
-                mode === m
-                  ? 'bg-accent text-accent-fg'
-                  : 'bg-surface text-ink hover:bg-muted'
-              }`}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          options={[{ value: 'encode', label: 'encode' }, { value: 'decode', label: 'decode' }]}
+          value={mode}
+          onChange={setMode}
+          buttonClassName="px-4 text-sm capitalize fine-pointer:min-h-9"
+        />
 
         <button
           type="button"
@@ -120,7 +110,7 @@ export default function Base64ConverterComponent() {
             spellCheck={false}
           />
           {result.error && (
-            <p id="base64-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            <p id="base64-error" role="alert" className="mt-2 field-error">
               {result.error}
             </p>
           )}
