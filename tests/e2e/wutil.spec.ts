@@ -2,27 +2,9 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import path from 'node:path';
+import { SITEMAP_ROUTES } from '../../src/lib/tool-registry.ts';
 
-const ACCESSIBILITY_ROUTES = [
-  '/',
-  '/changelog',
-  '/privacy',
-  '/tools/password-generator',
-  '/tools/color-converter',
-  '/tools/url-encoder',
-  '/tools/text-case',
-  '/tools/regex-tester',
-  '/tools/timestamp',
-  '/tools/word-counter',
-  '/tools/json-formatter',
-  '/tools/base64-converter',
-  '/tools/unit-converter',
-  '/tools/hash-generator',
-  '/tools/uuid-generator',
-  '/tools/date-calculator',
-  '/tools/image-converter',
-  '/tools/pdf-merge',
-];
+const ACCESSIBILITY_ROUTES = SITEMAP_ROUTES.map((route) => route || '/');
 
 async function expectNoAccessibilityViolations(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
@@ -97,7 +79,7 @@ test('appearance control supports system, light, and dark modes', async ({ page 
 
 test('touch layouts preserve comfortable controls and reveal work in short landscapes', async ({ browser, baseURL }) => {
   const context = await browser.newContext({
-    baseURL: baseURL ?? 'http://localhost:3100',
+    baseURL,
     viewport: { width: 768, height: 1024 },
     hasTouch: true,
     isMobile: true,

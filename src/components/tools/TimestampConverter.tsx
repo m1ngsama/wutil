@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { Segmented } from '@/components/ui/Segmented';
 import { copyText } from '@/lib/clipboard';
 import { parseTimestampInput, type TimestampUnit } from '@/lib/timestamp-utils';
 
@@ -85,7 +86,7 @@ export default function TimestampConverter() {
           ].join(' ')}
         />
         {error && (
-          <p id="timestamp-error" role="alert" className="text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+          <p id="timestamp-error" role="alert" className="field-error">
             {error}
           </p>
         )}
@@ -95,30 +96,17 @@ export default function TimestampConverter() {
         <p id="timestamp-unit-label" className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
           Numeric input unit
         </p>
-        <div
-          role="group"
-          aria-labelledby="timestamp-unit-label"
-          className="flex flex-wrap rounded-md border border-edge overflow-hidden w-fit"
-        >
-          {TIMESTAMP_UNITS.map(({ value, label }) => (
-            <button
-              type="button"
-              key={value}
-              aria-pressed={timestampUnit === value}
-              onClick={() => {
-                setTimestampUnit(value);
-                handleInput(input, value);
-              }}
-              className={`min-h-11 px-3 py-2 text-sm font-medium transition-colors focus-visible:-outline-offset-2 fine-pointer:min-h-9 ${
-                timestampUnit === value
-                  ? 'bg-accent text-accent-fg'
-                  : 'bg-surface text-ink hover:bg-muted'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          options={TIMESTAMP_UNITS}
+          value={timestampUnit}
+          onChange={(value) => {
+            setTimestampUnit(value);
+            handleInput(input, value);
+          }}
+          labelledBy="timestamp-unit-label"
+          className="w-fit flex-wrap"
+          buttonClassName="px-3 text-sm fine-pointer:min-h-9"
+        />
         <p className="mt-2 text-xs leading-relaxed text-ink-3">
           Auto detects common 10-digit seconds and 13-digit milliseconds. Choose a unit for ambiguous values.
         </p>

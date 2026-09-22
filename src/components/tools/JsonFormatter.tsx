@@ -132,7 +132,7 @@ export default function JsonFormatterComponent() {
             spellCheck={false}
           />
           {error && (
-            <p id="json-error" role="alert" className="mt-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 rounded-md px-3 py-2">
+            <p id="json-error" role="alert" className="mt-2 field-error">
               {error}
             </p>
           )}

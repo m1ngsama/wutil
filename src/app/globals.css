@@ -151,6 +151,10 @@ body {
   }
 }
 
+@utility field-error {
+  @apply rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:bg-red-950/40 dark:text-red-400;
+}
+
 #main-content ::placeholder {
   color: color-mix(in oklab, var(--w-ink-3) 60%, transparent);
 }

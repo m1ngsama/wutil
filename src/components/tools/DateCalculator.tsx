@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Copy } from 'lucide-react';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { Segmented } from '@/components/ui/Segmented';
 import { copyText } from '@/lib/clipboard';
 import { addCalendarDays, daysBetween, toDateInputValue } from '@/lib/date-utils';
 
@@ -48,21 +49,13 @@ export default function DateCalculator() {
       description="Find the difference between two dates, or add and subtract days."
     >
 
-      <div className="flex rounded-md border border-edge overflow-hidden mb-8 w-fit max-w-full">
-        {([['diff', 'Date difference'], ['add', 'Add / subtract days']] as const).map(([id, label]) => (
-          <button
-            type="button"
-            key={id}
-            onClick={() => setTab(id)}
-            aria-pressed={tab === id}
-            className={`min-h-11 whitespace-nowrap px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm focus-visible:-outline-offset-2 ${
-              tab === id ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <Segmented
+        options={[{ value: 'diff', label: 'Date difference' }, { value: 'add', label: 'Add / subtract days' }]}
+        value={tab}
+        onChange={setTab}
+        className="mb-8 w-fit max-w-full"
+        buttonClassName="whitespace-nowrap px-3 text-xs sm:px-4 sm:text-sm"
+      />
 
       {tab === 'diff' && (
         <div className="space-y-6">
@@ -165,22 +158,12 @@ export default function DateCalculator() {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Days to add / subtract</label>
             <div className="flex gap-2">
-              <div className="flex rounded-md border border-edge overflow-hidden">
-                {(['+', '-'] as const).map((d) => (
-                  <button
-                    type="button"
-                    key={d}
-                    onClick={() => setDir(d)}
-                    aria-pressed={direction === d}
-                    aria-label={d === '+' ? 'Add days' : 'Subtract days'}
-                    className={`h-11 w-11 font-mono text-base font-bold transition-colors focus-visible:-outline-offset-2 ${
-                      direction === d ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted'
-                    }`}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
+              <Segmented
+                options={[{ value: '+', label: '+', ariaLabel: 'Add days' }, { value: '-', label: '-', ariaLabel: 'Subtract days' }]}
+                value={direction}
+                onChange={setDir}
+                buttonClassName="h-11 w-11 font-mono text-base font-bold"
+              />
               <input
                 type="number"
                 min={0}
