@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useFavoriteToolIds } from '@/hooks/useFavoriteTools';
 import { useRecentToolIds } from '@/hooks/useRecentTools';
 import { clearRecentTools } from '@/lib/recent-tools';
 import {
+  searchTools,
   TOOL_CATEGORY_NAMES,
   TOOL_REGISTRY,
   TOOL_REGISTRY_BY_ID,
@@ -141,13 +143,13 @@ function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
   );
 }
 
-function RecentTools({ tools }: { tools: ToolRegistryItem[] }) {
+function CompactToolList({ tools }: { tools: ToolRegistryItem[] }) {
   return (
-    <ul className="grid border-y border-edge sm:grid-cols-2 lg:grid-cols-4">
+    <ul className="grid border-t border-edge sm:grid-cols-2 lg:grid-cols-4">
       {tools.map((tool, index) => (
         <li
           key={tool.id}
-          className={`border-edge ${index > 0 ? 'border-t sm:border-t-0' : ''} ${index % 2 === 1 ? 'sm:border-l' : ''} ${index > 1 ? 'sm:border-t lg:border-t-0' : ''} ${index > 0 ? 'lg:border-l' : ''}`}
+          className={`border-b border-edge ${index % 2 === 1 ? 'sm:border-l' : ''} ${index % 4 === 0 ? 'lg:border-l-0' : 'lg:border-l'}`}
         >
           <Link
             href={tool.href}
@@ -173,8 +175,9 @@ export default function HomeClient() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<'all' | ToolCategory>('all');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const favoriteToolIds = useFavoriteToolIds();
   const recentToolIds = useRecentToolIds();
-  const normalizedSearch = search.trim().toLowerCase();
+  const hasSearch = search.trim() !== '';
 
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
@@ -184,10 +187,6 @@ export default function HomeClient() {
         target?.tagName === 'INPUT' ||
         target?.tagName === 'TEXTAREA' ||
         target?.tagName === 'SELECT';
-      const usesCommandShortcut =
-        (event.metaKey || event.ctrlKey) &&
-        !event.altKey &&
-        event.key.toLowerCase() === 'k';
       const usesSlashShortcut =
         event.key === '/' &&
         !isTyping &&
@@ -195,7 +194,7 @@ export default function HomeClient() {
         !event.ctrlKey &&
         !event.altKey;
 
-      if (!usesCommandShortcut && !usesSlashShortcut) return;
+      if (!usesSlashShortcut) return;
 
       event.preventDefault();
       searchInputRef.current?.focus();
@@ -206,17 +205,21 @@ export default function HomeClient() {
     return () => window.removeEventListener('keydown', focusSearch);
   }, []);
 
-  const filteredTools = TOOL_REGISTRY.filter((tool) => {
-    const matchesSearch =
-      tool.name.toLowerCase().includes(normalizedSearch) ||
-      tool.description.toLowerCase().includes(normalizedSearch);
-    const matchesCategory = activeCategory === 'all' || tool.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredTools = searchTools(search, TOOL_REGISTRY).filter(
+    (tool) => activeCategory === 'all' || tool.category === activeCategory,
+  );
 
-  const showFeatured = normalizedSearch === '' && activeCategory === 'all';
+  const showFeatured = !hasSearch && activeCategory === 'all';
+  const favoriteTools = showFeatured
+    ? favoriteToolIds.flatMap((toolId) => {
+        const tool = TOOL_REGISTRY_BY_ID.get(toolId);
+        return tool ? [tool] : [];
+      })
+    : [];
+  const favoriteToolIdSet = new Set(favoriteToolIds);
   const recentTools = showFeatured
     ? recentToolIds.flatMap((toolId) => {
+        if (favoriteToolIdSet.has(toolId)) return [];
         const tool = TOOL_REGISTRY_BY_ID.get(toolId);
         return tool ? [tool] : [];
       })
@@ -270,7 +273,7 @@ export default function HomeClient() {
               type="search"
               autoComplete="off"
               aria-controls="tool-results"
-              aria-keyshortcuts="Meta+K Control+K /"
+              aria-keyshortcuts="/"
               className="pl-10"
               placeholder="Search by name or task…"
               value={search}
@@ -312,6 +315,21 @@ export default function HomeClient() {
       </p>
 
       <div id="tool-results" className="space-y-12">
+        {favoriteTools.length > 0 ? (
+          <section aria-labelledby="favorite-tools-heading">
+            <div className="mb-3 flex items-end justify-between gap-4">
+              <div>
+                <h2 id="favorite-tools-heading" className="text-lg font-semibold text-ink">
+                  Favorites
+                </h2>
+                <p className="mt-0.5 text-xs text-ink-3">Saved only on this device</p>
+              </div>
+              <span className="text-xs text-ink-3">Manage from each tool</span>
+            </div>
+            <CompactToolList tools={favoriteTools} />
+          </section>
+        ) : null}
+
         {recentTools.length > 0 ? (
           <section aria-labelledby="recent-tools-heading">
             <div className="mb-3 flex items-center justify-between gap-4">
@@ -329,7 +347,7 @@ export default function HomeClient() {
                 Clear history
               </button>
             </div>
-            <RecentTools tools={recentTools} />
+            <CompactToolList tools={recentTools} />
           </section>
         ) : null}
 

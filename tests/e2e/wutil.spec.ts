@@ -121,7 +121,7 @@ test('touch layouts preserve comfortable controls and reveal work in short lands
     await touchPage.setViewportSize({ width: 844, height: 390 });
     await touchPage.goto('/tools/json-formatter');
 
-    const formatBox = await touchPage.getByRole('button', { name: 'Format' }).boundingBox();
+    const formatBox = await touchPage.getByRole('button', { name: 'Format', exact: true }).boundingBox();
     const inputBox = await touchPage.getByRole('textbox', { name: 'Input' }).boundingBox();
     const inputFontSize = await touchPage.getByRole('textbox', { name: 'Input' }).evaluate(
       (element) => Number.parseFloat(getComputedStyle(element).fontSize),
@@ -223,7 +223,7 @@ test('URL encoder decodes invalid input errors and successful round trips', asyn
   await page.locator('textarea').first().fill('https://example.com/search?q=hello world&lang=en');
   await expect(page.locator('textarea').nth(1)).toHaveValue('https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dhello%20world%26lang%3Den');
 
-  await page.getByRole('button', { name: 'Decode' }).click();
+  await page.getByRole('button', { name: 'decode', exact: true }).click();
   await page.locator('textarea').first().fill('%E0%A4%A');
   await expect(page.getByText('Invalid encoded string')).toBeVisible();
 });
@@ -231,7 +231,7 @@ test('URL encoder decodes invalid input errors and successful round trips', asyn
 test('URL decoder mode and copy action are operable from the keyboard', async ({ page }) => {
   await page.goto('/tools/url-encoder');
 
-  const decode = page.getByRole('button', { name: 'Decode' });
+  const decode = page.getByRole('button', { name: 'decode', exact: true });
   await decode.focus();
   await page.keyboard.press('Enter');
 
@@ -278,11 +278,11 @@ test('JSON formatter formats valid JSON and reports invalid JSON', async ({ page
   await page.goto('/tools/json-formatter');
 
   await page.locator('textarea').first().fill('{"a":1,"b":true}');
-  await page.getByRole('button', { name: 'Format' }).click();
+  await page.getByRole('button', { name: 'Format', exact: true }).click();
   await expect(page.locator('textarea').nth(1)).toHaveValue('{\n  "a": 1,\n  "b": true\n}');
 
   await page.locator('textarea').first().fill('{bad');
-  await page.getByRole('button', { name: 'Format' }).click();
+  await page.getByRole('button', { name: 'Format', exact: true }).click();
   await expect(page.getByText('Invalid JSON')).toBeVisible();
 });
 

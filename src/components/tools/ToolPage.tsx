@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useEffect, type ReactNode } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Star } from 'lucide-react';
+import { useFavoriteToolIds } from '@/hooks/useFavoriteTools';
+import { toggleFavoriteTool } from '@/lib/favorite-tools';
 import { cn } from '@/lib/utils';
 import { recordRecentTool } from '@/lib/recent-tools';
 import { getRelatedTools, TOOL_CATEGORY_NAMES, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
@@ -38,6 +40,8 @@ export function ToolPage({
   const tool = TOOL_REGISTRY_BY_ID.get(toolId);
   const relatedTools = getRelatedTools(toolId);
   const categoryLabel = eyebrow ?? (tool ? TOOL_CATEGORY_NAMES[tool.category] : 'Tool');
+  const favoriteToolIds = useFavoriteToolIds();
+  const isFavorite = favoriteToolIds.includes(toolId);
 
   useEffect(() => {
     recordRecentTool(toolId);
@@ -46,9 +50,29 @@ export function ToolPage({
   return (
     <div className={cn('tool-page-shell mx-auto px-4 py-10 sm:px-6 lg:px-8', WIDTH_CLASSES[width])}>
       <header className="tool-page-header mb-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
-          {categoryLabel}
-        </p>
+        <div className="mb-2 flex min-h-11 items-center justify-between gap-4 fine-pointer:min-h-9">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
+            {categoryLabel}
+          </p>
+          {tool ? (
+            <button
+              type="button"
+              aria-pressed={isFavorite}
+              aria-label={isFavorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+              title={isFavorite ? 'Remove from favorites on this device' : 'Save to favorites on this device'}
+              onClick={() => toggleFavoriteTool(toolId)}
+              className={cn(
+                'inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--w-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-canvas fine-pointer:min-h-9',
+                isFavorite
+                  ? 'border-accent bg-accent-subtle text-accent'
+                  : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
+              )}
+            >
+              <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
+              {isFavorite ? 'Favorited' : 'Favorite'}
+            </button>
+          ) : null}
+        </div>
         <h1 className="tool-page-title mb-3 font-display text-4xl leading-none text-ink sm:text-5xl">
           {title}
         </h1>

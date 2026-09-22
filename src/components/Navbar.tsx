@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { GlobalToolSearch } from './GlobalToolSearch';
 import { ThemeToggle } from './ThemeToggle';
 
 export default function Navbar() {
@@ -20,6 +21,7 @@ export default function Navbar() {
           </Link>
 
           <div className="flex items-center gap-1">
+            <GlobalToolSearch />
             <Link
               href="https://github.com/m1ngsama/wutil"
               target="_blank"
