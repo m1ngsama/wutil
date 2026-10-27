@@ -28,17 +28,14 @@ export function evaluateRegex(
   }
 
   try {
-    new RegExp(pattern, flags);
-    const effectiveFlags = flags.includes('g') ? flags : `${flags}g`;
-    const globalRx = new RegExp(pattern, effectiveFlags);
+    const regex = new RegExp(pattern, flags);
     const parts: RegexPart[] = [];
     const matches: RegexMatchDetail[] = [];
     let matchCount = 0;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
-    globalRx.lastIndex = 0;
-    while ((match = globalRx.exec(testString)) !== null) {
+    while ((match = regex.exec(testString)) !== null) {
       if (match.index > lastIndex) {
         parts.push({ text: testString.slice(lastIndex, match.index), isMatch: false });
       }
@@ -54,7 +51,11 @@ export function evaluateRegex(
 
       matchCount += 1;
       lastIndex = match.index + match[0].length;
-      if (match[0].length === 0) globalRx.lastIndex += 1;
+      if (!regex.global) break;
+      if (match[0].length === 0) {
+        const point = testString.codePointAt(regex.lastIndex);
+        regex.lastIndex += (regex.unicode || regex.unicodeSets) && point !== undefined && point > 0xffff ? 2 : 1;
+      }
     }
 
     if (lastIndex < testString.length) {

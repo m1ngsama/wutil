@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Copy } from 'lucide-react';
+import { CopyOutline } from '@/components/ui/icons';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Segmented } from '@/components/ui/Segmented';
 import { copyText } from '@/lib/clipboard';
@@ -129,7 +129,7 @@ export default function TimestampConverter() {
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-ink-3 w-24">{label}</span>
                   <code className="flex-1 font-mono text-sm text-ink truncate">{value}</code>
                   <span className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-accent">
-                    <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                    <CopyOutline aria-hidden="true" className="h-3.5 w-3.5" />
                     Copy
                   </span>
                 </button>

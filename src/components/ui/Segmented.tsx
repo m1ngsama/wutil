@@ -8,6 +8,7 @@ interface SegmentedProps<T extends string> {
   className?: string;
   buttonClassName: string;
   labelledBy?: string;
+  ariaLabel?: string;
 }
 
 export function Segmented<T extends string>({
@@ -17,9 +18,15 @@ export function Segmented<T extends string>({
   className,
   buttonClassName,
   labelledBy,
+  ariaLabel,
 }: SegmentedProps<T>) {
   return (
-    <div role="group" aria-labelledby={labelledBy} className={cn('flex overflow-hidden rounded-md border border-edge', className)}>
+    <div
+      role="group"
+      aria-labelledby={labelledBy}
+      aria-label={labelledBy ? undefined : ariaLabel}
+      className={cn('flex max-w-full flex-wrap overflow-hidden rounded-md border border-edge', className)}
+    >
       {options.map((option) => (
         <button
           type="button"
@@ -28,7 +35,7 @@ export function Segmented<T extends string>({
           aria-label={option.ariaLabel}
           onClick={() => onChange(option.value)}
           className={cn(
-            'min-h-11 font-medium transition-colors focus-visible:-outline-offset-2',
+            'min-h-11 grow font-medium transition-colors focus-visible:-outline-offset-2',
             value === option.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink hover:bg-muted',
             buttonClassName,
           )}

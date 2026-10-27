@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Abril_Fatface, Mulish, Geist_Mono } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,17 +9,9 @@ import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistratio
 import { createPageMetadata } from "@/lib/seo";
 import { SITE_NAME, SITE_URL } from "@/lib/site-config";
 
-const abrilFatface = Abril_Fatface({
-  weight: "400",
-  variable: "--font-abril",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const mulish = Mulish({
-  variable: "--font-mulish",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -78,7 +70,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${abrilFatface.variable} ${mulish.variable} ${geistMono.variable} antialiased flex min-h-dvh flex-col`}
+        className={`${inter.variable} ${geistMono.variable} antialiased flex min-h-dvh flex-col`}
       >
         <ThemeProvider
           attribute="class"

@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { SwapVerticalOutline } from '@/components/ui/icons';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Segmented } from '@/components/ui/Segmented';
+import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 
 const URL_EXAMPLES = [
@@ -26,6 +28,7 @@ export default function UrlEncoderDecoder() {
   const [mode, setMode] = useState<'encode' | 'decode'>('encode');
 
   const result = convert(input, mode);
+  const reverseDescription = `Use output as input and switch to ${mode === 'encode' ? 'Decode' : 'Encode'}.`;
 
   const swap = () => {
     setInput(result.output);
@@ -44,18 +47,21 @@ export default function UrlEncoderDecoder() {
           options={[{ value: 'encode', label: 'encode' }, { value: 'decode', label: 'decode' }]}
           value={mode}
           onChange={setMode}
+          ariaLabel="Conversion mode"
           buttonClassName="px-4 text-sm capitalize fine-pointer:min-h-9"
         />
-        <button
-          type="button"
-          onClick={swap} disabled={!result.output}
-          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors fine-pointer:h-9"
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={swap}
+          disabled={!result.output}
+          title={reverseDescription}
+          aria-describedby="url-reverse-description"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-          </svg>
-          Swap
-        </button>
+          <SwapVerticalOutline size={16} aria-hidden="true" className="shrink-0" />
+          Reverse
+        </Button>
+        <span id="url-reverse-description" className="sr-only">{reverseDescription}</span>
       </div>
 
       <ExamplePicker
@@ -70,7 +76,7 @@ export default function UrlEncoderDecoder() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <div className="field-header">
-            <label htmlFor="url-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            <label htmlFor="url-input" className="text-sm font-medium text-ink-3">
               {mode === 'encode' ? 'Plain text / URL' : 'Encoded URL'}
             </label>
           </div>
@@ -97,7 +103,7 @@ export default function UrlEncoderDecoder() {
 
         <div className="flex flex-col">
           <div className="field-header">
-            <label htmlFor="url-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            <label htmlFor="url-output" className="text-sm font-medium text-ink-3">
               {mode === 'encode' ? 'Encoded URL' : 'Decoded text'}
             </label>
             <CopyButton value={result.output} />

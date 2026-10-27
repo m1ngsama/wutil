@@ -2,15 +2,14 @@
 
 import Link from 'next/link';
 import { useEffect, type ReactNode } from 'react';
-import { ArrowRight, ChevronLeft, ShieldCheck, Star } from 'lucide-react';
+import { ArrowForwardOutline, ChevronBackOutline, ShieldCheckmarkOutline, Star, StarOutline } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
 import { addRecentToolId, favoriteToolStore, recentToolStore, toggleFavoriteToolId } from '@/lib/tool-store';
-import { getRelatedTools, TOOL_CATEGORY_NAMES, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
+import { getRelatedTools, TOOL_REGISTRY_BY_ID } from '@/lib/tool-registry';
 
 interface ToolPageProps {
   toolId: string;
   description: string;
-  eyebrow?: string;
   width?: 'narrow' | 'wide';
   children: ReactNode;
 }
@@ -18,13 +17,11 @@ interface ToolPageProps {
 export function ToolPage({
   toolId,
   description,
-  eyebrow,
   width = 'narrow',
   children,
 }: ToolPageProps) {
   const tool = TOOL_REGISTRY_BY_ID.get(toolId)!;
   const relatedTools = getRelatedTools(toolId);
-  const categoryLabel = eyebrow ?? TOOL_CATEGORY_NAMES[tool.category];
   const favoriteToolIds = favoriteToolStore.useIds();
   const isFavorite = favoriteToolIds.includes(toolId);
 
@@ -35,21 +32,19 @@ export function ToolPage({
   return (
     <div className={cn('tool-page-shell mx-auto px-4 py-6 sm:px-6 sm:py-10 lg:px-8', width === 'wide' ? 'max-w-6xl' : 'max-w-3xl')}>
       <header className="tool-page-header mb-6 sm:mb-8">
-        <div className="mb-2 flex min-h-11 items-center justify-between gap-2 fine-pointer:min-h-9">
-          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-3">
+        <div className="mb-2 flex min-h-11 flex-wrap items-center justify-between gap-2 fine-pointer:min-h-9">
+          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-sm text-ink-3">
             <Link
               href="/"
-              className="-ml-2 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 normal-case tracking-normal text-sm text-ink-2 transition-colors hover:text-ink fine-pointer:min-h-9"
+              className="-ml-2 inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md px-2 font-medium text-ink-2 transition-colors hover:text-ink fine-pointer:min-h-9"
             >
-              <ChevronLeft aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+              <ChevronBackOutline aria-hidden="true" className="h-4 w-4" />
               All tools
             </Link>
-            <span aria-hidden="true" className="max-[359px]:hidden">·</span>
-            <span className="truncate max-[359px]:hidden">{categoryLabel}</span>
           </nav>
           <div className="flex shrink-0 items-center gap-1">
             <span className="inline-flex min-h-11 items-center gap-1.5 px-2 text-xs font-medium text-ink-3 fine-pointer:min-h-9" title="Runs locally in your browser">
-              <ShieldCheck aria-hidden="true" className="h-4 w-4 text-accent" strokeWidth={1.75} />
+              <ShieldCheckmarkOutline aria-hidden="true" className="h-4 w-4 text-accent" />
               <span className="sr-only sm:not-sr-only">Runs locally</span>
             </span>
             <button
@@ -65,15 +60,15 @@ export function ToolPage({
                   : 'border-edge bg-surface text-ink-2 hover:border-edge-strong hover:bg-muted',
               )}
             >
-              <Star aria-hidden="true" className="h-4 w-4" fill={isFavorite ? 'currentColor' : 'none'} strokeWidth={1.75} />
+              {isFavorite ? <Star aria-hidden="true" className="h-4 w-4" /> : <StarOutline aria-hidden="true" className="h-4 w-4" />}
               <span aria-hidden="true" className="hidden sm:inline">{isFavorite ? 'Favorited' : 'Favorite'}</span>
             </button>
           </div>
         </div>
-        <h1 className="tool-page-title mb-2 font-display text-[2rem] leading-none text-ink sm:mb-3 sm:text-5xl">
+        <h1 className="page-title tool-page-title mb-3 text-ink">
           {tool.name}
         </h1>
-        <p className="tool-page-description max-w-[52ch] text-sm leading-relaxed text-ink-2 sm:text-base">
+        <p className="tool-page-description max-w-[64ch] text-sm leading-relaxed text-ink-2 sm:text-base">
           {description}
         </p>
       </header>
@@ -82,12 +77,9 @@ export function ToolPage({
 
       {relatedTools.length > 0 ? (
         <section className="mt-16 border-t border-edge pt-8" aria-labelledby={`${toolId}-related-heading`}>
-          <div className="mb-3 flex items-baseline justify-between gap-4">
-            <h2 id={`${toolId}-related-heading`} className="text-base font-semibold text-ink">
-              Related tools
-            </h2>
-            <span className="text-xs text-ink-3">Keep working</span>
-          </div>
+          <h2 id={`${toolId}-related-heading`} className="mb-3 text-base font-semibold text-ink">
+            Related tools
+          </h2>
           <ul className="border-b border-edge">
             {relatedTools.map((relatedTool) => (
               <li key={relatedTool.id} className="border-t border-edge">
@@ -103,7 +95,7 @@ export function ToolPage({
                       {relatedTool.description}
                     </span>
                   </span>
-                  <ArrowRight aria-hidden="true" className="h-4 w-4 text-ink-3 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-accent" />
+                  <ArrowForwardOutline aria-hidden="true" className="h-4 w-4 text-ink-3 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-accent" />
                 </Link>
               </li>
             ))}

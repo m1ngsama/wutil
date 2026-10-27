@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import path from 'node:path';
-import { SITEMAP_ROUTES } from '../../src/lib/tool-registry.ts';
+import { SITEMAP_ROUTES, TOOL_REGISTRY } from '../../src/lib/tool-registry.ts';
 
 const ACCESSIBILITY_ROUTES = SITEMAP_ROUTES.map((route) => route || '/');
 
@@ -16,6 +16,63 @@ async function expectNoAccessibilityViolations(page: Page) {
   }));
   expect(violations).toEqual([]);
 }
+
+test('home exposes one complete directory and category filters', async ({ page }) => {
+  await page.goto('/');
+  const directory = page.getByRole('region', { name: 'Tools', exact: true });
+  await expect(directory.getByRole('link')).toHaveCount(TOOL_REGISTRY.length);
+  for (const tool of TOOL_REGISTRY) {
+    await expect(directory.getByRole('heading', { name: tool.name, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole('heading', { name: 'Popular now', exact: true })).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Images & PDF', exact: true }).click();
+  await expect(directory.getByRole('link')).toHaveCount(2);
+  await expect(directory.getByRole('heading', { name: 'Image Converter', exact: true })).toBeVisible();
+  await expect(directory.getByRole('heading', { name: 'PDF Merger', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Images & PDF', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'All tools', exact: true }).click();
+  await expect(directory.getByRole('link')).toHaveCount(TOOL_REGISTRY.length);
+});
+
+test('personal tool shortcuts preserve favorites and recent history without replacing the directory', async ({ page }) => {
+  await page.goto('/tools/json-formatter');
+  const favorite = page.getByRole('button', { name: 'Add JSON Formatter to favorites', exact: true });
+  await expect(favorite).toHaveAttribute('aria-pressed', 'false');
+  await favorite.click();
+  await expect(page.getByRole('button', { name: 'Remove JSON Formatter from favorites', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('/tools/regex-tester');
+  await page.getByRole('link', { name: 'All tools', exact: true }).click();
+  const favorites = page.getByRole('region', { name: 'Favorites', exact: true });
+  const recent = page.getByRole('region', { name: 'Recently used', exact: true });
+  await expect(favorites.getByRole('link', { name: 'JSON Formatter', exact: true })).toBeVisible();
+  await expect(recent.getByRole('link', { name: 'Regex Tester', exact: true })).toBeVisible();
+  await expect(recent.getByRole('link', { name: 'JSON Formatter', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Tools', exact: true }).getByRole('link')).toHaveCount(TOOL_REGISTRY.length);
+  await page.getByRole('button', { name: 'Text', exact: true }).click();
+  await expect(favorites).toHaveCount(0);
+  await expect(recent).toHaveCount(0);
+  await page.getByRole('button', { name: 'All tools', exact: true }).click();
+  await expect(favorites).toBeVisible();
+  await expect(recent).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const firstTool = page.getByRole('region', { name: 'Tools', exact: true }).getByRole('heading').first();
+  const firstToolBox = await firstTool.boundingBox();
+  expect(firstToolBox!.y + firstToolBox!.height).toBeLessThan(844);
+
+  const search = page.getByRole('searchbox', { name: 'Find a tool' });
+  await search.fill('json');
+  await expect(favorites).toHaveCount(0);
+  await expect(recent).toHaveCount(0);
+  await expect(page.getByRole('region', { name: 'Search results', exact: true }).getByRole('heading', { name: 'JSON Formatter', exact: true })).toBeVisible();
+  await search.fill('');
+  await page.getByRole('button', { name: 'Clear history', exact: true }).click();
+  await expect(recent).toHaveCount(0);
+  await expect(favorites).toBeVisible();
+  await page.reload();
+  await expect(favorites).toBeVisible();
+  await expect(recent).toHaveCount(0);
+});
 
 test('home search filters tools and opens a tool', async ({ page }) => {
   await page.goto('/');
@@ -50,6 +107,12 @@ test('home search result can be opened with the keyboard', async ({ page }) => {
 
 test('home search shortcut and tool wayfinding are keyboard accessible', async ({ page }) => {
   await page.goto('/');
+  const textFilter = page.getByRole('button', { name: 'Text', exact: true });
+  await textFilter.click();
+  await expect(textFilter).toHaveAttribute('aria-pressed', 'true');
+  const allFilter = page.getByRole('button', { name: 'All tools', exact: true });
+  await allFilter.click();
+  await expect(allFilter).toHaveAttribute('aria-pressed', 'true');
 
   await page.keyboard.press('/');
   const search = page.getByRole('searchbox', { name: 'Find a tool' });
@@ -345,7 +408,7 @@ test('Image converter uploads and converts an image', async ({ page }) => {
   await expect(page.getByRole('spinbutton', { name: 'Output height' })).toHaveValue('1');
 
   await page.getByRole('button', { name: 'Convert Image' }).click();
-  await expect(page.getByRole('link', { name: 'Download' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Download JPEG', exact: true })).toBeVisible();
 });
 
 test.describe('accessibility smoke scans', () => {
@@ -388,5 +451,5 @@ test('PDF merger uploads PDFs and exposes accessible removal controls', async ({
   await expect(page.getByText('2 files')).toBeVisible();
 
   await page.getByRole('button', { name: 'Merge 2 PDFs' }).click();
-  await expect(page.getByRole('link', { name: 'Download' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Download PDF', exact: true })).toBeVisible();
 });

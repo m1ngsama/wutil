@@ -22,12 +22,14 @@ function postProgress(label: string, progress: number) {
 
 ctx.onmessage = async (event: MessageEvent<PdfMergeRequest>) => {
   const { files } = event.data;
+  let activeFile = '';
 
   try {
     const merged = await PDFDocument.create();
     const totalFiles = files.length;
 
     for (const [index, file] of files.entries()) {
+      activeFile = `"${file.name}" (file ${index + 1} of ${totalFiles})`;
       const progressBase = Math.round((index / totalFiles) * 80);
       postProgress(`Reading ${index + 1} of ${totalFiles}`, progressBase);
 
@@ -39,14 +41,17 @@ ctx.onmessage = async (event: MessageEvent<PdfMergeRequest>) => {
       pages.forEach((page) => merged.addPage(page));
     }
 
+    activeFile = '';
     postProgress('Saving merged PDF', 95);
     const bytes = await merged.save();
     const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
     ctx.postMessage({ status: 'done', blob });
-  } catch (error) {
+  } catch {
     ctx.postMessage({
       status: 'error',
-      error: error instanceof Error ? error.message : 'PDF merge failed.',
+      error: activeFile
+        ? `Could not read ${activeFile}. Make sure it is a valid, unencrypted PDF.`
+        : 'Could not merge PDFs. Make sure every file is a valid, unencrypted PDF.',
     });
   }
 };

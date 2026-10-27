@@ -68,7 +68,7 @@ export default function WordCounterComponent() {
                   className={`flex items-center justify-between px-5 py-3.5 ${i < arr.length - 1 ? 'border-b border-edge' : ''}`}
                 >
                   <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">{label}</span>
-                  <span className="font-display text-xl text-ink leading-none">{value}</span>
+                  <span className="font-display text-xl font-semibold tabular-nums leading-none text-ink">{value}</span>
                 </div>
               ))}
             </div>

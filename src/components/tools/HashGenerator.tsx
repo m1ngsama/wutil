@@ -1,9 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { FileCheck2, FileUp, X } from 'lucide-react';
+import { DownloadOutline, DocumentOutline, ArrowUpCircleOutline, CloseOutline } from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { ToolPage } from '@/components/tools/ToolPage';
+import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import {
   HASH_ALGORITHMS,
@@ -178,7 +179,7 @@ export default function HashGeneratorComponent() {
               }}
               className={`flex min-h-48 w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors ${dragging ? 'border-accent bg-accent-subtle' : 'border-edge hover:border-edge-strong'}`}
             >
-              <FileUp aria-hidden="true" className="h-8 w-8 text-ink-3" strokeWidth={1.5} />
+              <ArrowUpCircleOutline aria-hidden="true" className="h-8 w-8 text-ink-3" />
               <span>
                 <span className="block text-sm font-semibold text-ink">Choose a file</span>
                 <span className="mt-1 block text-xs text-ink-3">or drop it here, up to {formatBytes(MAX_HASH_FILE_SIZE)}</span>
@@ -186,21 +187,22 @@ export default function HashGeneratorComponent() {
             </button>
           ) : (
             <div className="rounded-xl border border-edge bg-surface p-4">
-              <div className="flex items-center gap-3">
-                <FileCheck2 aria-hidden="true" className="h-5 w-5 shrink-0 text-accent" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-ink">{file.name}</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <DocumentOutline aria-hidden="true" className="h-5 w-5 shrink-0 text-ink-3" />
+                <div className="min-w-0 flex-[1_1_8rem]">
+                  <p className="break-all text-sm font-semibold text-ink">{file.name}</p>
                   <p className="text-xs text-ink-3">{formatBytes(file.size)} · kept in this tab only</p>
                 </div>
-                <button
-                  type="button"
+                <Button
+                  size="icon"
+                  variant="ghost"
                   aria-label={`Remove ${file.name}`}
+                  title="Remove file"
                   onClick={clearFile}
                   disabled={processing}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink"
                 >
-                  <X aria-hidden="true" className="h-4 w-4" />
-                </button>
+                  <CloseOutline aria-hidden="true" className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           )}
@@ -216,7 +218,7 @@ export default function HashGeneratorComponent() {
           />
 
           {file ? (
-            <div className="grid gap-4 rounded-xl border border-edge bg-surface p-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 rounded-xl border border-edge bg-surface p-4 sm:grid-cols-2 sm:p-5">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="file-hash-algorithm" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">Algorithm</label>
                 <select
@@ -226,7 +228,7 @@ export default function HashGeneratorComponent() {
                     setFileAlgorithm(event.target.value as HashAlgorithmName);
                     resetFileResult();
                   }}
-                  className="h-11 rounded-md border border-edge bg-canvas px-3 text-sm text-ink"
+                  className="h-11 min-w-0 w-full rounded-md border border-edge bg-canvas px-2 text-sm text-ink"
                 >
                   {HASH_ALGORITHMS.map(({ name, legacy }) => (
                     <option key={name} value={name}>{name}{legacy ? ' (legacy)' : ''}</option>
@@ -243,7 +245,7 @@ export default function HashGeneratorComponent() {
                   aria-describedby={expectedError ? 'expected-file-hash-error' : undefined}
                   placeholder="Paste a checksum to verify"
                   spellCheck={false}
-                  className={`h-11 rounded-md border bg-canvas px-3 font-mono text-sm text-ink placeholder:text-ink-3 ${expectedError ? 'border-red-500/70' : 'border-edge'}`}
+                  className={`h-11 min-w-0 w-full rounded-md border bg-canvas px-3 font-mono text-sm text-ink placeholder:text-ink-3 ${expectedError ? 'border-red-500/70' : 'border-edge'}`}
                 />
               </div>
               {expectedError ? (
@@ -254,7 +256,7 @@ export default function HashGeneratorComponent() {
                 onClick={hashFile}
                 disabled={processing}
                 aria-busy={processing}
-                className="h-11 rounded-xl bg-accent px-4 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover sm:col-span-2"
+                className="min-h-11 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-accent-fg transition-colors hover:bg-accent-hover sm:col-span-2"
               >
                 {processing ? `Calculating ${fileAlgorithm}…` : `Calculate ${fileAlgorithm}`}
               </button>
@@ -279,13 +281,14 @@ export default function HashGeneratorComponent() {
                     {comparison === null ? null : comparison ? 'Checksum matches' : 'Checksum does not match'}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex max-w-full flex-wrap items-center gap-2">
                   <a
                     href={checksumDownload}
                     download={`${file.name}.${fileAlgorithm.toLowerCase().replace('-', '')}`}
-                    className="inline-flex min-h-11 items-center rounded-md bg-accent px-3 text-xs font-semibold text-accent-fg hover:bg-accent-hover fine-pointer:min-h-8"
+                    className="inline-flex min-h-11 max-w-full flex-wrap items-center justify-center gap-2 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-fg transition-colors hover:bg-accent-hover fine-pointer:min-h-8"
                   >
-                    Download
+                    <DownloadOutline aria-hidden="true" className="h-4 w-4 shrink-0" />
+                    <span>Download checksum</span>
                   </a>
                   <CopyButton value={fileHash} />
                 </div>
