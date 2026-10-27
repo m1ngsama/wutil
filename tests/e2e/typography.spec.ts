@@ -49,6 +49,37 @@ test('Shared examples remain usable with enlarged text on narrow screens', async
   }
 });
 
+test('The full directory and native appearance control fit 200% text at 320px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  for (const route of ['/', '/tools/base64-converter']) {
+    await page.goto(route);
+    await page.addStyleTag({ content: 'html { font-size: 200%; }' });
+    await page.evaluate(() => document.fonts.ready);
+    const appearance = page.getByRole('combobox', { name: 'Appearance' });
+    const control = await appearance.boundingBox();
+    const label = await page.locator('label').filter({ has: appearance }).boundingBox();
+    expect(control!.width).toBeLessThanOrEqual(label!.width);
+    expect(control!.x + control!.width).toBeLessThanOrEqual(320);
+    expect(await page.evaluate(() => ({
+      width: innerWidth,
+      scroll: document.documentElement.scrollWidth,
+      controls: [...document.querySelectorAll('nav select')].map(element => {
+        const box = element.getBoundingClientRect();
+        return { x: box.x, width: box.width, minWidth: getComputedStyle(element).minWidth };
+      }),
+    }))).toMatchObject({ width: 320, scroll: 320 });
+    if (route === '/') {
+      const directory = page.getByRole('region', { name: 'Tools', exact: true });
+      expect(await directory.locator('h3, h3 + span').evaluateAll(elements => elements.flatMap(element => {
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const box = element.getBoundingClientRect();
+        return [...range.getClientRects()].filter(text => text.left < box.left - 1 || text.right > box.right + 1).map(() => element.textContent);
+      }))).toEqual([]);
+    }
+  }
+});
+
 test('JSON preserves mixed-script content and combining characters', async ({ page }) => {
   await page.goto('/tools/json-formatter');
   const source = '{"简体":"标点，。！？","繁體":"閱讀體驗","latin":"Il1 O0 é","arabic":"مرحبا","emoji":"👩🏽‍💻"}';
