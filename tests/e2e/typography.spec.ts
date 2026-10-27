@@ -55,6 +55,14 @@ test('The full directory and native appearance control fit 200% text at 320px', 
     await page.goto(route);
     await page.addStyleTag({ content: 'html { font-size: 200%; }' });
     await page.evaluate(() => document.fonts.ready);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth
+      ? [...document.querySelectorAll('body *')].flatMap(element => {
+        const box = element.getBoundingClientRect();
+        return box.width && (box.right > innerWidth || element.scrollWidth > element.clientWidth + 1)
+          ? [{ tag: element.tagName, text: element.textContent?.slice(0, 80), className: element.getAttribute('class'), x: box.x, width: box.width, scroll: element.scrollWidth, client: element.clientWidth }]
+          : [];
+      }) : []);
+    if (overflow.length) console.error('Enlarged layout overflow', route, JSON.stringify(overflow));
     const appearance = page.getByRole('combobox', { name: 'Appearance' });
     const control = await appearance.boundingBox();
     const label = await page.locator('label').filter({ has: appearance }).boundingBox();
