@@ -77,7 +77,7 @@ function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
               <span className="flex h-6 items-center justify-center text-ink-3 transition-colors group-hover:text-ink">
                 <Icon aria-hidden="true" size={20} />
               </span>
-              <span className="min-w-0">
+              <span className="min-w-0 wrap-anywhere">
                 <h3 className="text-base font-semibold leading-snug text-ink transition-colors group-hover:text-accent">
                   {tool.name}
                 </h3>

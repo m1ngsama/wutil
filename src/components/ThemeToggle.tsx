@@ -36,7 +36,7 @@ export function ThemeToggle() {
         value={selectedTheme}
         disabled={!mounted}
         onChange={(event) => setTheme(event.target.value)}
-        className="absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0 disabled:cursor-wait"
+        className="absolute inset-0 h-full min-w-0 w-full max-w-full cursor-pointer appearance-none opacity-0 disabled:cursor-wait"
       >
         <option value="system">System</option>
         <option value="light">Light</option>
