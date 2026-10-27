@@ -515,7 +515,7 @@ export default function ImageConverterComponent() {
                       disabled={item.value === 'converted' && !result}
                       onClick={() => setPreview(item.value)}
                       className={[
-                        'min-h-11 grow px-3 text-sm font-medium transition-colors focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40',
+                        'min-h-11 min-w-0 max-w-full grow wrap-anywhere px-3 py-2 text-sm font-medium transition-colors focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:opacity-40',
                         preview === item.value ? 'bg-accent text-accent-fg' : 'bg-surface text-ink enabled:hover:bg-muted',
                       ].join(' ')}
                     >
