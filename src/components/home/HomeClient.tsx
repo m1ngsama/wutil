@@ -178,7 +178,7 @@ export default function HomeClient() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <header className="mb-8 grid gap-8 sm:mb-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:items-end lg:gap-16">
+      <header className="mb-8 grid grid-cols-1 gap-8 sm:mb-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:items-end lg:gap-16">
         <div>
           <h1 className="text-[2.5rem] font-semibold leading-[1.1] tracking-[-0.04em] text-ink sm:text-[3.25rem]">
             Web Utilities
@@ -191,7 +191,7 @@ export default function HomeClient() {
         <div role="search" className="w-full max-w-xl">
           <label
             htmlFor="tool-search"
-            className="mb-2.5 flex items-center justify-between gap-3 text-sm font-medium text-ink"
+            className="mb-2.5 flex flex-wrap items-center justify-between gap-3 text-sm font-medium text-ink"
           >
             <span>Find a tool</span>
             <span aria-hidden="true" className="hidden items-center gap-1 text-xs font-normal text-ink-3 fine-pointer:inline-flex">
