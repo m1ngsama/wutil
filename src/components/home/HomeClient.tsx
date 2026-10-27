@@ -180,7 +180,7 @@ export default function HomeClient() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <header className="mb-8 grid grid-cols-1 gap-8 sm:mb-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:items-end lg:gap-16">
         <div>
-          <h1 className="text-[2.5rem] font-semibold leading-[1.1] tracking-[-0.04em] text-ink sm:text-[3.25rem]">
+          <h1 className="wrap-anywhere text-[2.5rem] font-semibold leading-[1.1] tracking-[-0.04em] text-ink sm:text-[3.25rem]">
             Web Utilities
           </h1>
           <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink-2">

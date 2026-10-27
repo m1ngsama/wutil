@@ -169,6 +169,7 @@ body {
 }
 
 .page-title {
+  overflow-wrap: anywhere;
   font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
   font-weight: 600;
   line-height: 1.15;
