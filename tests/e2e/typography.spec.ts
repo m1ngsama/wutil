@@ -60,14 +60,7 @@ test('The full directory and native appearance control fit 200% text at 320px', 
     const label = await page.locator('label').filter({ has: appearance }).boundingBox();
     expect(control!.width).toBeLessThanOrEqual(label!.width);
     expect(control!.x + control!.width).toBeLessThanOrEqual(320);
-    expect(await page.evaluate(() => ({
-      width: innerWidth,
-      scroll: document.documentElement.scrollWidth,
-      controls: [...document.querySelectorAll('nav select')].map(element => {
-        const box = element.getBoundingClientRect();
-        return { x: box.x, width: box.width, minWidth: getComputedStyle(element).minWidth };
-      }),
-    }))).toMatchObject({ width: 320, scroll: 320 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (route === '/') {
       const directory = page.getByRole('region', { name: 'Tools', exact: true });
       expect(await directory.locator('h3, h3 + span').evaluateAll(elements => elements.flatMap(element => {

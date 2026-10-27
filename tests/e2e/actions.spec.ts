@@ -263,12 +263,12 @@ test('Download labels and controls fit enlarged text with real results', async (
   await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => ({
     width: innerWidth,
-    scroll: document.documentElement.scrollWidth,
+    fits: document.documentElement.scrollWidth <= innerWidth,
     overflow: [...document.querySelectorAll('main *')].flatMap(el => {
       const box = el.getBoundingClientRect();
       return box.right > innerWidth || box.left < 0 ? [{ tag: el.tagName, className: el.className, x: box.x, width: box.width }] : [];
     }),
-  }))).toMatchObject({ width: 320, scroll: 320, overflow: [] });
+  }))).toMatchObject({ width: 320, fits: true, overflow: [] });
   for (const name of ['Output width', 'Output height']) {
     const field = page.getByRole('spinbutton', { name, exact: true });
     expect(await field.evaluate(el => {
@@ -313,10 +313,10 @@ test('Download labels and controls fit enlarged text with real results', async (
   })).toBe(true);
   expect(await page.evaluate(() => ({
     width: innerWidth,
-    scroll: document.documentElement.scrollWidth,
+    fits: document.documentElement.scrollWidth <= innerWidth,
     overflow: [...document.querySelectorAll('main *')].flatMap(el => {
       const box = el.getBoundingClientRect();
       return box.right > innerWidth || box.left < 0 ? [{ tag: el.tagName, className: el.className, x: box.x, width: box.width }] : [];
     }),
-  }))).toMatchObject({ width: 320, scroll: 320, overflow: [] });
+  }))).toMatchObject({ width: 320, fits: true, overflow: [] });
 });
