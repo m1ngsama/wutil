@@ -5,17 +5,17 @@ import { ThemeToggle } from './ThemeToggle';
 export default function Navbar() {
   return (
     <nav aria-label="Primary navigation" className="site-navbar sticky top-0 z-50 w-full border-b border-edge bg-canvas">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between">
 
           <Link
             href="/"
             className="group flex min-h-11 items-center gap-3 rounded-md"
           >
-            <span className="font-display text-[1.6rem] leading-none text-ink">
+            <span className="font-display text-[22px] font-bold leading-none tracking-[-0.04em] text-ink">
               wutil
             </span>
-            <span className="hidden sm:block text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-3 mt-0.5">
+            <span className="hidden sm:block text-[13px] font-medium text-ink-3 mt-0.5">
               Web Utilities
             </span>
           </Link>

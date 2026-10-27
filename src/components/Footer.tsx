@@ -15,20 +15,15 @@ const FOOTER_LINKS = [
 export default function Footer() {
   return (
     <footer className="border-t border-edge bg-canvas mt-auto">
-      <div className="site-footer-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      <div className="site-footer-content max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
 
-          <div className="space-y-1.5">
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center rounded-md font-display text-2xl leading-none text-ink fine-pointer:min-h-0"
-            >
-              wutil
-            </Link>
-            <p className="max-w-[34ch] text-xs leading-relaxed text-ink-3">
-              Free, private web tools. Everything runs in your browser, and nothing is uploaded.
-            </p>
-          </div>
+          <Link
+            href="/"
+            className="inline-flex min-h-11 items-center rounded-md font-display text-[22px] font-bold leading-none tracking-[-0.04em] text-ink fine-pointer:min-h-0"
+          >
+            wutil
+          </Link>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 sm:gap-5">
             {FOOTER_LINKS.map(([label, href]) => (
@@ -36,7 +31,7 @@ export default function Footer() {
                 key={href}
                 href={href}
                 {...(href.startsWith('https:') && { target: '_blank', rel: 'noreferrer' })}
-                className="inline-flex min-h-11 items-center rounded-sm text-xs font-semibold uppercase tracking-wider text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-0"
+                className="inline-flex min-h-11 items-center rounded-sm text-sm font-medium text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-0"
               >
                 {label}
               </Link>

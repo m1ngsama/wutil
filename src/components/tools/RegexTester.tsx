@@ -34,69 +34,71 @@ export default function RegexTester() {
   const [pattern,    setPattern]    = useState('');
   const [flags,      setFlags]      = useState('g');
   const [testString, setTestString] = useState('');
+  const signature = JSON.stringify([pattern, flags, testString]);
   const [resultState, setResultState] = useState<{
+    signature: string;
     status: 'idle' | 'pending' | 'done';
     result: RegexResult | null;
-  }>({ status: 'idle', result: null });
+  }>({ signature: '', status: 'idle', result: null });
 
   const toggleFlag = (flag: string) =>
     setFlags((prev) => prev.includes(flag) ? prev.replace(flag, '') : prev + flag);
 
-  const hasInput = Boolean(pattern && testString);
+  const hasInput = Boolean(pattern);
 
   useEffect(() => {
     if (!hasInput) return;
 
+    let active = true;
     let worker: Worker | null = null;
     let timeoutId: number | null = null;
-    const debounceId = window.setTimeout(() => {
-      setResultState({ status: 'pending', result: null });
-      worker = new Worker(new URL('./regex.worker.ts', import.meta.url), { type: 'module' });
+    const finish = (result: RegexResult) => {
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+      worker?.terminate();
+      worker = null;
+      if (active) setResultState({ signature, status: 'done', result });
+    };
 
+    const debounceId = window.setTimeout(() => {
+      setResultState({ signature, status: 'pending', result: null });
       const failAfter = (delay: number, error: string) => {
         if (timeoutId !== null) window.clearTimeout(timeoutId);
-        timeoutId = window.setTimeout(() => {
-          worker?.terminate();
-          worker = null;
-          setResultState({ status: 'done', result: { valid: false, error } });
-        }, delay);
+        timeoutId = window.setTimeout(() => finish({ valid: false, error }), delay);
       };
 
-      worker.onmessage = (event: MessageEvent<RegexWorkerResponse>) => {
-        if (event.data.type === 'ready') {
-          failAfter(
-            REGEX_TEST_TIMEOUT_MS,
-            `Regex timed out after ${REGEX_TEST_TIMEOUT_MS}ms.`,
-          );
-          worker?.postMessage({ pattern, flags, testString });
-          return;
-        }
-
-        if (timeoutId !== null) window.clearTimeout(timeoutId);
-        worker?.terminate();
-        worker = null;
-        setResultState({ status: 'done', result: event.data.result });
-      };
-
-      worker.onerror = () => {
-        if (timeoutId !== null) window.clearTimeout(timeoutId);
-        worker?.terminate();
-        worker = null;
-        setResultState({ status: 'done', result: { valid: false, error: 'Regex worker failed.' } });
-      };
-
-      failAfter(REGEX_WORKER_STARTUP_TIMEOUT_MS, 'Regex worker could not start.');
+      try {
+        worker = new Worker(new URL('./regex.worker.ts', import.meta.url), { type: 'module' });
+        worker.onmessage = (event: MessageEvent<RegexWorkerResponse>) => {
+          if (!active) return;
+          if (event.data.type === 'ready') {
+            failAfter(REGEX_TEST_TIMEOUT_MS, `Regex timed out after ${REGEX_TEST_TIMEOUT_MS}ms.`);
+            try {
+              worker?.postMessage({ pattern, flags, testString });
+            } catch {
+              finish({ valid: false, error: 'Regex worker failed. Try again.' });
+            }
+          } else {
+            finish(event.data.result);
+          }
+        };
+        worker.onerror = () => finish({ valid: false, error: 'Regex worker failed. Try again.' });
+        failAfter(REGEX_WORKER_STARTUP_TIMEOUT_MS, 'Regex worker could not start.');
+      } catch {
+        finish({ valid: false, error: 'Regex worker could not start. Try a supported browser.' });
+      }
     }, 120);
 
     return () => {
+      active = false;
       window.clearTimeout(debounceId);
       if (timeoutId !== null) window.clearTimeout(timeoutId);
       worker?.terminate();
     };
-  }, [pattern, flags, testString, hasInput]);
+  }, [pattern, flags, testString, hasInput, signature]);
 
-  const result = hasInput ? resultState.result : null;
-  const isTesting = hasInput && resultState.status === 'pending';
+  const isCurrent = hasInput && resultState.signature === signature;
+  const result = isCurrent ? resultState.result : null;
+  const isTesting = hasInput && (!isCurrent || resultState.status === 'pending');
 
   return (
     <ToolPage
@@ -125,7 +127,7 @@ export default function RegexTester() {
             aria-invalid={result?.valid === false ? true : undefined}
             onChange={(e) => setPattern(e.target.value)}
             placeholder="Enter regex…"
-            className="h-11 flex-1 font-mono text-ink bg-transparent border-0 outline-none text-sm placeholder:text-ink-3"
+            className="h-11 min-w-0 flex-1 font-mono text-ink bg-transparent border-0 outline-none text-sm placeholder:text-ink-3"
             spellCheck={false}
           />
           <span className="text-ink-3 text-lg font-mono">/{flags || ''}</span>
@@ -169,12 +171,9 @@ export default function RegexTester() {
           onChange={(e) => setTestString(e.target.value)}
           spellCheck={false}
         />
-        {pattern && !testString && (
-          <p className="text-xs text-ink-3">No matches yet</p>
-        )}
       </div>
 
-      {result?.valid && testString && (
+      {result?.valid && (
         <div className="rounded-xl border border-edge bg-surface p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">Highlighted</span>

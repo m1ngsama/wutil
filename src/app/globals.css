@@ -14,8 +14,8 @@
   --w-muted:   #f5f5f4;
 
   --w-ink:   #1c1917;
-  --w-ink-2: #374151;
-  --w-ink-3: #4b5563;
+  --w-ink-2: #44403c;
+  --w-ink-3: #57534e;
 
   --w-edge:       oklch(88% 0.014 70);
   --w-edge-strong: oklch(76% 0.018 70);
@@ -61,9 +61,9 @@
   --color-edge:          var(--w-edge);
   --color-edge-strong:   var(--w-edge-strong);
 
-  --font-display: var(--font-abril), Georgia, serif;
-  --font-sans:    var(--font-mulish), ui-sans-serif, system-ui, sans-serif;
-  --font-mono:    var(--font-geist-mono), ui-monospace, "Cascadia Code", monospace;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, "Cascadia Code", "PingFang SC", "Microsoft YaHei", monospace;
 }
 
 html {
@@ -141,6 +141,7 @@ body {
 @utility field-header {
   margin-bottom: 0.5rem;
   display: flex;
+  flex-wrap: wrap;
   min-height: 2.75rem;
   align-items: center;
   justify-content: space-between;
@@ -152,7 +153,7 @@ body {
 }
 
 @utility field-error {
-  @apply rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-600 dark:bg-red-950/40 dark:text-red-400;
+  @apply rounded-md bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:bg-red-950/40 dark:text-red-400;
 }
 
 #main-content ::placeholder {
@@ -165,6 +166,33 @@ body {
   color: color-mix(in oklab, var(--w-ink-3) 75%, transparent);
   border-color: var(--w-edge);
   box-shadow: none;
+}
+
+.page-title {
+  font-size: clamp(1.875rem, 1.5rem + 1.5vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.workspace-editor {
+  height: clamp(12rem, 32dvh, 20rem);
+  min-height: 8rem;
+  tab-size: 2;
+}
+
+@media (min-width: 1024px) and (min-height: 600px) {
+  .workspace-editor {
+    height: clamp(20rem, calc(100dvh - 30rem), 38rem);
+  }
 }
 
 @media (max-width: 639px), (pointer: coarse) {
@@ -184,21 +212,11 @@ body {
   }
 
   .tool-page-title {
-    font-size: 2.25rem;
+    font-size: 1.875rem;
   }
 
   .tool-page-description {
     line-height: 1.5;
-  }
-
-  .json-tool-examples {
-    order: 3;
-    margin-top: 1.25rem;
-    margin-bottom: 0;
-  }
-
-  .json-tool-editors {
-    order: 2;
   }
 }
 

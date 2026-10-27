@@ -9,16 +9,16 @@ export function ToolProgress({ label, value, progressLabel, onCancel }: ToolProg
   const progress = Math.max(0, Math.min(100, value));
 
   return (
-    <div className="rounded-xl border border-edge bg-muted p-3">
+    <div>
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span role="status" aria-live="polite" className="text-xs font-semibold uppercase tracking-wider text-ink-3">
+        <span role="status" aria-live="polite" className="text-sm font-medium text-ink-3">
           {label}
         </span>
         {onCancel ? (
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-11 rounded-sm px-2 text-xs font-semibold text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-9"
+            className="min-h-11 rounded-sm px-2 text-sm font-medium text-ink-3 transition-colors hover:text-ink fine-pointer:min-h-9"
           >
             Cancel
           </button>

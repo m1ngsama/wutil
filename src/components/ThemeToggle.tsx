@@ -1,6 +1,6 @@
 "use client";
 
-import { SunMoon } from "lucide-react";
+import { DesktopOutline, MoonOutline, SunnyOutline } from "@/components/ui/icons";
 import { useTheme } from "next-themes";
 import { useEffect, useSyncExternalStore } from "react";
 
@@ -14,6 +14,7 @@ export function ThemeToggle() {
   const mounted = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
   const selectedTheme = mounted ? theme ?? "system" : "system";
   const selectedLabel = selectedTheme[0].toUpperCase() + selectedTheme.slice(1);
+  const ThemeIcon = selectedTheme === "light" ? SunnyOutline : selectedTheme === "dark" ? MoonOutline : DesktopOutline;
 
   useEffect(() => {
     if (resolvedTheme !== "light" && resolvedTheme !== "dark") return;
@@ -29,7 +30,7 @@ export function ThemeToggle() {
       title={`Appearance: ${selectedLabel}`}
     >
       <span className="sr-only">Appearance</span>
-      <SunMoon aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
+      <ThemeIcon aria-hidden="true" className="h-4 w-4" />
       <select
         aria-label="Appearance"
         value={selectedTheme}

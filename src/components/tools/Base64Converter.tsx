@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { SwapVerticalOutline } from '@/components/ui/icons';
 import { ExamplePicker } from '@/components/tools/ExamplePicker';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Segmented } from '@/components/ui/Segmented';
+import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { decodeBase64, encodeBase64 } from '@/lib/base64-utils';
 
@@ -28,6 +30,7 @@ export default function Base64ConverterComponent() {
   const [urlSafe, setUrlSafe] = useState(false);
 
   const result = convert(input, mode, urlSafe);
+  const reverseDescription = `Use output as input and switch to ${mode === 'encode' ? 'Decode' : 'Encode'}.`;
 
   const swap = () => {
     setInput(result.output);
@@ -46,20 +49,22 @@ export default function Base64ConverterComponent() {
           options={[{ value: 'encode', label: 'encode' }, { value: 'decode', label: 'decode' }]}
           value={mode}
           onChange={setMode}
+          ariaLabel="Conversion mode"
           buttonClassName="px-4 text-sm capitalize fine-pointer:min-h-9"
         />
 
-        <button
-          type="button"
+        <Button
+          size="sm"
+          variant="outline"
           onClick={swap}
           disabled={!result.output}
-          className="h-11 px-3 flex items-center gap-2 text-sm border border-edge bg-surface text-ink rounded-md hover:bg-muted disabled:pointer-events-none transition-colors fine-pointer:h-9"
+          title={reverseDescription}
+          aria-describedby="base64-reverse-description"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-          </svg>
-          Swap
-        </button>
+          <SwapVerticalOutline size={16} aria-hidden="true" className="shrink-0" />
+          Reverse
+        </Button>
+        <span id="base64-reverse-description" className="sr-only">{reverseDescription}</span>
 
         {mode === 'encode' && (
           <button
@@ -91,7 +96,7 @@ export default function Base64ConverterComponent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <div className="field-header">
-            <label htmlFor="base64-input" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            <label htmlFor="base64-input" className="text-sm font-medium text-ink-3">
               {mode === 'encode' ? 'Plain text' : 'Base64 input'}
             </label>
           </div>
@@ -118,7 +123,7 @@ export default function Base64ConverterComponent() {
 
         <div className="flex flex-col">
           <div className="field-header">
-            <label htmlFor="base64-output" className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+            <label htmlFor="base64-output" className="text-sm font-medium text-ink-3">
               {mode === 'encode' ? 'Base64 output' : 'Decoded text'}
             </label>
             <CopyButton value={result.output} />

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { Button } from '@/components/ui/Button';
 import { favoriteToolStore, recentToolStore } from '@/lib/tool-store';
 import {
@@ -13,42 +13,42 @@ import {
   type ToolRegistryItem,
 } from '@/lib/tool-registry';
 import {
-  AlignLeft,
-  ArrowRight,
-  Binary,
-  Braces,
-  CalendarDays,
-  CaseSensitive,
-  Clock,
-  Fingerprint,
-  FilePlus2,
-  Hash,
-  ImageIcon,
-  KeyRound,
-  Link2,
-  Palette,
-  Regex,
-  Ruler,
-  Search,
-  type LucideIcon,
-} from 'lucide-react';
+  ArrowForwardOutline,
+  BarcodeOutline,
+  CalendarOutline,
+  CodeOutline,
+  CodeSlashOutline,
+  CodeWorkingOutline,
+  ColorPaletteOutline,
+  DocumentTextOutline,
+  DocumentsOutline,
+  FingerPrintOutline,
+  ImageOutline,
+  KeyOutline,
+  LinkOutline,
+  ResizeOutline,
+  SearchOutline,
+  TextOutline,
+  TimeOutline,
+  type IconProps,
+} from '@/components/ui/icons';
 
-const toolIcons: Record<string, LucideIcon> = {
-  'password-generator': KeyRound,
-  'color-converter': Palette,
-  'url-encoder': Link2,
-  'text-case': CaseSensitive,
-  'regex-tester': Regex,
-  timestamp: Clock,
-  'word-counter': AlignLeft,
-  'json-formatter': Braces,
-  'base64-converter': Binary,
-  'unit-converter': Ruler,
-  'hash-generator': Hash,
-  'uuid-generator': Fingerprint,
-  'date-calculator': CalendarDays,
-  'image-converter': ImageIcon,
-  'pdf-merge': FilePlus2,
+const toolIcons: Record<string, ComponentType<IconProps>> = {
+  'password-generator': KeyOutline,
+  'color-converter': ColorPaletteOutline,
+  'url-encoder': LinkOutline,
+  'text-case': TextOutline,
+  'regex-tester': CodeWorkingOutline,
+  timestamp: TimeOutline,
+  'word-counter': DocumentTextOutline,
+  'json-formatter': CodeSlashOutline,
+  'base64-converter': CodeOutline,
+  'unit-converter': ResizeOutline,
+  'hash-generator': FingerPrintOutline,
+  'uuid-generator': BarcodeOutline,
+  'date-calculator': CalendarOutline,
+  'image-converter': ImageOutline,
+  'pdf-merge': DocumentsOutline,
 };
 
 const categories: ReadonlyArray<{
@@ -62,33 +62,6 @@ const categories: ReadonlyArray<{
   })),
 ];
 
-function FeaturedTool({ tool }: { tool: ToolRegistryItem }) {
-  const Icon = toolIcons[tool.id];
-
-  return (
-    <Link
-      href={tool.href}
-      className="group grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-edge bg-surface p-4 transition-colors hover:border-edge-strong hover:bg-muted sm:p-5"
-    >
-      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-subtle text-accent">
-        <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
-      </span>
-      <span className="min-w-0">
-        <h3 className="text-base font-semibold text-ink transition-colors group-hover:text-accent">
-          {tool.name}
-        </h3>
-        <span className="mt-0.5 block text-sm leading-relaxed text-ink-2">
-          {tool.description}
-        </span>
-      </span>
-      <ArrowRight
-        aria-hidden="true"
-        className="h-4 w-4 text-accent transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-      />
-    </Link>
-  );
-}
-
 function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
   return (
     <ul className="grid grid-cols-1 border-b border-edge sm:grid-cols-2 sm:gap-x-8">
@@ -99,30 +72,20 @@ function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
           <li key={tool.id} className="border-t border-edge">
             <Link
               href={tool.href}
-              className="group -mx-2 grid min-h-24 grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-2 py-4 transition-colors hover:bg-muted"
+              className="group -mx-2 grid min-h-24 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-4 rounded-md px-2 py-5 transition-colors hover:bg-muted"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-ink-2 transition-colors group-hover:bg-accent-subtle group-hover:text-accent">
-                <Icon aria-hidden="true" size={18} strokeWidth={1.75} />
+              <span className="flex h-6 items-center justify-center text-ink-3 transition-colors group-hover:text-ink">
+                <Icon aria-hidden="true" size={20} />
               </span>
               <span className="min-w-0">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-3">
-                  {TOOL_CATEGORY_NAMES[tool.category]}
-                </span>
-                <span className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold text-ink transition-colors group-hover:text-accent">
-                    {tool.name}
-                  </h3>
-                  {tool.badge ? (
-                    <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wider text-accent">
-                      {tool.badge}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="mt-1 block line-clamp-2 text-xs leading-relaxed text-ink-2">
+                <h3 className="text-base font-semibold leading-snug text-ink transition-colors group-hover:text-accent">
+                  {tool.name}
+                </h3>
+                <span className="mt-1 block text-sm leading-relaxed text-ink-2">
                   {tool.description}
                 </span>
               </span>
-              <ArrowRight
+              <ArrowForwardOutline
                 aria-hidden="true"
                 className="h-4 w-4 text-ink-3 transition-[color,transform] duration-200 ease-out group-hover:translate-x-0.5 group-hover:text-accent"
               />
@@ -136,25 +99,17 @@ function ToolDirectory({ tools }: { tools: ToolRegistryItem[] }) {
 
 function CompactToolList({ tools }: { tools: ToolRegistryItem[] }) {
   return (
-    <ul className="grid border-t border-edge sm:grid-cols-2 lg:grid-cols-4">
-      {tools.map((tool, index) => (
-        <li
-          key={tool.id}
-          className={`border-b border-edge ${index % 2 === 1 ? 'sm:border-l' : ''} ${index % 4 === 0 ? 'lg:border-l-0' : 'lg:border-l'}`}
-        >
+    <ul className="grid gap-x-6 sm:grid-cols-2">
+      {tools.map((tool) => (
+        <li key={tool.id} className="border-b border-edge">
           <Link
             href={tool.href}
-            className="group flex min-h-16 items-center justify-between gap-3 px-3 py-3 focus-visible:-outline-offset-2"
+            className="group flex min-h-11 items-center justify-between gap-3 py-2 focus-visible:-outline-offset-2 fine-pointer:min-h-9"
           >
-            <span className="min-w-0">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3">
-                {TOOL_CATEGORY_NAMES[tool.category]}
-              </span>
-              <span className="mt-0.5 block truncate text-sm font-semibold text-ink transition-colors group-hover:text-accent">
-                {tool.name}
-              </span>
+            <span className="min-w-0 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-accent">
+              {tool.name}
             </span>
-            <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-3 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-accent" />
+            <ArrowForwardOutline aria-hidden="true" className="h-4 w-4 shrink-0 text-ink-3 transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-accent" />
           </Link>
         </li>
       ))}
@@ -200,27 +155,21 @@ export default function HomeClient() {
     (tool) => activeCategory === 'all' || tool.category === activeCategory,
   );
 
-  const showFeatured = !hasSearch && activeCategory === 'all';
-  const favoriteTools = showFeatured
+  const showPersonalTools = !hasSearch && activeCategory === 'all';
+  const favoriteTools = showPersonalTools
     ? favoriteToolIds.flatMap((toolId) => {
         const tool = TOOL_REGISTRY_BY_ID.get(toolId);
         return tool ? [tool] : [];
       })
     : [];
   const favoriteToolIdSet = new Set(favoriteToolIds);
-  const recentTools = showFeatured
+  const recentTools = showPersonalTools
     ? recentToolIds.flatMap((toolId) => {
         if (favoriteToolIdSet.has(toolId)) return [];
         const tool = TOOL_REGISTRY_BY_ID.get(toolId);
         return tool ? [tool] : [];
       })
     : [];
-  const featuredTools = showFeatured
-    ? filteredTools.filter((tool) => tool.badge)
-    : [];
-  const directoryTools = showFeatured
-    ? filteredTools.filter((tool) => !tool.badge)
-    : filteredTools;
 
   const clearFilters = () => {
     setSearch('');
@@ -228,35 +177,31 @@ export default function HomeClient() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-14 lg:px-8">
-      <header className="mb-6 grid gap-5 sm:mb-10 sm:gap-8 lg:mb-12">
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <header className="mb-8 grid gap-8 sm:mb-10 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.8fr)] lg:items-end lg:gap-16">
         <div>
-          <p className="mb-3 hidden text-xs font-semibold uppercase tracking-[0.18em] text-ink-3 sm:block">
-            {TOOL_REGISTRY.length} tools. Free to use. Private by design.
-          </p>
-          <h1 className="font-display text-[2.5rem] leading-none text-ink sm:text-6xl md:text-7xl">
+          <h1 className="text-[2.5rem] font-semibold leading-[1.1] tracking-[-0.04em] text-ink sm:text-[3.25rem]">
             Web Utilities
           </h1>
-          <p className="mt-3 max-w-[48ch] text-sm leading-relaxed text-ink-2 sm:mt-4 sm:text-base">
-            Fast tools that run entirely in your browser. Your tool content is not uploaded or stored.
+          <p className="mt-4 max-w-[48ch] text-base leading-relaxed text-ink-2">
+            Free tools. No uploads.
           </p>
         </div>
 
-        <div role="search" className="max-w-xl">
+        <div role="search" className="w-full max-w-xl">
           <label
             htmlFor="tool-search"
-            className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink-3"
+            className="mb-2.5 flex items-center justify-between gap-3 text-sm font-medium text-ink"
           >
             <span>Find a tool</span>
-            <span aria-hidden="true" className="hidden items-center gap-1 normal-case tracking-normal text-ink-3 fine-pointer:inline-flex">
+            <span aria-hidden="true" className="hidden items-center gap-1 text-xs font-normal text-ink-3 fine-pointer:inline-flex">
               Press <kbd className="rounded border border-edge bg-muted px-1.5 py-0.5 font-mono text-[10px]">/</kbd>
             </span>
           </label>
           <div className="relative">
-            <Search
+            <SearchOutline
               aria-hidden="true"
               className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"
-              strokeWidth={1.75}
             />
             <input
               ref={searchInputRef}
@@ -265,7 +210,7 @@ export default function HomeClient() {
               autoComplete="off"
               aria-controls="tool-results"
               aria-keyshortcuts="/ Meta+K Control+K"
-              className="flex h-11 w-full rounded-md border border-edge bg-surface pl-10 pr-3 py-2 text-sm text-ink transition-colors placeholder:text-ink-3 hover:border-edge-strong"
+              className="flex h-12 w-full rounded-lg border border-edge-strong bg-surface py-2 pl-10 pr-3 text-base text-ink transition-colors placeholder:text-ink-3 hover:border-ink-3"
               placeholder="Search by name or task…"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -288,17 +233,16 @@ export default function HomeClient() {
         role="group"
       >
         {categories.map((category) => (
-          <Button
+          <button
             key={category.id}
-            variant={activeCategory === category.id ? 'default' : 'outline'}
-            size="sm"
+            type="button"
             aria-controls="tool-results"
             aria-pressed={activeCategory === category.id}
             onClick={() => setActiveCategory(category.id)}
-            className="shrink-0"
+            className={`min-h-11 shrink-0 rounded-md px-3 text-sm font-medium transition-colors fine-pointer:min-h-9 ${activeCategory === category.id ? 'bg-ink text-canvas' : 'text-ink-2 hover:bg-muted hover:text-ink'}`}
           >
             {category.name}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -306,67 +250,44 @@ export default function HomeClient() {
         {filteredTools.length} {filteredTools.length === 1 ? 'tool' : 'tools'} shown.
       </p>
 
-      <div id="tool-results" className="space-y-12">
-        {favoriteTools.length > 0 ? (
-          <section aria-labelledby="favorite-tools-heading">
-            <div className="mb-3 flex items-end justify-between gap-4">
-              <div>
-                <h2 id="favorite-tools-heading" className="text-lg font-semibold text-ink">
+      <div id="tool-results" className="space-y-8">
+        {favoriteTools.length > 0 || recentTools.length > 0 ? (
+          <div className={`grid gap-4 ${favoriteTools.length > 0 && recentTools.length > 0 ? 'lg:grid-cols-2 lg:gap-8' : ''}`}>
+            {favoriteTools.length > 0 ? (
+              <section aria-labelledby="favorite-tools-heading">
+                <h2 id="favorite-tools-heading" className="flex min-h-11 items-center text-sm font-medium text-ink fine-pointer:min-h-9">
                   Favorites
                 </h2>
-                <p className="mt-0.5 text-xs text-ink-3">Saved only on this device</p>
-              </div>
-              <span className="text-xs text-ink-3">Manage from each tool</span>
-            </div>
-            <CompactToolList tools={favoriteTools} />
-          </section>
+                <CompactToolList tools={favoriteTools} />
+              </section>
+            ) : null}
+
+            {recentTools.length > 0 ? (
+              <section aria-labelledby="recent-tools-heading">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 id="recent-tools-heading" className="text-sm font-medium text-ink">
+                    Recently used
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={() => recentToolStore.update(() => [])}
+                    className="min-h-11 rounded-md px-2 text-sm font-medium text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:min-h-9"
+                  >
+                    Clear history
+                  </button>
+                </div>
+                <CompactToolList tools={recentTools} />
+              </section>
+            ) : null}
+          </div>
         ) : null}
 
-        {recentTools.length > 0 ? (
-          <section aria-labelledby="recent-tools-heading">
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <div>
-                <h2 id="recent-tools-heading" className="text-lg font-semibold text-ink">
-                  Recently used
-                </h2>
-                <p className="mt-0.5 text-xs text-ink-3">Stored only on this device</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => recentToolStore.update(() => [])}
-                className="min-h-11 rounded-md px-2 text-xs font-semibold text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:min-h-9"
-              >
-                Clear history
-              </button>
-            </div>
-            <CompactToolList tools={recentTools} />
-          </section>
-        ) : null}
-
-        {featuredTools.length > 0 ? (
-          <section aria-labelledby="popular-tools-heading">
-            <h2 id="popular-tools-heading" className="mb-4 text-lg font-semibold text-ink">
-              Popular now
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {featuredTools.map((tool) => (
-                <FeaturedTool key={tool.id} tool={tool} />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {directoryTools.length > 0 ? (
+        {filteredTools.length > 0 ? (
           <section aria-labelledby="tool-directory-heading">
-            <div className="mb-4 flex items-baseline justify-between gap-4">
-              <h2 id="tool-directory-heading" className="text-lg font-semibold text-ink">
-                {showFeatured ? 'More tools' : 'Matching tools'}
-              </h2>
-              <span className="text-xs tabular-nums text-ink-3">
-                {directoryTools.length} {directoryTools.length === 1 ? 'tool' : 'tools'}
-              </span>
-            </div>
-            <ToolDirectory tools={directoryTools} />
+            <h2 id="tool-directory-heading" className="mb-4 section-title text-ink">
+              {hasSearch ? 'Search results' : 'Tools'}
+            </h2>
+            <ToolDirectory tools={filteredTools} />
           </section>
         ) : null}
 

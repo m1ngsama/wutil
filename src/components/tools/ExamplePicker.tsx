@@ -1,3 +1,5 @@
+import { cn } from '@/lib/utils';
+
 interface ToolExample {
   id: string;
   label: string;
@@ -17,22 +19,20 @@ export function ExamplePicker<T extends ToolExample>({
   className,
 }: ExamplePickerProps<T>) {
   return (
-    <div className={className}>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink-3">
+    <div role="group" aria-label={label} className={cn('flex min-w-0 flex-wrap items-center gap-2', className)}>
+      <span className="mr-1 text-sm font-medium text-ink-3">
         {label}
-      </p>
-      <div role="group" aria-label={label} className="flex flex-wrap gap-2">
-        {examples.map((example) => (
-          <button
-            type="button"
-            key={example.id}
-            onClick={() => onSelect(example)}
-            className="min-h-11 rounded-md border border-edge bg-surface px-3 py-1.5 text-xs font-medium text-ink-2 transition-colors hover:bg-muted fine-pointer:min-h-9"
-          >
-            {example.label}
-          </button>
-        ))}
-      </div>
+      </span>
+      {examples.map((example) => (
+        <button
+          type="button"
+          key={example.id}
+          onClick={() => onSelect(example)}
+          className="min-h-11 rounded-md border border-edge bg-surface px-3 py-1.5 text-sm font-medium text-ink-2 transition-colors hover:bg-muted fine-pointer:min-h-9"
+        >
+          {example.label}
+        </button>
+      ))}
     </div>
   );
 }

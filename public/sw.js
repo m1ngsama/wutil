@@ -78,10 +78,18 @@ async function networkFirst(request, cacheName, fallback) {
 }
 
 async function cacheFirst(request) {
-  const cached = await caches.match(request, { ignoreSearch: true });
-  if (cached) return cached;
   try {
-    return await fetchAndStore(ASSET_CACHE, request);
+    const cached = await caches.match(request, { ignoreSearch: true });
+    const response = cached || await fetchAndStore(ASSET_CACHE, request);
+    if (request.destination === 'worker') {
+      // Preserve the requesting URL's bootstrap fragment, not the cached response's URL.
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: response.headers,
+      });
+    }
+    return response;
   } catch {
     return new Response('', { status: 504 });
   }

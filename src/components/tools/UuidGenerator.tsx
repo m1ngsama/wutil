@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Download, RefreshCw } from 'lucide-react';
+import { DownloadOutline, RefreshOutline } from '@/components/ui/icons';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
@@ -186,7 +186,7 @@ export default function UuidGenerator() {
           </div>
 
           <Button type="submit" size="lg" className="mt-6 w-full">
-            <RefreshCw aria-hidden="true" className="mr-2 h-4 w-4" />
+            <RefreshOutline aria-hidden="true" className="h-4 w-4" />
             Generate {version} UUID{Number(quantity) === 1 ? '' : 's'}
           </Button>
         </form>
@@ -198,7 +198,7 @@ export default function UuidGenerator() {
             </h2>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={displayedUuids.length === 0} onClick={handleDownload}>
-                <Download aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
+                <DownloadOutline aria-hidden="true" className="h-3.5 w-3.5" />
                 Download .txt
               </Button>
               <CopyButton value={displayedUuids.join('\n')} label="Copy all" />

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, X } from 'lucide-react';
+import { SearchOutline, CloseOutline } from '@/components/ui/icons';
 import {
   useEffect,
   useEffectEvent,
@@ -11,6 +11,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from 'react';
+import { Button } from '@/components/ui/Button';
 import { searchTools, TOOL_CATEGORY_NAMES } from '@/lib/tool-registry';
 
 export function GlobalToolSearch() {
@@ -113,8 +114,8 @@ export function GlobalToolSearch() {
         aria-keyshortcuts="Meta+K Control+K"
         className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink md:w-auto md:px-3 fine-pointer:h-9 fine-pointer:w-9 md:fine-pointer:w-auto"
       >
-        <Search aria-hidden="true" className="h-4 w-4" strokeWidth={1.75} />
-        <span className="hidden text-xs font-semibold md:inline">Find a tool</span>
+        <SearchOutline aria-hidden="true" className="h-4 w-4" />
+        <span className="hidden text-sm font-medium md:inline">Find a tool</span>
         <span className="sr-only">Open tool search</span>
       </button>
       )}
@@ -135,30 +136,30 @@ export function GlobalToolSearch() {
               <h2 id="global-tool-search-title" className="text-base font-semibold text-ink">
                 Find a tool
               </h2>
-              <p className="mt-0.5 text-xs text-ink-3">Search by name or describe the task.</p>
+              <p className="mt-0.5 text-sm leading-relaxed text-ink-3">Search by name or describe the task.</p>
             </div>
             <div className="flex items-center gap-2">
               <kbd aria-hidden="true" className="hidden rounded border border-edge bg-muted px-2 py-1 font-mono text-[10px] text-ink-3 fine-pointer:block">
                 Esc
               </kbd>
-              <button
-                type="button"
+              <Button
+                size="icon"
+                variant="ghost"
                 onClick={closeDialog}
                 aria-label="Close tool search"
-                className="flex h-11 w-11 items-center justify-center rounded-md text-ink-3 transition-colors hover:bg-muted hover:text-ink fine-pointer:h-9 fine-pointer:w-9"
+                title="Close tool search"
               >
-                <X aria-hidden="true" className="h-4 w-4" />
-              </button>
+                <CloseOutline aria-hidden="true" className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
           <div className="border-b border-edge p-4 sm:p-5">
             <label htmlFor="global-tool-search-input" className="sr-only">Search tools</label>
             <div className="relative">
-              <Search
+              <SearchOutline
                 aria-hidden="true"
                 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-3"
-                strokeWidth={1.75}
               />
               <input
                 ref={inputRef}
@@ -183,7 +184,7 @@ export function GlobalToolSearch() {
           </div>
 
           <div className="min-h-0 overflow-y-auto px-2 py-2 sm:px-3">
-            <p className="px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-3" aria-live="polite">
+            <p className="px-2 py-2 text-xs font-medium text-ink-3" aria-live="polite">
               {results.length} {results.length === 1 ? 'tool' : 'tools'} found
             </p>
             <p className="sr-only" aria-live="polite" aria-atomic="true">
@@ -208,11 +209,11 @@ export function GlobalToolSearch() {
                           <span className={`block text-sm font-semibold ${active ? 'text-accent' : 'text-ink'}`}>
                             {tool.name}
                           </span>
-                          <span className="mt-0.5 block truncate text-xs text-ink-3">
+                          <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-3">
                             {tool.description}
                           </span>
                         </span>
-                        <span className="-order-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-3 sm:order-none">
+                        <span className="-order-1 text-xs font-medium text-ink-3 sm:order-none">
                           {TOOL_CATEGORY_NAMES[tool.category]}
                         </span>
                       </Link>

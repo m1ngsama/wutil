@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { CopyOutline } from '@/components/ui/icons';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { Segmented } from '@/components/ui/Segmented';
 import { copyText } from '@/lib/clipboard';
@@ -102,9 +102,9 @@ export default function DateCalculator() {
                     title="Copy"
                     aria-label={`Copy days value ${diff.absDays}`}
                   >
-                    <span className="font-display text-5xl leading-none text-ink">{diff.absDays}</span>
+                    <span className="font-display text-5xl font-semibold tabular-nums leading-none tracking-tight text-ink">{diff.absDays}</span>
                     <span className="text-sm font-semibold text-ink-2">{diff.absDays === 1 ? 'day' : 'days'}</span>
-                    <Copy aria-hidden="true" className="ml-auto h-4 w-4 self-center text-ink-3" />
+                    <CopyOutline aria-hidden="true" className="ml-auto h-4 w-4 self-center text-ink-3" />
                   </button>
                   <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
                     {[
@@ -120,8 +120,8 @@ export default function DateCalculator() {
                         title="Copy"
                         aria-label={`Copy ${label.toLowerCase()} value ${value.replace('~', '')}`}
                       >
-                        <Copy aria-hidden="true" className="absolute right-2 top-2 h-3 w-3 text-ink-3" />
-                        <span className="font-display text-xl text-ink leading-none mb-1 sm:text-2xl">{value}</span>
+                        <CopyOutline aria-hidden="true" className="absolute right-2 top-2 h-3 w-3 text-ink-3" />
+                        <span className="mb-1 font-display text-xl font-semibold tabular-nums leading-none text-ink sm:text-2xl">{value}</span>
                         <span className="text-[10px] font-semibold uppercase tracking-widest text-ink-3">{label}</span>
                       </button>
                     ))}
@@ -184,9 +184,9 @@ export default function DateCalculator() {
               title="Copy"
               aria-label={`Copy result date ${addResult}`}
             >
-              <Copy aria-hidden="true" className="absolute right-5 top-5 h-4 w-4 text-ink-3" />
+              <CopyOutline aria-hidden="true" className="absolute right-5 top-5 h-4 w-4 text-ink-3" />
               <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-ink-3 mb-2">Result</span>
-              <span className="block font-display text-3xl text-ink">{addResult}</span>
+              <span className="block font-display text-3xl font-semibold tracking-tight text-ink">{addResult}</span>
               <span className="block text-xs text-ink-3 mt-1">
                 {new Date(addResult + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </span>

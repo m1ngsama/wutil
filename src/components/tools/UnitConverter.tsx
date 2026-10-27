@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy } from 'lucide-react';
+import { SwapVerticalOutline, CopyOutline } from '@/components/ui/icons';
 import { ToolPage } from '@/components/tools/ToolPage';
 import { copyText } from '@/lib/clipboard';
 import { parseUnitInput } from '@/lib/unit-utils';
@@ -190,9 +190,7 @@ export default function UnitConverter() {
             title="Swap units"
             aria-label="Swap units"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
+            <SwapVerticalOutline size={16} aria-hidden="true" className="shrink-0" />
           </button>
           <div className="flex-1 h-px bg-edge" />
         </div>
@@ -209,7 +207,7 @@ export default function UnitConverter() {
               aria-label={output ? `Copy converted value ${output}` : 'Converted value'}
             >
               <span className="min-w-0 flex-1 truncate">{output || 'No result'}</span>
-              {output && <Copy aria-hidden="true" className="h-4 w-4 shrink-0 text-accent" />}
+              {output && <CopyOutline aria-hidden="true" className="h-4 w-4 shrink-0 text-accent" />}
             </button>
             <select
               value={toId}
