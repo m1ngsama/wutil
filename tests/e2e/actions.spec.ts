@@ -263,18 +263,12 @@ test('Download labels and controls fit enlarged text with real results', async (
   await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => ({
     width: innerWidth,
-    scroll: document.documentElement.scrollWidth,
+    fits: document.documentElement.scrollWidth <= innerWidth,
     overflow: [...document.querySelectorAll('main *')].flatMap(el => {
       const box = el.getBoundingClientRect();
       return box.right > innerWidth || box.left < 0 ? [{ tag: el.tagName, className: el.className, x: box.x, width: box.width }] : [];
     }),
-    ...(document.documentElement.scrollWidth > innerWidth ? { diagnostics: console.error('Enlarged result overflow', JSON.stringify([...document.querySelectorAll('body *')].flatMap(element => {
-      const box = element.getBoundingClientRect();
-      return box.width && (box.right > innerWidth || element.scrollWidth > element.clientWidth + 1)
-        ? [{ tag: element.tagName, text: element.textContent?.slice(0, 80), className: element.getAttribute('class'), x: box.x, width: box.width, scroll: element.scrollWidth, client: element.clientWidth }]
-        : [];
-    }))) } : {}),
-  }))).toMatchObject({ width: 320, scroll: 320, overflow: [] });
+  }))).toMatchObject({ width: 320, fits: true, overflow: [] });
   for (const name of ['Output width', 'Output height']) {
     const field = page.getByRole('spinbutton', { name, exact: true });
     expect(await field.evaluate(el => {
@@ -319,16 +313,10 @@ test('Download labels and controls fit enlarged text with real results', async (
   })).toBe(true);
   expect(await page.evaluate(() => ({
     width: innerWidth,
-    scroll: document.documentElement.scrollWidth,
+    fits: document.documentElement.scrollWidth <= innerWidth,
     overflow: [...document.querySelectorAll('main *')].flatMap(el => {
       const box = el.getBoundingClientRect();
       return box.right > innerWidth || box.left < 0 ? [{ tag: el.tagName, className: el.className, x: box.x, width: box.width }] : [];
     }),
-    ...(document.documentElement.scrollWidth > innerWidth ? { diagnostics: console.error('Enlarged result overflow', JSON.stringify([...document.querySelectorAll('body *')].flatMap(element => {
-      const box = element.getBoundingClientRect();
-      return box.width && (box.right > innerWidth || element.scrollWidth > element.clientWidth + 1)
-        ? [{ tag: element.tagName, text: element.textContent?.slice(0, 80), className: element.getAttribute('class'), x: box.x, width: box.width, scroll: element.scrollWidth, client: element.clientWidth }]
-        : [];
-    }))) } : {}),
-  }))).toMatchObject({ width: 320, scroll: 320, overflow: [] });
+  }))).toMatchObject({ width: 320, fits: true, overflow: [] });
 });
